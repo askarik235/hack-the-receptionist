@@ -1,0 +1,7 @@
+{
+  "name": "@htr/frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "React + Vite fake hacker desktop: Mail, Browser, Phone, HACK, Notes, Training."
+}

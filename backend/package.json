@@ -1,0 +1,7 @@
+{
+  "name": "@htr/backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Express API: Napster sessions, tool endpoints, webhooks, code checks."
+}
