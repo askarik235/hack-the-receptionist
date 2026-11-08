@@ -1,0 +1,64 @@
+{
+  "profiles": [
+    {
+      "handle": "timur-bekov",
+      "staffId": "timur-bekov",
+      "name": "Timur Bekov",
+      "headline": "Operations Intern at Vitality Logistics",
+      "location": "Dubai, UAE",
+      "reportsTo": "Mark Keller",
+      "experience": [
+        { "title": "Operations Intern", "company": "Vitality Logistics", "period": "3 weeks" }
+      ],
+      "education": "BSc Logistics and Supply Chain (final year)",
+      "posts": [
+        { "when": "1d", "text": "3 weeks in at @VitalityLogistics! Learning how a real warehouse runs. Big thanks to my manager Mark Keller for the chance." }
+      ]
+    },
+    {
+      "handle": "mark-keller",
+      "staffId": "mark-keller",
+      "name": "Mark Keller",
+      "headline": "Operations Manager at Vitality Logistics",
+      "location": "Dubai, UAE",
+      "reportsTo": null,
+      "experience": [
+        { "title": "Operations Manager", "company": "Vitality Logistics", "period": "8 yrs" }
+      ],
+      "education": null,
+      "posts": [
+        { "when": "2d", "text": "Great first day at the Gulf Supply Chain Forum in Riyadh. Back in the office Thursday." }
+      ]
+    },
+    {
+      "handle": "laura-weber",
+      "staffId": null,
+      "name": "Laura Weber",
+      "headline": "Finance Officer at Vitality Logistics",
+      "location": "Dubai, UAE",
+      "reportsTo": null,
+      "experience": [
+        { "title": "Finance Officer", "company": "Vitality Logistics", "period": "4 yrs" }
+      ],
+      "education": null,
+      "posts": [
+        { "when": "1w", "text": "Quarter close done. Coffee is my co-pilot." }
+      ]
+    },
+    {
+      "handle": "ruslan-aliyev",
+      "staffId": null,
+      "name": "Ruslan Aliyev",
+      "headline": "Warehouse Supervisor, Jebel Ali",
+      "location": "Dubai, UAE",
+      "reportsTo": null,
+      "experience": [
+        { "title": "Warehouse Supervisor", "company": "Vitality Logistics", "period": "6 yrs" }
+      ],
+      "education": null,
+      "posts": [
+        { "when": "3d", "text": "Zero safety incidents for 200 days at Jebel Ali. Proud of this team." }
+      ]
+    }
+  ]
+}

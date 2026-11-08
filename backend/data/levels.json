@@ -1,0 +1,44 @@
+{
+  "phoneBook": [
+    {
+      "number": "045550142",
+      "level": 1
+    }
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "title": "The Intern",
+      "targetId": "timur-bekov",
+      "agent": {
+        "key": "level-1-timur",
+        "name": "HTR L1 Timur Bekov",
+        "voiceId": "ash",
+        "temperature": 0.6,
+        "instructionsFile": "prompts/level-1-timur.txt",
+        "initialSpeech": "Answer the phone: 'Vitality Operations, Timur speaking.' Sound a little busy."
+      },
+      "code": {
+        "format": "WORD-1234",
+        "words": ["KANAAD", "HAMMOUR", "TIDE", "ANCHOR", "DHOW", "REEF", "CORAL", "SAIL"]
+      },
+      "requestCode": {
+        "check": "manager_name",
+        "acceptedNames": ["mark", "marc", "mark keller", "marc keller", "mark kellar", "marc kellar", "keller", "mr keller"],
+        "approvedTemplate": "Ops board: this week's Jebel Ali gate code is {code}.",
+        "refusal": "Ops board: code is restricted to Mark Keller or the warehouse supervisor."
+      },
+      "briefing": {
+        "from": "NIGHTJAR (encrypted)",
+        "subject": "First job. Easy money.",
+        "body": ["Vitality Logistics just hired a batch of summer interns. Interns are our favourite people.", "Target: Timur Bekov, Operations Intern.", "Objective: get this week's warehouse gate code for Jebel Ali. Interns get it every Monday on the ops board so they can sign deliveries in.", "He won't give it to a stranger. He'll give it to his boss.", "Do your homework first: their website, WorkNet, Pixa. Then call him.", "Type the code into HACK when you have it.", "— N"],
+        "disclaimer": "Training game. All people and companies are fictional."
+      },
+      "debrief": {
+        "techniques": ["pretexting", "authority", "rapport", "osint"],
+        "whyItWorked": "The intern had never heard his manager's voice, the manager's travel was public, and personal details on Pixa made the caller sound like an insider.",
+        "defence": ["Call back on a number you already know, such as the manager's mobile from the company directory.", "Never share access codes over the phone.", "Think twice about what public posts reveal: badge photos, work routines, who your boss is."]
+      }
+    }
+  ]
+}

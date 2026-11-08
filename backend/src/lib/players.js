@@ -42,6 +42,12 @@ export function externalClientIdFor(playerId, level, attempt) {
   return id;
 }
 
+// Reverse of externalClientIdFor. Returns null for anything that isn't one of ours.
+export function parseExternalClientId(value) {
+  const match = /^p_([a-f0-9]{10})_L(\d{1,2})_a(\d{1,6})$/.exec(typeof value === "string" ? value : "");
+  return match ? { playerId: match[1], level: Number(match[2]), attempt: Number(match[3]) } : null;
+}
+
 // Express middleware: sets req.player = { id }, creating a guest player when needed.
 export function playerMiddleware({ db, secret, secureCookies }) {
   const findPlayer = db.prepare("SELECT id FROM players WHERE id = ?");

@@ -8,8 +8,8 @@ import { openDb } from "../src/db.js";
 test("creates all tables and sets the schema version", () => {
   const db = openDb(":memory:");
   const tables = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name").all().map((r) => r.name);
-  assert.deepEqual(tables, ["calls", "cleared_levels", "players", "webhook_events"]);
-  assert.equal(db.pragma("user_version", { simple: true }), 1);
+  assert.deepEqual(tables, ["calls", "cleared_levels", "players", "sqlite_sequence", "tool_calls", "webhook_events"]);
+  assert.equal(db.pragma("user_version", { simple: true }), 2);
 });
 
 test("reopening an existing database file does not re-run migrations", () => {

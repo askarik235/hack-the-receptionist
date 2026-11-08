@@ -7,6 +7,8 @@ import { fileURLToPath } from "node:url";
 
 export const backendDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 export const rootDir = resolve(backendDir, "..");
+// Character portraits (one image per character, named <staffId>.jpg/.png/.webp).
+export const PORTRAITS_DIR = join(rootDir, "scripts", "assets", "portraits");
 
 const SECRETS = ["NAPSTER_API_KEY", "TOOL_SECRET", "CODE_SECRET", "SESSION_SECRET"];
 const MIN_SECRET_LENGTH = 16;

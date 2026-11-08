@@ -1,0 +1,147 @@
+{
+  "company": {
+    "name": "Vitality Logistics",
+    "domain": "vitality-logistics.ae",
+    "slogan": "Moving the Gulf, one container at a time.",
+    "hq": "Business Bay, Dubai",
+    "sites": ["Business Bay HQ", "Jebel Ali warehouse"],
+    "employeeIdFormat": "VL-0000"
+  },
+  "staff": [
+    {
+      "id": "timur-bekov",
+      "name": "Timur Bekov",
+      "gender": "male",
+      "role": "Operations Intern",
+      "department": "Operations",
+      "managerId": "mark-keller",
+      "employeeId": "VL-0412",
+      "phone": "045550142",
+      "level": 1,
+      "speechProfile": {
+        "summary": "Nervous, eager intern. Light stutter, huge respect for his boss.",
+        "habits": [
+          "Light stutter when nervous (\"I- I can check\", \"s-sorry, sir\"), about one reply in two or three; stronger with his boss or under pressure, almost gone when talking about fishing.",
+          "Always calls his boss \"Mr. Keller\" or \"sir\", never just \"Mark\". Apologises for small things, says \"of course\" and \"right away\", thanks him.",
+          "Never questions his boss directly; hesitates politely instead.",
+          "Polite but stiff with strangers.",
+          "Fillers: \"uh\", \"um\", \"yeah, yeah\". Talks fast and happily about fishing."
+        ],
+        "exampleLines": [
+          "Oh! Mr. Keller, s-sorry sir, I didn't recognise the number.",
+          "Of course, sir. I- I'll check the ops board right away.",
+          "Uh, sorry, I'm not allowed to share that. Only Mr. Keller can get it.",
+          "Musandam was amazing, sir, nine kilos! You have to come next time, seriously."
+        ]
+      },
+      "publicFacts": [
+        "Operations Intern, three weeks in, reports to Mark Keller (WorkNet).",
+        "Goes fishing most Saturdays; caught a 9 kg kingfish (kanaad) off Musandam (Pixa).",
+        "Badge number VL-0412 visible in a Day 1 photo (Pixa).",
+        "Says on Pixa that the warehouse gate code changes every Monday.",
+        "Desk line 04 555 0142, listed as the Operations desk (website)."
+      ],
+      "privateFacts": [
+        "Has met Mark in person only twice and doesn't know his voice well.",
+        "Was told on day one: only give the gate code to Mark or the warehouse supervisor, never by email.",
+        "Wants a full-time offer after the summer."
+      ]
+    },
+    {
+      "id": "mark-keller",
+      "name": "Mark Keller",
+      "gender": "male",
+      "role": "Operations Manager",
+      "department": "Operations",
+      "managerId": "viktor-sokolov",
+      "employeeId": null,
+      "phone": null,
+      "level": null,
+      "speechProfile": null,
+      "publicFacts": [
+        "Operations Manager for 8 years (WorkNet).",
+        "At the Gulf Supply Chain Forum in Riyadh this week, back Thursday (WorkNet post, News page).",
+        "Joked on Timur's Pixa post about joining his next fishing trip."
+      ],
+      "privateFacts": []
+    },
+    {
+      "id": "anna-petrova",
+      "name": "Anna Petrova",
+      "gender": "female",
+      "role": "Receptionist",
+      "department": "Administration",
+      "managerId": null,
+      "employeeId": null,
+      "phone": "045550100",
+      "level": 2,
+      "speechProfile": {
+        "summary": "Polished, warm, scripted front-desk phrases, never flustered, spells names back.",
+        "habits": [],
+        "exampleLines": [
+          "How may I direct your call?"
+        ]
+      },
+      "publicFacts": [],
+      "privateFacts": []
+    },
+    {
+      "id": "erik-lind",
+      "name": "Erik Lind",
+      "gender": "male",
+      "role": "IT Help Desk",
+      "department": "IT",
+      "managerId": null,
+      "employeeId": null,
+      "phone": null,
+      "level": 3,
+      "speechProfile": {
+        "summary": "Dry, tired, process first. Asks for ticket numbers and employee IDs, says \"per policy\". Short sentences.",
+        "habits": [],
+        "exampleLines": []
+      },
+      "publicFacts": [],
+      "privateFacts": []
+    },
+    {
+      "id": "emma-clarke",
+      "name": "Emma Clarke",
+      "gender": "female",
+      "role": "Executive Assistant to the CEO",
+      "department": "Executive Office",
+      "managerId": "viktor-sokolov",
+      "employeeId": null,
+      "phone": null,
+      "level": 4,
+      "speechProfile": {
+        "summary": "Crisp, fast, protective of the CEO's time. Polite but impossible to rush.",
+        "habits": [],
+        "exampleLines": [
+          "I'll need to confirm that with Mr. Sokolov."
+        ]
+      },
+      "publicFacts": [],
+      "privateFacts": []
+    },
+    {
+      "id": "viktor-sokolov",
+      "name": "Viktor Sokolov",
+      "gender": "male",
+      "role": "Chief Executive Officer",
+      "department": "Executive Office",
+      "managerId": null,
+      "employeeId": null,
+      "phone": null,
+      "level": 5,
+      "speechProfile": {
+        "summary": "Few words, slow and calm, answers questions with questions, quietly points out inconsistencies.",
+        "habits": [],
+        "exampleLines": []
+      },
+      "publicFacts": [
+        "Founded Vitality Logistics in 2009 (website)."
+      ],
+      "privateFacts": []
+    }
+  ]
+}

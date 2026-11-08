@@ -1,0 +1,43 @@
+{
+  "accounts": [
+    {
+      "handle": "timur.reels",
+      "staffId": "timur-bekov",
+      "displayName": "Timur",
+      "bio": "Logistics student | Saturdays = 🎣 | Almaty ⇄ Dubai",
+      "posts": [
+        {
+          "id": "kingfish",
+          "image": "img/pixa/timur-kingfish.jpg",
+          "alt": "Timur on a boat holding up a large kingfish",
+          "caption": "9 kg kanaad off Musandam!! New PB 🎣🔥",
+          "comments": [
+            { "handle": "mark.keller", "text": "Next trip I'm coming. I want that kingfish record." },
+            { "handle": "daniyar.b", "text": "I did all the work and he takes the photo 😂" }
+          ]
+        },
+        {
+          "id": "badge",
+          "image": "img/pixa/timur-badge.jpg",
+          "alt": "Lanyard and staff badge on a desk; name blurred, badge number VL-0412 readable",
+          "caption": "Day 1 at Vitality ✅",
+          "comments": []
+        },
+        {
+          "id": "warehouse-sunset",
+          "image": "img/pixa/timur-warehouse.jpg",
+          "alt": "Sunset over the Jebel Ali warehouse yard",
+          "caption": "Mondays = new gate code, new deliveries, new chaos 😅",
+          "comments": []
+        },
+        {
+          "id": "shawarma",
+          "image": "img/pixa/timur-shawarma.jpg",
+          "alt": "Shawarma wrap and fries on a plastic table",
+          "caption": "Lunch break fuel 🌯",
+          "comments": []
+        }
+      ]
+    }
+  ]
+}

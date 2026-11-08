@@ -44,6 +44,21 @@ const MIGRATIONS = [
     received_at  INTEGER NOT NULL
   );
   `,
+  // 2: every server-tool call a character makes (who the caller claimed to be, approved or not).
+  // Feeds the debrief and "word travels": identities that worked once are refused later.
+  `
+  CREATE TABLE tool_calls (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    call_id         TEXT NOT NULL REFERENCES calls(id),
+    level           INTEGER NOT NULL,
+    tool            TEXT NOT NULL,
+    claimed_name    TEXT,
+    arguments_json  TEXT NOT NULL,
+    approved        INTEGER NOT NULL,
+    created_at      INTEGER NOT NULL
+  );
+  CREATE INDEX tool_calls_by_call ON tool_calls(call_id);
+  `,
 ];
 
 export function openDb(path) {
