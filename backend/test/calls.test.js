@@ -137,6 +137,14 @@ test("hanging up ends the session once; other players' calls are invisible", asy
   assert.equal((await api("DELETE", "/api/calls/call_short")).status, 404);
 });
 
+test("lookup answers without creating a Napster session", async (t) => {
+  const { napster, api } = setup(t, { content: contentWithLevel2() });
+  assert.deepEqual(await api("POST", "/api/calls/lookup", { number: TIMUR }), { status: 200, body: { ok: true, level: 1 } });
+  assert.deepEqual(await api("POST", "/api/calls/lookup", { number: "04 555 9999" }), { status: 404, body: { error: "not_in_service" } });
+  assert.deepEqual(await api("POST", "/api/calls/lookup", { number: "04 555 0100" }), { status: 403, body: { error: "no_answer" } });
+  assert.equal(napster.created.length, 0);
+});
+
 test("dialling is rate limited per player", async (t) => {
   const { api } = setup(t);
   let last;
@@ -145,8 +153,9 @@ test("dialling is rate limited per player", async (t) => {
 });
 
 test("end to end: Timur's tool call during this call returns this player's code", async (t) => {
-  const { napster, api, base } = setup(t);
-  await api("POST", "/api/calls", { number: TIMUR });
+  const { db, napster, api, base } = setup(t);
+  const { body: dialled } = await api("POST", "/api/calls", { number: TIMUR });
+  db.prepare("UPDATE calls SET trust = 95 WHERE id = ?").run(dialled.callId); // Timur is convinced
   const { body: connection } = napster.created[0];
   const res = await fetch(`${base}/tools/request_code`, {
     method: "POST",
@@ -160,4 +169,42 @@ test("end to end: Timur's tool call during this call returns this player's code"
   const out = await res.json();
   assert.equal(out.result, "approved");
   assert.match(out.message, /[A-Z]{3,10}-\d{4}/);
+});
+
+test("the phone can read its own call's trust meter, nobody else's", async (t) => {
+  const { db, api, base } = setup(t);
+  const { body } = await api("POST", "/api/calls", { number: TIMUR });
+  assert.deepEqual(await api("GET", `/api/calls/${body.callId}`), {
+    status: 200,
+    body: { status: "live", closeReason: null, trust: 45, codeAt: 75, hangUpAt: 10 },
+  });
+  db.prepare("UPDATE calls SET trust = 8, status = 'ended', close_reason = 'distrust' WHERE id = ?").run(body.callId);
+  const after = await api("GET", `/api/calls/${body.callId}`);
+  assert.deepEqual([after.body.trust, after.body.closeReason], [8, "distrust"]);
+  assert.equal((await fetch(`${base}/api/calls/${body.callId}`)).status, 404);
+});
+
+test("silence: the caller gets the lines, going quiet costs trust, and the call can end", async (t) => {
+  const { db, api, napster } = setup(t);
+  const { body } = await api("POST", "/api/calls", { number: TIMUR });
+  assert.equal(body.silence.hangUpAfterS, 20);
+  assert.ok(body.silence.checkIns.length >= 5);
+
+  const first = await api("POST", `/api/calls/${body.callId}/silence`, { stage: "uneasy" });
+  assert.equal(first.body.trust, 45 - 8);
+  for (let i = 0; i < 5; i++) await api("POST", `/api/calls/${body.callId}/silence`, { stage: "uneasy" });
+  const capped = db.prepare("SELECT trust FROM calls").get().trust;
+  assert.equal(capped, 45 - 8 * 3, "only three penalties per call");
+
+  assert.equal((await api("POST", `/api/calls/${body.callId}/silence`, { stage: "shout" })).status, 400);
+  assert.deepEqual((await api("POST", `/api/calls/${body.callId}/silence`, { stage: "hangup" })).body, { ok: true, status: "ended" });
+  assert.deepEqual({ ...db.prepare("SELECT status, close_reason FROM calls").get() }, { status: "ended", close_reason: "silence" });
+  assert.deepEqual(napster.closed, ["sess_1"]);
+});
+
+test("silence never drops trust to the hang-up line by itself", async (t) => {
+  const { db, api } = setup(t);
+  const { body } = await api("POST", "/api/calls", { number: TIMUR });
+  db.prepare("UPDATE calls SET trust = 14 WHERE id = ?").run(body.callId);
+  assert.equal((await api("POST", `/api/calls/${body.callId}/silence`, { stage: "uneasy" })).body.trust, 11);
 });

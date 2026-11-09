@@ -1,5 +1,6 @@
 // Loads game content (staff, levels, OSINT pages, agent prompts) from backend/data and checks
 // that it is consistent. Called once at startup; a broken content file stops the server early.
+import { FLAGS as TRUST_FLAGS } from "./trust.js";
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -81,6 +82,34 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
     check(requestCode.acceptedNames.every((n) => n === n.toLowerCase().trim() && n.length > 0), `${where}: acceptedNames must be lowercase`);
     check(typeof requestCode.approvedTemplate === "string" && requestCode.approvedTemplate.includes("{code}"), `${where}: approvedTemplate needs {code}`);
     check(typeof requestCode.refusal === "string" && !CODE_LIKE.test(requestCode.refusal), `${where}: bad refusal text`);
+
+    const { trust } = level;
+    const pct = (n) => Number.isInteger(n) && n >= 0 && n <= 100;
+    check(trust && pct(trust.start) && pct(trust.codeAt) && pct(trust.hangUpAt), `${where}: trust needs start, codeAt and hangUpAt (0-100)`);
+    if (trust) {
+      check(trust.hangUpAt < trust.start && trust.start < trust.codeAt, `${where}: trust must be hangUpAt < start < codeAt`);
+      check(Number.isInteger(trust.identityBonus?.points), `${where}: trust.identityBonus.points is missing`);
+      const keys = new Set();
+      for (const e of trust.evidence ?? []) {
+        check(!keys.has(e.key), `${where}: duplicate evidence key ${e.key}`);
+        keys.add(e.key);
+        check(Number.isInteger(e.points) && e.points > 0, `${where}: evidence ${e.key} needs positive points`);
+        check(e.keywords?.length > 0 && e.keywords.every((k) => k === k.toLowerCase() && k.trim()), `${where}: evidence ${e.key} keywords must be lowercase`);
+      }
+      for (const flag of ["changed_identity", ...TRUST_FLAGS]) check(Number.isInteger(trust.flags?.[flag]) && trust.flags[flag] < 0, `${where}: trust.flags.${flag} must be negative`);
+      check(Number.isInteger(trust.gutStep) && Number.isInteger(trust.gutCap), `${where}: trust needs gutStep and gutCap`);
+    }
+
+    const { silence } = level;
+    const lines = (list, min) => Array.isArray(list) && list.length >= min && list.every((t) => typeof t === "string" && t.trim() && t.length <= 160);
+    check(
+      silence && 0 < silence.checkInAfterS && silence.checkInAfterS < silence.uneasyAfterS && silence.uneasyAfterS < silence.hangUpAfterS,
+      `${where}: silence needs checkInAfterS < uneasyAfterS < hangUpAfterS`
+    );
+    if (silence) {
+      check(Number.isInteger(silence.penalty) && silence.penalty > 0, `${where}: silence.penalty must be a positive number`);
+      check(lines(silence.checkIns, 2) && lines(silence.uneasy, 1) && lines(silence.goodbyes, 1), `${where}: silence needs checkIns, uneasy and goodbyes lines`);
+    }
   }
 
   const numbers = new Set();

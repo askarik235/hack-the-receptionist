@@ -8,8 +8,9 @@ import { playerMiddleware } from "./lib/players.js";
 import { loadContent } from "./game/content.js";
 import { toolsRouter } from "./tools/router.js";
 import { callsRouter } from "./calls/router.js";
+import { publicContent } from "./game/publicContent.js";
 
-export function createApp({ config, db, content = loadContent(), napster = null, calls = {} }) {
+export function createApp({ config, db, content = loadContent(), napster = null, calls = {}, tools = {} }) {
   const app = express();
   app.disable("x-powered-by");
   if (config.production) app.set("trust proxy", 1); // behind Render's proxy
@@ -21,7 +22,7 @@ export function createApp({ config, db, content = loadContent(), napster = null,
   app.get("/api/health", (req, res) => res.json({ ok: true }));
 
   // Called by Napster mid-call, not by the browser (no player cookie here).
-  app.use("/tools", toolsRouter({ config, db, content }));
+  app.use("/tools", toolsRouter({ config, db, content, napster, ...tools }));
   // Character portraits, downloaded by Napster when setup creates a custom companion.
   app.use("/portraits", (req, res, next) => (/^\/[a-z0-9-]+\.(jpe?g|png|webp)$/.test(req.path) ? next() : res.status(404).end()));
   app.use("/portraits", express.static(PORTRAITS_DIR, { index: false, dotfiles: "deny" }));
@@ -32,6 +33,12 @@ export function createApp({ config, db, content = loadContent(), napster = null,
   const clearedLevels = db.prepare("SELECT level FROM cleared_levels WHERE player_id = ? ORDER BY level");
   app.get("/api/me", (req, res) => {
     res.json({ clearedLevels: clearedLevels.all(req.player.id).map((row) => row.level) });
+  });
+
+  // Everything the game screen shows: target board, mission mail, the fake websites.
+  app.get("/api/content", (req, res) => {
+    const cleared = clearedLevels.all(req.player.id).map((row) => row.level);
+    res.json(publicContent(content, cleared));
   });
 
   if (napster) app.use("/api/calls", callsRouter({ config, db, content, napster, ...calls }));

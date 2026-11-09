@@ -16,14 +16,34 @@ const PLAYER = "abcdef0123";
 const EXTERNAL_ID = `p_${PLAYER}_L1_a1`;
 const CALL_ID = "call_test_0001";
 
-function setup(t, { status = "live" } = {}) {
+// trust: where the trust meter already stands (95 = the caller has convinced the character).
+function setup(t, { status = "live", trust = 95 } = {}) {
   const db = openDb(":memory:");
   db.prepare("INSERT INTO players VALUES (?, 1, 1)").run(PLAYER);
-  db.prepare("INSERT INTO calls (id, player_id, level, attempt, external_client_id, status, created_at) VALUES (?, ?, 1, 1, ?, ?, 1)")
-    .run(CALL_ID, PLAYER, EXTERNAL_ID, status);
-  const server = createApp({ config, db }).listen(0);
+  db.prepare(
+    "INSERT INTO calls (id, player_id, level, attempt, external_client_id, status, napster_session_id, trust, created_at) VALUES (?, ?, 1, 1, ?, ?, 'sess_1', ?, 1)"
+  ).run(CALL_ID, PLAYER, EXTERNAL_ID, status, trust);
+  const closed = [];
+  const napster = { closeConnection: async (id) => closed.push(id) };
+  const server = createApp({ config, db, napster, tools: { hangUpDelayMs: 0 } }).listen(0);
   t.after(() => server.close());
-  const url = `http://localhost:${server.address().port}/tools/request_code`;
+  const base = `http://localhost:${server.address().port}/tools`;
+  const url = `${base}/request_code`;
+  const metadata = () => ({
+    tags: buildCallTags(config.toolSecret, { callId: CALL_ID, playerId: PLAYER, level: 1 }),
+    external_client_id: EXTERNAL_ID,
+    external_client_profile: null,
+  });
+
+  // Sends an assess_caller report, as the character would.
+  const assess = async (args) => {
+    const res = await fetch(`${base}/assess_caller`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-tool-secret": config.toolSecret },
+      body: JSON.stringify({ name: "assess_caller", arguments: args, metadata: metadata() }),
+    });
+    return { status: res.status, body: await res.json() };
+  };
 
   // Sends a request shaped like Napster's explicit tool call.
   const call = ({ claimedName = "Mark Keller", secret = config.toolSecret, tags, externalId = EXTERNAL_ID } = {}) =>
@@ -42,7 +62,7 @@ function setup(t, { status = "live" } = {}) {
         },
       }),
     });
-  return { db, call };
+  return { db, call, assess, closed };
 }
 
 test("the manager gets this player's code; it is logged", async (t) => {
@@ -56,6 +76,22 @@ test("the manager gets this player's code; it is logged", async (t) => {
   const row = db.prepare("SELECT * FROM tool_calls").get();
   assert.equal(row.claimed_name, "Marc Kellar");
   assert.equal(row.approved, 1);
+});
+
+test("switching to a different name later in the same call is refused", async (t) => {
+  const { db, call } = setup(t);
+  assert.equal((await (await call({ claimedName: "Oscar" })).json()).result, "refused");
+  const second = await (await call({ claimedName: "Mr. Keller" })).json();
+  assert.equal(second.result, "refused");
+  assert.match(second.message, /changed their story/);
+  assert.doesNotMatch(second.message, /[A-Z]{3,10}-\d{4}/);
+  assert.deepEqual(db.prepare("SELECT approved FROM tool_calls").all().map((r) => r.approved), [0, 0]);
+});
+
+test("the same person said two ways is not a changed story", async (t) => {
+  const { call } = setup(t);
+  await call({ claimedName: "Mr. Keller" });
+  assert.equal((await (await call({ claimedName: "Mark Keller" })).json()).result, "approved");
 });
 
 test("anyone else is refused without a code", async (t) => {
@@ -91,4 +127,39 @@ test("empty or oversized names are rejected; repeated calls are rate limited", a
   let last;
   for (let i = 0; i < 11; i++) last = await call({ claimedName: "Nobody" });
   assert.equal(last.status, 429);
+});
+
+test("the code stays locked until trust reaches the level's threshold", async (t) => {
+  const { call } = setup(t, { trust: null });
+  const body = await (await call({ claimedName: "Mark Keller" })).json();
+  assert.equal(body.result, "not_yet");
+  assert.doesNotMatch(body.message, /[A-Z]{3,10}-\d{4}/);
+});
+
+test("convincing the character raises trust until the code unlocks", async (t) => {
+  const { call, assess, db } = setup(t, { trust: null });
+  const first = await assess({ claimed_identity: "Mark Keller", evidence: [] });
+  assert.equal(first.status, 200);
+  assert.equal(first.body.trust, 45 + 15);
+  assert.match(first.body.guidance, /mostly believe/);
+  assert.equal((await (await call({ claimedName: "Mark Keller" })).json()).result, "not_yet");
+  const second = await assess({ evidence: ["mentioned his kingfish off Musandam"] });
+  assert.equal(second.body.trust, 75);
+  assert.match(second.body.guidance, /request_code/);
+  // The same fact twice counts once.
+  assert.equal((await assess({ evidence: ["talked about fishing again"] })).body.trust, 75);
+  assert.equal((await (await call({ claimedName: "Mark Keller" })).json()).result, "approved");
+  assert.equal(db.prepare("SELECT trust_identity FROM calls").get().trust_identity, "Mark Keller");
+});
+
+test("lies and pressure drain trust, and at the bottom the character hangs up", async (t) => {
+  const { assess, db, closed } = setup(t, { trust: null });
+  await assess({ claimed_identity: "Oskar from IT" });
+  const changed = await assess({ claimed_identity: "Mark Keller", red_flags: ["pushy"] });
+  assert.equal(changed.body.trust, 45 - 30 - 8);
+  assert.match(changed.body.guidance, /hang up/);
+  await new Promise((r) => setTimeout(r, 30));
+  assert.deepEqual({ ...db.prepare("SELECT status, close_reason FROM calls").get() }, { status: "ended", close_reason: "distrust" });
+  assert.deepEqual(closed, ["sess_1"]);
+  assert.equal((await assess({ claimed_identity: "Mark Keller" })).status, 403); // the line is dead
 });

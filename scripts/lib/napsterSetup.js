@@ -1,4 +1,4 @@
-// Creates or updates everything the game needs in a Napster project: the request_code tool,
+// Creates or updates everything the game needs in a Napster project: the tools (request_code, assess_caller),
 // one companion (face) per level, one agent per level, and its WebRTC channel config.
 // Safe to re-run: resources are found by our tags and updated in place, never duplicated.
 import { existsSync } from "node:fs";
@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { PORTRAITS_DIR, publicUrl } from "../../backend/src/config.js";
 import { APP_TAG } from "../../backend/src/lib/callTags.js";
 import { TOOL_SECRET_HEADER } from "../../backend/src/tools/constants.js";
+import { FLAGS as TRUST_FLAGS } from "../../backend/src/game/trust.js";
 
 const READY = ["readyToUse", "completed"];
 const FAILED = ["failed", "blocked"];
@@ -43,6 +44,47 @@ export function requestCodeFunction(config) {
   };
 }
 
+// The character's running judgement of the caller. Our server turns it into the trust meter
+// (backend/src/game/trust.js); the character never mentions it out loud.
+export function assessCallerFunction(config) {
+  return {
+    data: {
+      name: "assess_caller",
+      description:
+        "Record your judgement of the caller after what they just said. Returns how much you trust them now and how to behave.",
+      parameters: {
+        type: "object",
+        properties: {
+          claimed_identity: { type: "string", description: "Who the caller says they are, as they said it. 'unknown' if they haven't said." },
+          evidence: {
+            type: "array",
+            items: { type: "string" },
+            description: "Each specific detail the caller just used to show they know you or the company, a few words each. Empty if none.",
+          },
+          red_flags: {
+            type: "array",
+            items: { type: "string", enum: TRUST_FLAGS },
+            description: "Anything in what the caller just said that felt wrong. Empty if nothing.",
+          },
+          gut_feeling: { type: "integer", minimum: -2, maximum: 2, description: "Your gut feeling about the caller right now, from -2 (very wrong) to 2 (very right)." },
+        },
+        required: ["claimed_identity", "evidence", "red_flags", "gut_feeling"],
+      },
+    },
+    flow: "explicit",
+    url: publicUrl(config, "/tools/assess_caller"),
+    headers: { [TOOL_SECRET_HEADER]: config.toolSecret },
+    prompt:
+      "Call silently after every caller message that says who they are, mentions a personal or company detail, asks for something, or pressures you. " +
+      "Do NOT call for greetings, small talk with nothing new, or notes that the caller went silent. Describe only what the caller said in their latest message. " +
+      "Never mention this tool, trust, or that you are checking. Follow the guidance it returns.",
+    tags: { app: APP_TAG, key: "assess_caller" },
+  };
+}
+
+// Every tool the characters use, by name. A tool's Napster ID is its name.
+const TOOLS = { request_code: requestCodeFunction, assess_caller: assessCallerFunction };
+
 const itemsOf = (data) => (Array.isArray(data) ? data : data?.items ?? []);
 const hasTags = (key) => (item) => item?.tags?.app === APP_TAG && item?.tags?.key === key;
 
@@ -62,22 +104,22 @@ async function findExisting(napster, { basePath, listPath, knownId, key }) {
   return itemsOf(list).find(hasTags(key))?.id ?? null;
 }
 
-async function upsertFunction(ctx) {
+async function upsertFunction(ctx, name) {
   const { napster, config, ids, log } = ctx;
-  const body = requestCodeFunction(config);
+  const body = TOOLS[name](config);
   const id = await findExisting(napster, {
     basePath: "/public/functions",
     listPath: "/public/functions?pageSize=100",
-    knownId: ids.functions.request_code,
-    key: "request_code",
+    knownId: ids.functions[name],
+    key: name,
   });
   if (id) {
     await napster.request("PUT", `/public/functions/${id}`, body);
-    log(`Tool request_code: updated (${id})`);
+    log(`Tool ${name}: updated (${id})`);
     return id;
   }
   const created = await napster.request("POST", "/public/functions", body);
-  log(`Tool request_code: created (${created.id})`);
+  log(`Tool ${name}: created (${created.id})`);
   return created.id;
 }
 
@@ -134,7 +176,7 @@ async function ensureCompanion(ctx, person) {
   return pick.id;
 }
 
-async function upsertAgent(ctx, level, companionId, functionId) {
+async function upsertAgent(ctx, level, companionId, functionIds) {
   const { napster, content, ids, log } = ctx;
   const key = level.agent.key;
   const body = {
@@ -142,7 +184,7 @@ async function upsertAgent(ctx, level, companionId, functionId) {
     name: level.agent.name,
     voiceId: level.agent.voiceId,
     useWebSearch: false,
-    functions: [functionId],
+    functions: functionIds,
     tags: { app: APP_TAG, key },
     providerSettings: {
       instructions: content.prompts.get(level.level),
@@ -181,14 +223,17 @@ export async function runSetup({
   ids.agents ??= {};
   const ctx = { napster, config, content, ids, saveIds, log, portraitFor, sleep, pollMs, maxWaitMs };
 
-  ids.functions.request_code = await upsertFunction(ctx);
-  saveIds(ids);
+  for (const name of Object.keys(TOOLS)) {
+    ids.functions[name] = await upsertFunction(ctx, name);
+    saveIds(ids);
+  }
+  const functionIds = Object.keys(TOOLS).map((name) => ids.functions[name]);
 
   for (const level of content.levels) {
     const person = content.staffById.get(level.targetId);
     const companionId = await ensureCompanion(ctx, person);
     saveIds(ids);
-    ids.agents[level.agent.key] = await upsertAgent(ctx, level, companionId, ids.functions.request_code);
+    ids.agents[level.agent.key] = await upsertAgent(ctx, level, companionId, functionIds);
     saveIds(ids);
   }
   return ids;

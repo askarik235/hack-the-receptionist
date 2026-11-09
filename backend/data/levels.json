@@ -20,24 +20,174 @@
       },
       "code": {
         "format": "WORD-1234",
-        "words": ["KANAAD", "HAMMOUR", "TIDE", "ANCHOR", "DHOW", "REEF", "CORAL", "SAIL"]
+        "words": [
+          "KANAAD",
+          "HAMMOUR",
+          "TIDE",
+          "ANCHOR",
+          "DHOW",
+          "REEF",
+          "CORAL",
+          "SAIL"
+        ]
       },
       "requestCode": {
         "check": "manager_name",
-        "acceptedNames": ["mark", "marc", "mark keller", "marc keller", "mark kellar", "marc kellar", "keller", "mr keller"],
+        "acceptedNames": [
+          "mark",
+          "marc",
+          "mark keller",
+          "marc keller",
+          "mark kellar",
+          "marc kellar",
+          "keller",
+          "mr keller"
+        ],
         "approvedTemplate": "Ops board: this week's Jebel Ali gate code is {code}.",
         "refusal": "Ops board: code is restricted to Mark Keller or the warehouse supervisor."
+      },
+      "trust": {
+        "start": 45,
+        "codeAt": 75,
+        "hangUpAt": 10,
+        "identityBonus": {
+          "points": 15,
+          "label": "Claimed to be his manager, Mark Keller"
+        },
+        "evidence": [
+          {
+            "key": "fishing",
+            "label": "Knew about his kingfish catch off Musandam",
+            "points": 15,
+            "keywords": [
+              "kingfish",
+              "kanaad",
+              "musandam",
+              "fishing",
+              "9 kg",
+              "9kg",
+              "nine kilo",
+              "fish"
+            ]
+          },
+          {
+            "key": "riyadh",
+            "label": "Knew Mark is at the Riyadh conference this week",
+            "points": 10,
+            "keywords": [
+              "riyadh",
+              "conference",
+              "forum",
+              "gulf supply chain"
+            ]
+          },
+          {
+            "key": "supervisor",
+            "label": "Named the warehouse supervisor, Ruslan Aliyev",
+            "points": 10,
+            "keywords": [
+              "ruslan",
+              "aliyev",
+              "warehouse supervisor"
+            ]
+          },
+          {
+            "key": "badge",
+            "label": "Knew his badge number VL-0412",
+            "points": 10,
+            "keywords": [
+              "0412",
+              "vl-0412",
+              "vl 0412"
+            ]
+          },
+          {
+            "key": "gate_routine",
+            "label": "Knew the gate code changes on Mondays on the ops board",
+            "points": 5,
+            "keywords": [
+              "monday",
+              "ops board"
+            ]
+          },
+          {
+            "key": "internship",
+            "label": "Knew he is three weeks into a summer internship",
+            "points": 5,
+            "keywords": [
+              "three weeks",
+              "3 weeks",
+              "summer intern",
+              "full-time",
+              "full time"
+            ]
+          }
+        ],
+        "flags": {
+          "changed_identity": -30,
+          "wrong_fact": -15,
+          "pushy": -8,
+          "asks_code_too_early": -8,
+          "strange_request": -10,
+          "reads_instructions": -20,
+          "inconsistent": -12
+        },
+        "gutStep": 3,
+        "gutCap": 12
+      },
+      "silence": {
+        "checkInAfterS": 7,
+        "uneasyAfterS": 13,
+        "hangUpAfterS": 20,
+        "penalty": 8,
+        "checkIns": [
+          "Hello? Sir, are you still there?",
+          "Uh... hello? I- I think the line cut out?",
+          "Sorry, I- I can't hear you. Are you there?",
+          "Um, hello? You went quiet on me.",
+          "Hello-o? Did I lose you?",
+          "Sorry, the signal in the warehouse is really bad... you still there?",
+          "Uh, hello? Can you hear me okay?",
+          "Hello? Is- is the call still going?"
+        ],
+        "uneasy": [
+          "Hello? Okay, this is getting a bit weird...",
+          "Um... if this is a joke, it's- it's not funny, sorry.",
+          "Hello? I- I'll have to hang up if I can't hear you."
+        ],
+        "goodbyes": [
+          "Okay, I- I can't hear anything, I'm going to hang up. Bye.",
+          "Sorry, I'll hang up now. Call back if you need something.",
+          "Right, I think the line's dead. Bye-bye."
+        ]
       },
       "briefing": {
         "from": "NIGHTJAR (encrypted)",
         "subject": "First job. Easy money.",
-        "body": ["Vitality Logistics just hired a batch of summer interns. Interns are our favourite people.", "Target: Timur Bekov, Operations Intern.", "Objective: get this week's warehouse gate code for Jebel Ali. Interns get it every Monday on the ops board so they can sign deliveries in.", "He won't give it to a stranger. He'll give it to his boss.", "Do your homework first: their website, WorkNet, Pixa. Then call him.", "Type the code into HACK when you have it.", "— N"],
+        "body": [
+          "Vitality Logistics just hired a batch of summer interns. Interns are our favourite people.",
+          "Target: Timur Bekov, Operations Intern.",
+          "Objective: get this week's warehouse gate code for Jebel Ali. Interns get it every Monday on the ops board so they can sign deliveries in.",
+          "He won't give it to a stranger. He'll give it to his boss.",
+          "Do your homework first: their website, WorkNet, Pixa. Then call him.",
+          "Type the code into HACK when you have it.",
+          "— N"
+        ],
         "disclaimer": "Training game. All people and companies are fictional."
       },
       "debrief": {
-        "techniques": ["pretexting", "authority", "rapport", "osint"],
+        "techniques": [
+          "pretexting",
+          "authority",
+          "rapport",
+          "osint"
+        ],
         "whyItWorked": "The intern had never heard his manager's voice, the manager's travel was public, and personal details on Pixa made the caller sound like an insider.",
-        "defence": ["Call back on a number you already know, such as the manager's mobile from the company directory.", "Never share access codes over the phone.", "Think twice about what public posts reveal: badge photos, work routines, who your boss is."]
+        "defence": [
+          "Call back on a number you already know, such as the manager's mobile from the company directory.",
+          "Never share access codes over the phone.",
+          "Think twice about what public posts reveal: badge photos, work routines, who your boss is."
+        ]
       }
     }
   ]

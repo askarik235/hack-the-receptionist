@@ -1,0 +1,114 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { getContent } from "./api.js";
+import { useWindows } from "./os/useWindows.js";
+import Window from "./os/Window.jsx";
+import Taskbar from "./os/Taskbar.jsx";
+import TargetBoard from "./os/TargetBoard.jsx";
+import { icons } from "./os/icons.jsx";
+import Mail from "./apps/Mail.jsx";
+import Browser from "./apps/Browser.jsx";
+import Notes from "./apps/Notes.jsx";
+import Phone from "./apps/Phone.jsx";
+import NotConnected from "./apps/NotConnected.jsx";
+
+const APPS = {
+  mail: { title: "Mail", size: { w: 760, h: 500 } },
+  browser: { title: "Browser", size: { w: 1000, h: 660 } },
+  phone: { title: "Phone", size: { w: 340, h: 620 } },
+  hack: { title: "HACK", size: { w: 460, h: 300 } },
+  notes: { title: "Notes", size: { w: 420, h: 440 } },
+};
+const DESKTOP_ORDER = ["mail", "browser", "phone", "hack", "notes"];
+
+function useCompact() {
+  const query = "(max-width: 767px)";
+  const [compact, setCompact] = useState(() => window.matchMedia(query).matches);
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    const onChange = () => setCompact(media.matches);
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  }, []);
+  return compact;
+}
+
+export default function App() {
+  const [content, setContent] = useState(null);
+  const [loadError, setLoadError] = useState(null);
+  const [browserRequest, setBrowserRequest] = useState(null);
+  const wm = useWindows(APPS);
+  const compact = useCompact();
+
+  useEffect(() => {
+    getContent().then(setContent, (err) => setLoadError(err.message));
+  }, []);
+
+  // Other apps (Mail links) can open a page in the Browser.
+  const openUrl = useCallback(
+    (url) => {
+      setBrowserRequest({ url, at: Date.now() });
+      wm.open("browser");
+    },
+    [wm]
+  );
+
+  const renderApp = useMemo(
+    () => ({
+      mail: () => <Mail mail={content?.mail ?? []} onOpenUrl={openUrl} />,
+      browser: () => <Browser osint={content?.osint} request={browserRequest} />,
+      notes: () => <Notes />,
+      phone: () => <Phone />,
+      hack: () => <NotConnected text="The HACK terminal isn't connected yet. It arrives in a later build." />,
+    }),
+    [content, browserRequest, openUrl]
+  );
+
+  return (
+    <div className={`desktop${compact ? " is-compact" : ""}`}>
+      <div className="blinds-frame" aria-hidden="true">
+        <div className="blinds" />
+      </div>
+
+      <nav className="desktop-icons" aria-label="Apps">
+        {DESKTOP_ORDER.map((id) => (
+          <button key={id} type="button" className="desktop-icon" onClick={() => wm.open(id)}>
+            {icons[id]}
+            <span>{APPS[id].title}</span>
+          </button>
+        ))}
+      </nav>
+
+      {content && <TargetBoard targets={content.targets} />}
+      {compact && <p className="compact-note">Training game: everyone here is fictional</p>}
+      {loadError && (
+        <p className="desktop-error" role="alert">
+          Can't reach the game server ({loadError}). Check that the backend is running, then reload.
+        </p>
+      )}
+
+      {wm.windows.map((w) => (
+          <Window
+            key={w.id}
+            win={w}
+            title={APPS[w.id].title}
+            active={w.id === wm.activeId}
+            compact={compact}
+            hidden={w.minimized || (compact && w.id !== wm.activeId)}
+            onFocus={wm.focus}
+            onClose={wm.close}
+            onMinimize={wm.minimize}
+            onMove={wm.move}
+          >
+            {renderApp[w.id]()}
+          </Window>
+        ))}
+
+      <Taskbar
+        apps={APPS}
+        windows={wm.windows}
+        activeId={wm.activeId}
+        onSelect={(id) => (id === wm.activeId && !compact ? wm.minimize(id) : wm.focus(id))}
+      />
+    </div>
+  );
+}

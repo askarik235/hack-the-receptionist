@@ -43,7 +43,8 @@ test("first run creates the tool, a stock face and Timur's agent", async () => {
   assert.equal(agent.companionId, "stock_1");
   assert.equal(agent.voiceId, "ash");
   assert.equal(agent.useWebSearch, false);
-  assert.deepEqual(agent.functions, [ids.functions.request_code]);
+  assert.deepEqual(agent.functions, [ids.functions.request_code, ids.functions.assess_caller]);
+  assert.equal(store.functions.get(ids.functions.assess_caller).url, "https://example.ngrok-free.app/tools/assess_caller");
   assert.match(agent.providerSettings.instructions, /Timur Bekov/);
   assert.doesNotMatch(JSON.stringify(agent), /[A-Z]{3,10}-\d{4}/, "no code in the agent config");
   assert.deepEqual(ids.companions["timur-bekov"], { id: "stock_1", placeholder: true });
@@ -59,9 +60,9 @@ test("re-running updates in place, even if the saved IDs file was lost", async (
   await runSetup({ napster, config, content, ids, log: quiet, portraitFor: () => null });
   await runSetup({ napster, config, content, ids: {}, log: quiet, portraitFor: () => null });
 
-  assert.equal(store.functions.size, 1);
+  assert.equal(store.functions.size, 2);
   assert.equal(store.agents.size, 1);
-  assert.equal(calls.filter((c) => c.method === "POST").length, 2, "only the first run creates");
+  assert.equal(calls.filter((c) => c.method === "POST").length, 3, "only the first run creates (2 tools + 1 agent)");
 });
 
 test("a portrait replaces the stock face and setup waits until it is ready", async () => {

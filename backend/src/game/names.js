@@ -44,3 +44,11 @@ export function nameMatches(claimed, acceptedNames) {
     return false;
   });
 }
+
+// True if two names said in one call plausibly mean the same person:
+// "Mr. Keller" and "Mark Keller" share a word; "Oscar" and "Mark Keller" don't.
+export function samePerson(a, b) {
+  const wordsA = normalizeName(a).split(" ").filter((w) => w.length >= 3);
+  const wordsB = normalizeName(b).split(" ").filter((w) => w.length >= 3);
+  return wordsA.some((wa) => wordsB.some((wb) => wa === wb || (wa.length >= 5 && wb.length >= 5 && editDistance(wa, wb) <= 1)));
+}

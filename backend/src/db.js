@@ -59,6 +59,13 @@ const MIGRATIONS = [
   );
   CREATE INDEX tool_calls_by_call ON tool_calls(call_id);
   `,
+  // 3: the trust meter for each call (see game/trust.js). NULL trust = not assessed yet.
+  `
+  ALTER TABLE calls ADD COLUMN trust INTEGER;
+  ALTER TABLE calls ADD COLUMN trust_identity TEXT;     -- first identity the caller claimed
+  ALTER TABLE calls ADD COLUMN trust_evidence TEXT;     -- JSON list of evidence keys already counted
+  ALTER TABLE calls ADD COLUMN trust_gut INTEGER NOT NULL DEFAULT 0;
+  `,
 ];
 
 export function openDb(path) {
