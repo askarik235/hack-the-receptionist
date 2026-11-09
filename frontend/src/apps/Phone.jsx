@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { getCallStatus, lookupNumber } from "../api.js";
 import { startCall } from "../phone/callSession.js";
 import { addRecent, digitsOf, nameFor, useContacts, useRecents } from "../phone/contacts.js";
+import { CALL_ENDED_EVENT } from "./Training.jsx";
 
 const MIC_OK_KEY = "nightjar.micExplained";
 const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"];
@@ -165,6 +166,7 @@ export default function Phone() {
 
   function finish(number, reason, seconds) {
     addRecent({ number, seconds, outcome: seconds > 0 ? "answered" : "missed" });
+    if (seconds > 0) window.dispatchEvent(new Event(CALL_ENDED_EVENT)); // Training fetches the new debrief
     setCall((c) => ({ ...(c ?? { number, captions: [] }), phase: "ended", reason, seconds, speaking: false }));
   }
 

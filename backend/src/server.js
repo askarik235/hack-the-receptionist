@@ -9,15 +9,20 @@ import { loadContent } from "./game/content.js";
 import { toolsRouter } from "./tools/router.js";
 import { callsRouter } from "./calls/router.js";
 import { hackRouter } from "./hack/router.js";
+import { webhooksRouter } from "./webhooks/router.js";
+import { trainingRouter } from "./debrief/router.js";
+import { createCallProcessor } from "./debrief/processCall.js";
 import { publicContent } from "./game/publicContent.js";
 
-export function createApp({ config, db, content = loadContent(), napster = null, calls = {}, tools = {}, hack = {} }) {
+export function createApp({ config, db, content = loadContent(), napster = null, calls = {}, tools = {}, hack = {}, webhooks = {} }) {
   const app = express();
   app.disable("x-powered-by");
   if (config.production) app.set("trust proxy", 1); // behind Render's proxy
 
-  // Note for later: the Napster webhook route needs express.raw() and must be mounted
-  // BEFORE this JSON parser, because its signature is computed over the raw body.
+  const processor = napster ? createCallProcessor({ db, content, napster }) : null;
+  // Napster webhooks read the raw body (the signature covers the exact bytes), so they are
+  // mounted BEFORE the JSON parser.
+  if (processor) app.use("/webhooks", webhooksRouter({ config, db, processor, ...webhooks }));
   app.use(express.json({ limit: "16kb" }));
 
   app.get("/api/health", (req, res) => res.json({ ok: true }));
@@ -43,6 +48,7 @@ export function createApp({ config, db, content = loadContent(), napster = null,
   });
 
   app.use("/api/hack", hackRouter({ config, db, content, ...hack }));
+  app.use("/api/training", trainingRouter({ config, db, content, processor }));
   if (napster) app.use("/api/calls", callsRouter({ config, db, content, napster, ...calls }));
 
   app.use("/api", (req, res) => res.status(404).json({ error: "not_found" }));

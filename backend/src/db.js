@@ -66,6 +66,20 @@ const MIGRATIONS = [
   ALTER TABLE calls ADD COLUMN trust_evidence TEXT;     -- JSON list of evidence keys already counted
   ALTER TABLE calls ADD COLUMN trust_gut INTEGER NOT NULL DEFAULT 0;
   `,
+  // 4: after-call analysis: techniques used per call, and each player's collection of techniques.
+  `
+  ALTER TABLE calls ADD COLUMN techniques_json TEXT;   -- technique ids detected in this call
+  ALTER TABLE calls ADD COLUMN processed_at INTEGER;   -- when the transcript was fetched and analysed
+
+  CREATE TABLE player_techniques (
+    player_id      TEXT NOT NULL REFERENCES players(id),
+    technique      TEXT NOT NULL,
+    first_call_id  TEXT REFERENCES calls(id),
+    first_seen_at  INTEGER NOT NULL,
+    times          INTEGER NOT NULL DEFAULT 1,
+    PRIMARY KEY (player_id, technique)
+  );
+  `,
 ];
 
 export function openDb(path) {

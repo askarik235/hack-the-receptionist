@@ -7,6 +7,15 @@ import { nameMatches, samePerson } from "./names.js";
 
 // Warning signs the character may report. Anything else is ignored.
 export const FLAGS = ["wrong_fact", "pushy", "asks_code_too_early", "strange_request", "reads_instructions", "inconsistent"];
+// How each warning sign reads in the debrief.
+export const FLAG_LABELS = {
+  wrong_fact: "Got a fact wrong",
+  pushy: "Pushed too hard",
+  asks_code_too_early: "Asked for the code too early",
+  strange_request: "Made a strange request",
+  reads_instructions: "Read out \"instructions\" to them",
+  inconsistent: "Contradicted yourself",
+};
 const MAX_EVIDENCE = 6;
 const MAX_TEXT = 120;
 
@@ -52,7 +61,7 @@ export function scoreTurn(rules, state, args, { acceptedNames }) {
   }
 
   for (const flag of new Set(cleanList(args.red_flags, FLAGS.length))) {
-    if (FLAGS.includes(flag)) add(flag, rules.flags[flag], flag.replaceAll("_", " "));
+    if (FLAGS.includes(flag)) add(flag, rules.flags[flag], FLAG_LABELS[flag]);
   }
 
   // Gut feeling (-2..2) nudges the score, but can add at most gutCap over the whole call.

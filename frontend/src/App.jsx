@@ -10,6 +10,7 @@ import Browser from "./apps/Browser.jsx";
 import Notes from "./apps/Notes.jsx";
 import Phone from "./apps/Phone.jsx";
 import Hack from "./apps/Hack.jsx";
+import Training from "./apps/Training.jsx";
 
 const APPS = {
   mail: { title: "Mail", size: { w: 760, h: 500 } },
@@ -17,8 +18,9 @@ const APPS = {
   phone: { title: "Phone", size: { w: 340, h: 620 } },
   hack: { title: "HACK", size: { w: 540, h: 480 } },
   notes: { title: "Notes", size: { w: 420, h: 440 } },
+  training: { title: "Training", size: { w: 720, h: 560 } },
 };
-const DESKTOP_ORDER = ["mail", "browser", "phone", "hack", "notes"];
+const DESKTOP_ORDER = ["mail", "browser", "phone", "hack", "notes", "training"];
 
 function useCompact() {
   const query = "(max-width: 767px)";
@@ -58,6 +60,7 @@ export default function App() {
       mail: () => <Mail mail={content?.mail ?? []} onOpenUrl={openUrl} />,
       browser: () => <Browser osint={content?.osint} request={browserRequest} />,
       notes: () => <Notes />,
+      training: () => <Training />,
       phone: () => <Phone />,
       hack: () => (
         <Hack

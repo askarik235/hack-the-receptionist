@@ -1,6 +1,7 @@
 // Loads game content (staff, levels, OSINT pages, agent prompts) from backend/data and checks
 // that it is consistent. Called once at startup; a broken content file stops the server early.
 import { FLAGS as TRUST_FLAGS } from "./trust.js";
+import { TECHNIQUE_IDS } from "./techniques.js";
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -33,6 +34,7 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
     worknet: readJson(dataDir, "osint/worknet.json"),
     pixa: readJson(dataDir, "osint/pixa.json"),
   };
+  const { techniques } = readJson(dataDir, "techniques.json");
 
   const problems = [];
   const check = (ok, message) => { if (!ok) problems.push(message); };
@@ -128,7 +130,15 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
   for (const id of osintStaffIds) check(id === null || staffById.has(id), `osint: unknown staffId ${id}`);
   check(!CODE_LIKE.test(JSON.stringify(osint)), "osint: public pages contain something that looks like a code");
 
+  const techniqueIds = new Set();
+  for (const t of techniques) {
+    check(!techniqueIds.has(t.id), `techniques: duplicate id ${t.id}`);
+    techniqueIds.add(t.id);
+    check(["name", "whatYouDid", "realWorld", "defence", "category"].every((f) => typeof t[f] === "string" && t[f]), `techniques: ${t.id} is missing text`);
+  }
+  for (const id of TECHNIQUE_IDS) check(techniqueIds.has(id), `techniques: no entry for detected technique ${id}`);
+
   if (problems.length > 0) throw new Error(`Game content is invalid:\n- ${problems.join("\n- ")}`);
 
-  return Object.freeze({ company, staff, staffById, levels, levelByNumber, phoneBook, osint, prompts });
+  return Object.freeze({ company, staff, staffById, levels, levelByNumber, phoneBook, osint, prompts, techniques });
 }

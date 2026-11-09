@@ -30,6 +30,11 @@ export const icons = {
       <path d="M11 14v-3a5 5 0 0 1 10 0v3M16 19v3" />
     </Icon>
   ),
+  training: (
+    <Icon>
+      <path d="M16 5l3.2 6.5 7.1 1-5.1 5 1.2 7.1L16 21.2l-6.4 3.4 1.2-7.1-5.1-5 7.1-1z" />
+    </Icon>
+  ),
   notes: (
     <Icon>
       <path d="M8 5h12l5 5v17H8z" />

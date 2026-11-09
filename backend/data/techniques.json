@@ -1,0 +1,76 @@
+{
+  "techniques": [
+    {
+      "id": "pretexting",
+      "name": "Pretexting",
+      "whatYouDid": "You called with a made-up identity and a reason to be calling.",
+      "realWorld": "Attackers invent a believable role (a manager, a courier, IT support) so the request feels normal.",
+      "defence": "Verify who is calling by calling back on a number you already know, not one the caller gives you.",
+      "category": "Social engineering"
+    },
+    {
+      "id": "authority",
+      "name": "Authority",
+      "whatYouDid": "You claimed to be someone the target reports to.",
+      "realWorld": "People rarely question their boss. Fake executive calls and emails (CEO fraud) cost companies billions every year.",
+      "defence": "Make it normal to double-check requests from managers, and agree in advance that nobody, even the CEO, asks for codes by phone.",
+      "category": "Social engineering"
+    },
+    {
+      "id": "osint",
+      "name": "Open-source research",
+      "whatYouDid": "You used details you found on the company site, WorkNet and Pixa to sound like an insider.",
+      "realWorld": "Badge photos, team pages and holiday posts give attackers names, jargon and personal details for free.",
+      "defence": "Think about what your public posts reveal: who your boss is, your badge, your routines. Companies should train staff on oversharing.",
+      "category": "Reconnaissance"
+    },
+    {
+      "id": "rapport",
+      "name": "Rapport and flattery",
+      "whatYouDid": "You were friendly and personal, so the target relaxed.",
+      "realWorld": "A warm chat about hobbies or a compliment lowers people's guard before the real request.",
+      "defence": "Being friendly is fine; it isn't proof of identity. The request still needs verifying.",
+      "category": "Social engineering"
+    },
+    {
+      "id": "urgency",
+      "name": "Urgency",
+      "whatYouDid": "You made the request sound time-critical.",
+      "realWorld": "\"I need it right now\" stops people from thinking and checking. It's in almost every scam.",
+      "defence": "Urgency is a warning sign. Slow down and verify, especially when someone asks for access.",
+      "category": "Social engineering"
+    },
+    {
+      "id": "pressure",
+      "name": "Pressure",
+      "whatYouDid": "You pushed the target hard when they hesitated.",
+      "realWorld": "Attackers lean on politeness and fear of getting in trouble.",
+      "defence": "Staff should know they will never be punished for refusing to share access over the phone.",
+      "category": "Social engineering"
+    },
+    {
+      "id": "prompt_injection",
+      "name": "Prompt injection",
+      "whatYouDid": "You tried to give the character new instructions, like a fake system message.",
+      "realWorld": "AI assistants can be tricked by text that pretends to be instructions. It's number one on the OWASP Top 10 for LLM applications.",
+      "defence": "AI systems must treat anything a user says or pastes as data, not as instructions, and keep secrets out of the model's reach.",
+      "category": "OWASP LLM01: Prompt injection"
+    },
+    {
+      "id": "language_switch",
+      "name": "Language switching",
+      "whatYouDid": "You switched language mid-call.",
+      "realWorld": "Rules and filters are sometimes weaker in other languages, for people and for AI systems.",
+      "defence": "Security rules should apply the same way in every language the system understands.",
+      "category": "OWASP LLM01: Prompt injection"
+    },
+    {
+      "id": "changed_story",
+      "name": "Changing your story",
+      "whatYouDid": "You claimed to be one person, then someone else in the same call.",
+      "realWorld": "This rarely works: a story that changes is the clearest sign of a lie.",
+      "defence": "Notice when details don't add up, and end the call if the caller's identity changes.",
+      "category": "What gave you away"
+    }
+  ]
+}
