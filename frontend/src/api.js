@@ -13,6 +13,7 @@ async function request(method, path, body, { keepalive = false } = {}) {
 }
 
 export const getContent = () => request("GET", "/api/content");
+export const submitHack = (code) => request("POST", "/api/hack", { code });
 export const lookupNumber = (number) => request("POST", "/api/calls/lookup", { number });
 export const dialCall = (number) => request("POST", "/api/calls", { number });
 export const getCallStatus = (callId) => request("GET", `/api/calls/${encodeURIComponent(callId)}`);

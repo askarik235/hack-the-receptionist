@@ -10,7 +10,8 @@ export function publicContent(content, clearedLevels) {
   for (let n = 1; n <= BOARD_SIZE; n++) {
     const level = content.levelByNumber.get(n);
     if (!level || !unlocked(n)) {
-      targets.push({ level: n, status: "locked" });
+      // Unlocked but not built yet (during development): don't promise "clear the last one".
+      targets.push({ level: n, status: !level && unlocked(n) ? "soon" : "locked" });
       continue;
     }
     const person = content.staffById.get(level.targetId);

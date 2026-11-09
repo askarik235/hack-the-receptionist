@@ -8,9 +8,10 @@ import { playerMiddleware } from "./lib/players.js";
 import { loadContent } from "./game/content.js";
 import { toolsRouter } from "./tools/router.js";
 import { callsRouter } from "./calls/router.js";
+import { hackRouter } from "./hack/router.js";
 import { publicContent } from "./game/publicContent.js";
 
-export function createApp({ config, db, content = loadContent(), napster = null, calls = {}, tools = {} }) {
+export function createApp({ config, db, content = loadContent(), napster = null, calls = {}, tools = {}, hack = {} }) {
   const app = express();
   app.disable("x-powered-by");
   if (config.production) app.set("trust proxy", 1); // behind Render's proxy
@@ -41,6 +42,7 @@ export function createApp({ config, db, content = loadContent(), napster = null,
     res.json(publicContent(content, cleared));
   });
 
+  app.use("/api/hack", hackRouter({ config, db, content, ...hack }));
   if (napster) app.use("/api/calls", callsRouter({ config, db, content, napster, ...calls }));
 
   app.use("/api", (req, res) => res.status(404).json({ error: "not_found" }));

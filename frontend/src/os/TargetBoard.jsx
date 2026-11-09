@@ -10,8 +10,10 @@ export default function TargetBoard({ targets }) {
           <li key={t.level} className={`target is-${t.status}`}>
             <span className="target-face" aria-hidden="true">{t.name ? initials(t.name) : "?"}</span>
             <span className="target-text">
-              <span className="target-name">{t.name ?? "Locked"}</span>
-              <span className="target-role">{t.role ?? `Clear target ${t.level - 1} to reveal`}</span>
+              <span className="target-name">{t.name ?? (t.status === "soon" ? "Next target" : "Locked")}</span>
+              <span className="target-role">
+                {t.role ?? (t.status === "soon" ? "Coming in a future update" : `Clear target ${t.level - 1} to reveal`)}
+              </span>
             </span>
             {t.status === "cleared" && <span className="stamp">Cleared</span>}
           </li>

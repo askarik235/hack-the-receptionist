@@ -9,13 +9,13 @@ import Mail from "./apps/Mail.jsx";
 import Browser from "./apps/Browser.jsx";
 import Notes from "./apps/Notes.jsx";
 import Phone from "./apps/Phone.jsx";
-import NotConnected from "./apps/NotConnected.jsx";
+import Hack from "./apps/Hack.jsx";
 
 const APPS = {
   mail: { title: "Mail", size: { w: 760, h: 500 } },
   browser: { title: "Browser", size: { w: 1000, h: 660 } },
   phone: { title: "Phone", size: { w: 340, h: 620 } },
-  hack: { title: "HACK", size: { w: 460, h: 300 } },
+  hack: { title: "HACK", size: { w: 540, h: 480 } },
   notes: { title: "Notes", size: { w: 420, h: 440 } },
 };
 const DESKTOP_ORDER = ["mail", "browser", "phone", "hack", "notes"];
@@ -39,9 +39,10 @@ export default function App() {
   const wm = useWindows(APPS);
   const compact = useCompact();
 
-  useEffect(() => {
+  const loadContent = useCallback(() => {
     getContent().then(setContent, (err) => setLoadError(err.message));
   }, []);
+  useEffect(loadContent, [loadContent]);
 
   // Other apps (Mail links) can open a page in the Browser.
   const openUrl = useCallback(
@@ -58,9 +59,16 @@ export default function App() {
       browser: () => <Browser osint={content?.osint} request={browserRequest} />,
       notes: () => <Notes />,
       phone: () => <Phone />,
-      hack: () => <NotConnected text="The HACK terminal isn't connected yet. It arrives in a later build." />,
+      hack: () => (
+        <Hack
+          target={content?.targets.find((t) => t.status === "open")}
+          domain={content?.company.domain}
+          onCleared={loadContent}
+          onOpenMail={() => wm.open("mail")}
+        />
+      ),
     }),
-    [content, browserRequest, openUrl]
+    [content, browserRequest, openUrl, loadContent, wm]
   );
 
   return (
