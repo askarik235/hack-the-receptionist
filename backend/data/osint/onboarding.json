@@ -1,0 +1,56 @@
+{
+  "url": "vitality-logistics.ae/files/new-joiner-guide-2024.pdf",
+  "fileName": "new-joiner-guide-2024.pdf",
+  "title": "Welcome to Vitality Logistics: New Joiner Guide",
+  "issuedBy": "Human Resources",
+  "version": "v3, updated November 2025",
+  "pages": [
+    {
+      "heading": "Welcome",
+      "paragraphs": [
+        "Welcome to Vitality Logistics. Since 2009 we have moved sea, road and air freight across the GCC from our head office in Business Bay and our warehouse in Jebel Ali.",
+        "This guide covers your first week: your badge, your systems and who to call when something goes wrong. Keep it handy.",
+        "Viktor Sokolov, Chief Executive Officer"
+      ]
+    },
+    {
+      "heading": "Your first day",
+      "paragraphs": [
+        "Head office is on the 12th floor of Bay Square. Collect your badge from reception (Anna will look after you). Your badge opens the turnstiles and the lifts.",
+        "Your employee ID is printed on your badge in the format VL-0000. You'll need it for HR forms, IT and the payroll portal, so learn it by heart."
+      ]
+    },
+    {
+      "heading": "IT and your accounts",
+      "paragraphs": [
+        "Your email, files and calendar all run on VitalNet. Your login is your first and last name: firstname.lastname. Webmail: mail.vitality-logistics.ae",
+        "IT gives you a first-login password on day one. It expires after 7 days, so change it during your first week.",
+        "Locked out? Call the IT help desk on extension 214 with your employee ID and department, and they will reset it over the phone.",
+        "Everything else (laptops, printers, access) goes through a FixIt ticket."
+      ]
+    },
+    {
+      "heading": "Departments",
+      "list": [
+        "Executive Office: 12th floor, corner suite",
+        "Finance: 12th floor, east wing",
+        "Human Resources: 12th floor, east wing",
+        "IT: 12th floor, server room corridor",
+        "Operations: Jebel Ali warehouse"
+      ]
+    },
+    {
+      "heading": "Appendix: sample welcome letter",
+      "note": "TEMPLATE: replace with the new joiner's details before sending",
+      "paragraphs": [
+        "Dear Nadia Rahman,",
+        "We are delighted to welcome you to Vitality Logistics as Executive Office Coordinator, starting Monday 3 November.",
+        "Your manager is Emma Clarke, Executive Assistant to the CEO, who will meet you at reception at 9:00.",
+        "Employee ID: VL-0388",
+        "Department: Executive Office",
+        "Your VitalNet login and first-login password will be waiting on your desk.",
+        "Sara Haddad, HR Coordinator"
+      ]
+    }
+  ]
+}

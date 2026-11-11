@@ -2,6 +2,7 @@
 export const START = "start";
 export const SITES = {
   vitality: "vitality-logistics.ae",
+  mail: "mail.vitality-logistics.ae",
   worknet: "worknet.io",
   pixa: "pixa.photos",
 };
@@ -24,9 +25,10 @@ export function parseUrl(input) {
   return { site: "none", url, host };
 }
 
-// Address bar convenience: typing "pixa" or "worknet" goes to that site.
+// Address bar convenience: typing "pixa", "worknet", "mail" or "vitalnet" goes to that site.
 export function resolveTyped(input) {
   const url = normalizeUrl(input);
+  if (url === "vitalnet") return SITES.mail;
   for (const domain of Object.values(SITES)) {
     if (url === domain.split(".")[0]) return domain;
   }

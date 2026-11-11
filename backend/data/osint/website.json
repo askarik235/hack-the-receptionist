@@ -76,7 +76,11 @@
       "openings": [
         "Summer internship programme: 6 interns in Operations and Finance.",
         "Forklift operator, Jebel Ali (full time)."
-      ]
+      ],
+      "guide": {
+        "label": "Joining us? Read our New Joiner Guide (PDF)",
+        "url": "vitality-logistics.ae/files/new-joiner-guide-2024.pdf"
+      }
     },
     "news": {
       "title": "News",

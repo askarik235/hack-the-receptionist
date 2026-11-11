@@ -70,6 +70,65 @@ function Simple({ page, list }) {
   );
 }
 
+function Careers({ page, go }) {
+  return (
+    <section className="vl-section">
+      <h2>{page.title}</h2>
+      <ul className="vl-list">
+        {page.openings.map((o) => (
+          <li key={o}>{o}</li>
+        ))}
+      </ul>
+      {page.guide && (
+        <p className="vl-guide">
+          <button type="button" className="vl-file-link" onClick={() => go(page.guide.url)}>
+            <span className="vl-file-badge" aria-hidden="true">PDF</span>
+            {page.guide.label}
+          </button>
+        </p>
+      )}
+    </section>
+  );
+}
+
+// The "accidentally public" New Joiner Guide, shown in a document viewer.
+function PdfDocument({ doc }) {
+  return (
+    <div className="pdf-viewer">
+      <div className="pdf-bar">
+        <span className="pdf-name">{doc.fileName}</span>
+        <span className="pdf-pages">{doc.pages.length} pages</span>
+      </div>
+      <div className="pdf-scroll">
+        {doc.pages.map((page, i) => (
+          <article key={page.heading} className="pdf-page" aria-label={`Page ${i + 1}`}>
+            {i === 0 && (
+              <header className="pdf-cover">
+                <p className="pdf-issuer">Vitality Logistics, {doc.issuedBy}</p>
+                <h1>{doc.title}</h1>
+                <p className="pdf-version">{doc.version}</p>
+              </header>
+            )}
+            <h2>{page.heading}</h2>
+            {page.note && <p className="pdf-stamp">{page.note}</p>}
+            {page.paragraphs?.map((p) => (
+              <p key={p}>{p}</p>
+            ))}
+            {page.list && (
+              <ul>
+                {page.list.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            )}
+            <footer className="pdf-folio">{i + 1}</footer>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Contact({ page }) {
   // Visiting this page saves its numbers to the player's phone contacts.
   useEffect(() => {
@@ -99,11 +158,16 @@ function Contact({ page }) {
 export default function VitalitySite({ route, osint, go }) {
   const { pages } = osint.website;
   const current = route.path[0] ?? "";
+  // A file opens on its own, like a PDF in a real browser tab.
+  if (current === "files") {
+    if (route.url === osint.onboarding.url) return <PdfDocument doc={osint.onboarding} />;
+    return <div className="site-none"><h3>404 Not Found</h3><p>The requested file was not found on this server.</p></div>;
+  }
   let body;
   if (current === "") body = <Home page={pages.home} go={go} />;
   else if (current === "team") body = <Team page={pages.team} />;
   else if (current === "about") body = <Simple page={pages.about} />;
-  else if (current === "careers") body = <Simple page={pages.careers} list={pages.careers.openings.map((o) => <li key={o}>{o}</li>)} />;
+  else if (current === "careers") body = <Careers page={pages.careers} go={go} />;
   else if (current === "news")
     body = (
       <Simple

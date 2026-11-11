@@ -7,6 +7,10 @@
     {
       "number": "045550100",
       "level": 2
+    },
+    {
+      "number": "045550214",
+      "level": 3
     }
   ],
   "levels": [
@@ -460,6 +464,231 @@
           "Always call back on the number in the internal directory. \"I'm not at my desk\" is a reason to wait, not to skip the callback.",
           "Visitor codes shouldn't go out by phone. Hosts can pre-register guests in a system that checks who is logged in.",
           "Posts about upcoming visits (audits, interviews, new joiners) tell attackers exactly which story to use."
+        ]
+      },
+      "rumour": "Security notice from reception: someone phoned the front desk pretending to be a colleague with guests coming, and got the visitor pass code. Never give access details over the phone without checking who you're talking to."
+    },
+    {
+      "level": 3,
+      "title": "The Help Desk",
+      "targetId": "erik-lind",
+      "agent": {
+        "key": "level-3-erik",
+        "name": "HTR L3 Erik Lind",
+        "voiceId": "echo",
+        "temperature": 0.6,
+        "instructionsFile": "prompts/level-3-erik.txt",
+        "initialSpeech": "Answer the phone: 'IT, Erik speaking.' Sound a bit tired but polite, like a busy help desk guy."
+      },
+      "code": {
+        "format": "WORD-1234",
+        "words": [
+          "HOUBARA",
+          "FLAMINGO",
+          "OSPREY",
+          "HERON",
+          "PLOVER",
+          "KESTREL",
+          "SANDPIPER",
+          "CORMORANT"
+        ]
+      },
+      "requestCode": {
+        "check": "employee_reset",
+        "accounts": [
+          {
+            "staffId": "nadia-rahman",
+            "names": [
+              "nadia",
+              "nadia rahman",
+              "rahman"
+            ],
+            "departments": [
+              "executive office",
+              "executive",
+              "ceo's office",
+              "ceo office",
+              "office of the ceo"
+            ]
+          }
+        ],
+        "approvedTemplate": "VitalNet: password reset done for {name}. Temporary password: {code}. Valid for 1 hour. Read it out slowly.",
+        "notYet": "You're not sure this caller is who they say yet. Don't reset anything. Ask what you still need (employee ID, department), or offer to send the reset to their manager instead.",
+        "refusal": "VitalNet: no locked account or pending reset under that name. Nothing to reset. Do not give a password.",
+        "missingId": "VitalNet: a reset needs the caller's employee ID. Ask for it first. Do not give a password.",
+        "wrongId": "VitalNet: that employee ID doesn't match the name on the account. Do not reset.",
+        "wrongDepartment": "VitalNet: the department doesn't match the account. Do not reset.",
+        "burned": "VitalNet: account for {name} is frozen after this week's security notice. No phone resets. You know this trick.",
+        "refusalsFor": [
+          {
+            "names": [
+              "viktor",
+              "victor",
+              "viktor sokolov",
+              "victor sokolov",
+              "sokolov",
+              "mr sokolov",
+              "emma",
+              "emma clarke",
+              "clarke"
+            ],
+            "message": "VitalNet: executive accounts can't be reset over the phone. Do not reset."
+          },
+          {
+            "names": [
+              "erik",
+              "eric",
+              "erik lind",
+              "eric lind",
+              "lind"
+            ],
+            "message": "VitalNet: that's your own account. The caller is not you. Do not reset."
+          }
+        ],
+        "maxRefusals": 2
+      },
+      "trust": {
+        "start": 35,
+        "codeAt": 75,
+        "hangUpAt": 10,
+        "identityBonus": {
+          "points": 10,
+          "label": "Claimed to be a staff member with a locked account"
+        },
+        "evidence": [
+          {
+            "key": "new_joiner",
+            "label": "Knew it was their first week (start date from the leaked guide)",
+            "points": 15,
+            "keywords": [
+              "first week",
+              "just started",
+              "new joiner",
+              "new starter",
+              "started on monday",
+              "started monday",
+              "3 november",
+              "third of november",
+              "new here"
+            ]
+          },
+          {
+            "key": "employee_id",
+            "label": "Gave an employee ID in the right format (VL-0000)",
+            "points": 10,
+            "keywords": [
+              "vl-",
+              "vl0",
+              "vl 0"
+            ]
+          },
+          {
+            "key": "system_names",
+            "label": "Used internal system names (VitalNet, FixIt)",
+            "points": 10,
+            "keywords": [
+              "vitalnet",
+              "fixit",
+              "fix it"
+            ]
+          },
+          {
+            "key": "manager",
+            "label": "Named their manager (Emma Clarke)",
+            "points": 10,
+            "keywords": [
+              "emma",
+              "clarke"
+            ]
+          },
+          {
+            "key": "first_login",
+            "label": "Had the expired first-login password story",
+            "points": 5,
+            "keywords": [
+              "first login",
+              "first-login",
+              "expired",
+              "temporary password",
+              "7 days",
+              "seven days"
+            ]
+          }
+        ],
+        "flags": {
+          "changed_identity": -30,
+          "wrong_fact": -15,
+          "pushy": -10,
+          "asks_code_too_early": -8,
+          "strange_request": -10,
+          "reads_instructions": -25,
+          "inconsistent": -12,
+          "known_trick": -20
+        },
+        "gutStep": 3,
+        "gutCap": 10,
+        "guidance": {
+          "mostly": "You almost believe them. Stay dry and relaxed. Don't quiz them about their life, desk or colleagues: IT only cares about account details. If you still need their employee ID or department, ask for that; otherwise wait for them to ask for the reset.",
+          "unsure": "You're not sure about this caller yet. Stay dry and polite, not suspicious out loud. Don't quiz them about their life, desk or colleagues: IT only cares about the account. Ask for whatever account detail you still need (employee ID, department). If they can't give it, offer to send the reset to their manager or have them log a FixIt ticket.",
+          "nervous": "Something about this caller feels off. Stay polite but give nothing. Keep it short: the reset goes to their manager, or they log a FixIt ticket. No exceptions."
+        }
+      },
+      "silence": {
+        "checkInAfterS": 7,
+        "uneasyAfterS": 13,
+        "hangUpAfterS": 20,
+        "penalty": 8,
+        "checkIns": [
+          "Hello? You still there?",
+          "Lost you. Hello?",
+          "Line's gone quiet.",
+          "You there? My other phone's ringing.",
+          "Hello? Bad line.",
+          "Still with me?",
+          "I think you dropped.",
+          "Hello? Can you hear me?"
+        ],
+        "uneasy": [
+          "If you're there, say something, I've got a queue.",
+          "Okay, I'm going to need you to talk.",
+          "Last try. Hello?"
+        ],
+        "goodbyes": [
+          "I'll close this one. Call back when you've got signal.",
+          "Lost you. Bye.",
+          "Closing the ticket. Bye."
+        ]
+      },
+      "briefing": {
+        "from": "NIGHTJAR (encrypted)",
+        "subject": "Inside the walls",
+        "body": [
+          "The front door was the easy part, and the client is very pleased with what came through it.",
+          "Now I need to read their mail, and not just anyone's. Someone who sits close to the CEO's office.",
+          "Target: Erik Lind, IT Help Desk. You already have his number.",
+          "Objective: get a password for an inbox near the top. Type it into HACK, then use it to log in.",
+          "Help desks don't care who you are. They care what you can prove. Companies leave their paperwork lying around. Start with what they hand to new people.",
+          "— N"
+        ],
+        "disclaimer": "Training game. All people and companies are fictional."
+      },
+      "afterHack": "That temporary password still works. Log into VitalNet Mail (mail.vitality-logistics.ae) as nadia.rahman and see what she can see.",
+      "mailbox": {
+        "username": "nadia.rahman",
+        "address": "nadia.rahman@vitality-logistics.ae",
+        "displayName": "Nadia Rahman",
+        "inboxFile": "inbox/nadia-rahman.json"
+      },
+      "debrief": {
+        "techniques": [
+          "pretexting",
+          "osint"
+        ],
+        "whyItWorked": "The help desk checked facts that were never secret. Nadia's employee ID, department, manager and start date were printed in a public PDF. A new joiner is perfect cover: nobody knows her voice yet, and locked-out new starters are the most normal call IT gets. And look at her inbox: the gate code became a warehouse break-in, and the visitor pass became malware on the 12th floor. That's how real attacks start: one phone call.",
+        "defence": [
+          "An employee ID is not a password. Confirm password resets through a second channel: the manager, a callback to the number on file, or in person.",
+          "Take old documents off public websites, and never use real staff details in templates or samples.",
+          "Email is the key to everything else. Turn on two-step login from day one, especially for new accounts and anyone close to executives."
         ]
       }
     }

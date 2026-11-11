@@ -5,6 +5,7 @@ import StartPage from "../sites/StartPage.jsx";
 import VitalitySite from "../sites/VitalitySite.jsx";
 import WorkNet from "../sites/WorkNet.jsx";
 import Pixa from "../sites/Pixa.jsx";
+import VitalNetMail from "../sites/VitalNetMail.jsx";
 
 const BOOKMARKS = [
   { label: "Vitality Logistics", url: SITES.vitality },
@@ -17,7 +18,8 @@ const newTab = (url = START) => ({ id: nextTabId++, history: [url], index: 0 });
 
 function pageTitle(route, osint) {
   if (route.site === "start") return "New tab";
-  if (route.site === "vitality") return "Vitality Logistics";
+  if (route.site === "vitality") return route.path[0] === "files" ? route.path[route.path.length - 1] : "Vitality Logistics";
+  if (route.site === "mail") return "VitalNet Mail";
   if (route.site === "worknet") {
     const profile = osint?.worknet.profiles.find((p) => p.handle === route.path[1]);
     return profile ? `${profile.name} | WorkNet` : "WorkNet";
@@ -67,7 +69,7 @@ export default function Browser({ osint, request }) {
   }
 
   const route = parseUrl(url);
-  const Site = { start: StartPage, vitality: VitalitySite, worknet: WorkNet, pixa: Pixa }[route.site];
+  const Site = { start: StartPage, vitality: VitalitySite, mail: VitalNetMail, worknet: WorkNet, pixa: Pixa }[route.site];
 
   return (
     <div className="browser">

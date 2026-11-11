@@ -93,6 +93,7 @@ export default function Hack({ target, domain, onCleared, onOpenMail }) {
                   <li key={line}>{line}</li>
                 ))}
               </ul>
+              {result.afterHack && <p className="hack-after">{result.afterHack}</p>}
               <p className="hack-next">
                 {result.next ? `Target ${result.next.level} is unlocked. ` : "That was the last target in this build. "}
                 {result.next && (

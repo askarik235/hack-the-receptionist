@@ -117,16 +117,36 @@
       "role": "IT Help Desk",
       "department": "IT",
       "managerId": null,
-      "employeeId": null,
+      "employeeId": "VL-0094",
       "phone": "045550214",
       "level": 3,
       "speechProfile": {
-        "summary": "Dry, tired, process first. Asks for ticket numbers and employee IDs, says \"per policy\". Short sentences.",
-        "habits": [],
-        "exampleLines": []
+        "summary": "Dry, tired, efficient IT guy with 40 open tickets. Polite, quietly funny, process first: no employee ID, no reset.",
+        "habits": [
+          "Asks for the employee ID and department early, as routine, not as a test.",
+          "Mutters while he types: \"Okay... loading. VitalNet's slow today.\"",
+          "Dry jokes about IT life and expired passwords.",
+          "First names only, no \"sir\".",
+          "When something's off he offers to send the reset to the caller's manager instead."
+        ],
+        "exampleLines": [
+          "IT, Erik speaking.",
+          "Sure. Employee ID and department?",
+          "Expired first-login password. Classic. Third one today.",
+          "Can't do that one over the phone. I'll send the reset to your manager.",
+          "Funny, there was a notice about a call like this on Monday. Not today, thanks."
+        ]
       },
-      "publicFacts": [],
-      "privateFacts": []
+      "publicFacts": [
+        "IT help desk, 3 years at Vitality (WorkNet).",
+        "Posted that password resets need your employee ID, every time (WorkNet).",
+        "Direct line 04 555 0214, extension 214 (from Anna in Level 2, and the leaked New Joiner Guide)."
+      ],
+      "privateFacts": [
+        "Emma Clarke's laptop was replaced last week and she still can't print.",
+        "Mr. Sokolov's phone is the only one set to skip two-step login, because he hates it.",
+        "There's a locked shared folder called Sandgrouse that only Mr. Sokolov and Emma can open."
+      ]
     },
     {
       "id": "emma-clarke",
@@ -147,6 +167,29 @@
       },
       "publicFacts": [],
       "privateFacts": []
+    },
+    {
+      "id": "nadia-rahman",
+      "name": "Nadia Rahman",
+      "gender": "female",
+      "role": "Executive Office Coordinator",
+      "department": "Executive Office",
+      "managerId": "emma-clarke",
+      "employeeId": "VL-0388",
+      "phone": null,
+      "level": null,
+      "speechProfile": {
+        "summary": "New joiner, started Monday 3 November.",
+        "habits": [],
+        "exampleLines": []
+      },
+      "publicFacts": [
+        "Named, with her employee ID, department, start date and manager, in the sample welcome letter of the leaked New Joiner Guide.",
+        "Brand-new WorkNet profile: Executive Office Coordinator, reports to Emma Clarke."
+      ],
+      "privateFacts": [
+        "Her VitalNet first-login password has expired; she hasn't called IT yet."
+      ]
     },
     {
       "id": "viktor-sokolov",

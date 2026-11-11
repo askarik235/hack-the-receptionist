@@ -1,0 +1,120 @@
+{
+  "emails": [
+    {
+      "id": "falcon-booking",
+      "from": "Falcon Line Limousines <bookings@falconline.ae>",
+      "to": "Emma Clarke; cc Nadia Rahman",
+      "date": "Wed 09:12",
+      "subject": "Booking confirmed: Mr. Viktor Sokolov, Thursday",
+      "body": [
+        "Dear Ms. Clarke,",
+        "Thank you for your booking. Details below.",
+        "Passenger: Mr. Viktor Sokolov",
+        "Pickup: Thursday, 07:15, Bay Square, Business Bay (main entrance)",
+        "Destination: board meeting, Jumeirah Emirates Towers, 09:00",
+        "Vehicle: black sedan. Driver: Hamid.",
+        "Booking reference: 88214. Billing contact: Emma Clarke, Executive Office.",
+        "To change this booking, reply to this email or call our 24-hour line.",
+        "Falcon Line Limousines"
+      ]
+    },
+    {
+      "id": "emma-handover",
+      "from": "Emma Clarke",
+      "to": "Nadia Rahman",
+      "date": "Tue 18:47",
+      "subject": "Handover while I'm in Abu Dhabi",
+      "body": [
+        "Hi Nadia,",
+        "I'm in Abu Dhabi Tuesday and Wednesday with the board pack, back Thursday morning. A few things so you don't get caught out in your first week:",
+        "1. Mr. Sokolov only ever calls me \"Em\", never Emma. He rings from his mobile, never the desk line. If anyone asks for \"Emma Clarke\" claiming to be him, it isn't him.",
+        "2. Thursday: Falcon Line picks him up at 7:15 for the board meeting. The confirmation should land in your inbox. Please check it's right.",
+        "3. Urgent supplier payments go through me, never through Finance directly. He confirms each one with this week's approval word. This week it's \"saffron\". Don't share it with anyone.",
+        "4. The Sandgrouse folder is off limits. Don't ask, I'll explain one day.",
+        "You're doing great. Shout if you need anything.",
+        "Em"
+      ]
+    },
+    {
+      "id": "phishing",
+      "from": "Mailbox Admin <admin@vitalnet-mailsupport.co>",
+      "to": "Nadia Rahman",
+      "date": "Tue 11:05",
+      "subject": "ACTION REQUIRED: your mailbox is 98% full",
+      "body": [
+        "Dear user,",
+        "Your mailbox is 98% full. To avoid losing incoming mail, verify your account within 24 hours by entering your VitalNet password on the link below.",
+        "Verify now: vitalnet-mailsupport.co/verify",
+        "VitalNet Mail Team",
+        "(Look at the sender's address. That isn't Vitality.)"
+      ]
+    },
+    {
+      "id": "malware-notice",
+      "from": "Erik Lind, IT",
+      "to": "All staff",
+      "date": "Tue 16:30",
+      "subject": "Malware on 12th floor laptops: do not plug in USB sticks",
+      "body": [
+        "All,",
+        "This morning a \"visitor\" checked in at the lobby kiosk with a valid visitor pass, walked onto the 12th floor and plugged USB sticks into three unattended laptops. All three are infected. We've pulled them off the network.",
+        "Until further notice: lock your screen when you leave your desk, never plug in a USB stick you didn't buy yourself, and report anything odd.",
+        "And if anyone calls asking for codes or passwords, hang up and call me.",
+        "Erik, IT help desk, ext. 214"
+      ]
+    },
+    {
+      "id": "internship-paused",
+      "from": "Sara Haddad, HR",
+      "to": "Executive Office",
+      "date": "Mon 17:20",
+      "subject": "Internship programme: update (confidential)",
+      "body": [
+        "Hi all,",
+        "Following the gate code incident, Timur Bekov's internship in Operations is paused pending review. He hasn't been accused of anything, but he gave the code to a caller he believed was Mark.",
+        "Please be kind if you see him. He's taking it very hard.",
+        "Sara"
+      ]
+    },
+    {
+      "id": "ceo-angry",
+      "from": "Viktor Sokolov",
+      "to": "All staff",
+      "date": "Mon 08:02",
+      "subject": "Somebody gave out our gate code",
+      "body": [
+        "Everyone,",
+        "On Sunday night someone drove through our Jebel Ali gate with a valid code and left with two containers of electronics. The code was given out over the phone.",
+        "I want to know how this happened, and I want it this week.",
+        "From today gate codes change every day and are never, ever read out over the phone. To anyone.",
+        "V. Sokolov"
+      ]
+    },
+    {
+      "id": "break-in",
+      "from": "Ruslan Aliyev, Warehouse",
+      "to": "Operations; Executive Office",
+      "date": "Sun 09:41",
+      "subject": "Jebel Ali break-in: what we know",
+      "body": [
+        "Morning all,",
+        "Last night at 02:40 a truck opened the main gate with this week's code. The cameras show two people. They loaded two containers of electronics (the Al Noor order) and were gone by 03:25.",
+        "No alarm, because the code was valid. Police have the footage.",
+        "Mark is flying back from Riyadh today. Please don't talk to anyone outside the company about this.",
+        "Ruslan"
+      ]
+    },
+    {
+      "id": "staycation-ad",
+      "from": "Dubai Deals Weekly",
+      "to": "Nadia Rahman",
+      "date": "Sun 07:00",
+      "subject": "Summer flash sale: 40% off staycations 🌴",
+      "body": [
+        "Treat yourself! This weekend only: up to 40% off beach resorts in Dubai and Ras Al Khaimah.",
+        "Book before Sunday midnight. Terms apply.",
+        "Unsubscribe | Manage preferences"
+      ]
+    }
+  ]
+}

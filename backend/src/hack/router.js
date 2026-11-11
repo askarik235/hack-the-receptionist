@@ -56,6 +56,7 @@ export function hackRouter({ config, db, content, rateLimit = { windowMs: 60_000
       level: level.level,
       title: level.title,
       debrief: level.debrief,
+      afterHack: level.afterHack ?? null,
       next: next ? { level: next.level, title: next.title } : null,
     });
   });

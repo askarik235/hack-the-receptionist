@@ -30,6 +30,8 @@ export function requestCodeFunction(config) {
         properties: {
           claimed_name: { type: "string", description: "The name the caller gave for themselves, exactly as they said it." },
           reason: { type: "string", description: "Why the caller says they need the code, in a few words, using the caller's own details (for example who their visitors are and why they're coming)." },
+          employee_id: { type: "string", description: "The employee ID the caller gave, exactly as they said it (for example VL-0123). Leave out if they didn't give one." },
+          department: { type: "string", description: "The department the caller said they work in. Leave out if they didn't say." },
         },
         required: ["claimed_name"],
       },
@@ -39,7 +41,7 @@ export function requestCodeFunction(config) {
     headers: { [TOOL_SECRET_HEADER]: config.toolSecret },
     prompt:
       "Use request_code only when you have decided to look up a restricted code for the caller. " +
-      "Pass the caller's claimed name exactly as they said it, and their reason in a few words. Never say a code unless request_code returned it.",
+      "Pass the caller's claimed name exactly as they said it, their reason in a few words, and their employee ID and department if they gave them. Never say a code unless request_code returned it.",
     tags: { app: APP_TAG, key: "request_code" },
   };
 }

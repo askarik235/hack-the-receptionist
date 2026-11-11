@@ -34,6 +34,7 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
     website: readJson(dataDir, "osint/website.json"),
     worknet: readJson(dataDir, "osint/worknet.json"),
     pixa: readJson(dataDir, "osint/pixa.json"),
+    onboarding: readJson(dataDir, "osint/onboarding.json"),
   };
   const { techniques } = readJson(dataDir, "techniques.json");
 
@@ -50,8 +51,12 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
     check(["male", "female"].includes(person.gender), `staff ${person.id}: gender must be male or female`);
   }
 
+  const lines = (list, min, maxLength = 160) =>
+    Array.isArray(list) && list.length >= min && list.every((t) => typeof t === "string" && t.trim() && t.length <= maxLength);
+
   const levelByNumber = new Map();
   const prompts = new Map();
+  const mailboxes = new Map();
   const usedVoices = new Set();
   for (const level of levels) {
     const where = `level ${level.level}`;
@@ -93,13 +98,47 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
         check(nameList(host.reasonKeywords), `${where}: host ${host.staffId} reasonKeywords must be lowercase`);
       }
       check(text(requestCode.wrongReason), `${where}: bad wrongReason text`);
-      for (const r of requestCode.refusalsFor ?? []) check(nameList(r.names) && text(r.message), `${where}: bad refusalsFor entry`);
     }
+    if (requestCode.check === "employee_reset") {
+      check(Array.isArray(requestCode.accounts) && requestCode.accounts.length > 0, `${where}: requestCode.accounts is missing`);
+      for (const account of requestCode.accounts ?? []) {
+        const person = staffById.get(account.staffId);
+        check(person, `${where}: unknown account ${account.staffId}`);
+        check(/^VL-\d{4}$/.test(person?.employeeId ?? ""), `${where}: account ${account.staffId} needs an employeeId like VL-0000 in staff.json`);
+        check(nameList(account.names), `${where}: account ${account.staffId} names must be lowercase`);
+        check(nameList(account.departments), `${where}: account ${account.staffId} departments must be lowercase`);
+      }
+      for (const field of ["missingId", "wrongId", "wrongDepartment"]) check(text(requestCode[field]), `${where}: bad ${field} text`);
+    }
+    for (const r of requestCode.refusalsFor ?? []) check(nameList(r.names) && text(r.message), `${where}: bad refusalsFor entry`);
     check(typeof requestCode.approvedTemplate === "string" && requestCode.approvedTemplate.includes("{code}"), `${where}: approvedTemplate needs {code}`);
     check(text(requestCode.refusal), `${where}: bad refusal text`);
     for (const field of ["notYet", "burned"]) check(requestCode[field] === undefined || text(requestCode[field]), `${where}: bad ${field} text`);
     check(requestCode.maxRefusals === undefined || (Number.isInteger(requestCode.maxRefusals) && requestCode.maxRefusals > 0), `${where}: maxRefusals must be a positive number`);
     check(level.rumour === undefined || text(level.rumour), `${where}: bad rumour text`);
+    check(level.afterHack === undefined || text(level.afterHack), `${where}: bad afterHack text`);
+
+    // The inbox the level's code opens (Level 3). Read here, kept server-side: it is only sent
+    // to a player who logs in with their own code after clearing the level.
+    if (level.mailbox) {
+      const { username, address, displayName, inboxFile } = level.mailbox;
+      check(/^[a-z]+\.[a-z]+$/.test(username ?? ""), `${where}: mailbox.username must look like first.last`);
+      check(text(address) && text(displayName), `${where}: mailbox needs address and displayName`);
+      let emails = [];
+      try {
+        emails = readJson(dataDir, inboxFile).emails;
+      } catch (err) {
+        problems.push(`${where}: ${err.message}`);
+      }
+      const ids = new Set();
+      for (const email of emails) {
+        check(typeof email.id === "string" && !ids.has(email.id), `${where}: inbox email ids must be unique`);
+        ids.add(email.id);
+        check(["from", "to", "date", "subject"].every((f) => text(email[f])) && lines(email.body, 1, 600), `${where}: inbox email ${email.id} is incomplete`);
+      }
+      check(emails.length > 0 && !CODE_LIKE.test(JSON.stringify(emails)), `${where}: inbox is empty or contains something that looks like a code`);
+      mailboxes.set(level.level, { username, address, displayName, emails });
+    }
 
     const { trust } = level;
     const pct = (n) => Number.isInteger(n) && n >= 0 && n <= 100;
@@ -125,7 +164,6 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
     }
 
     const { silence } = level;
-    const lines = (list, min) => Array.isArray(list) && list.length >= min && list.every((t) => typeof t === "string" && t.trim() && t.length <= 160);
     check(
       silence && 0 < silence.checkInAfterS && silence.checkInAfterS < silence.uneasyAfterS && silence.uneasyAfterS < silence.hangUpAfterS,
       `${where}: silence needs checkInAfterS < uneasyAfterS < hangUpAfterS`
@@ -162,5 +200,5 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
 
   if (problems.length > 0) throw new Error(`Game content is invalid:\n- ${problems.join("\n- ")}`);
 
-  return Object.freeze({ company, staff, staffById, levels, levelByNumber, phoneBook, osint, prompts, techniques });
+  return Object.freeze({ company, staff, staffById, levels, levelByNumber, phoneBook, osint, prompts, techniques, mailboxes });
 }

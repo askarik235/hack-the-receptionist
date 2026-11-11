@@ -14,10 +14,26 @@ export function mentionsAny(text, keywords) {
 export function identityNames(level) {
   const rc = level.requestCode;
   if (rc.check === "host_with_reason") return rc.hosts.flatMap((h) => h.names);
+  if (rc.check === "employee_reset") return rc.accounts.flatMap((a) => a.names);
   return rc.acceptedNames;
 }
 
-// One check per level type. Each returns { approved: true } or { approved: false, message }.
+// "VL-0388", "vl 0388", "V L zero three eight eight" written as "VL0388" -> "0388".
+// Only the four digits matter; speech-to-text mangles the letters and dashes.
+export function employeeIdDigits(value) {
+  if (typeof value !== "string") return null;
+  const digits = value.replace(/\D/g, "");
+  return digits.length === 4 ? digits : null;
+}
+
+// A name whose special refusal applies (e.g. executives), or the default refusal.
+const refuseUnknown = (rc, claimed_name) => {
+  const special = rc.refusalsFor?.find((r) => nameMatches(claimed_name, r.names));
+  return { approved: false, message: special?.message ?? rc.refusal };
+};
+
+// One check per level type: (requestCode rules, tool arguments, content) ->
+// { approved: true } or { approved: false, message }.
 export const CHECKS = {
   // Level 1: the caller must claim to be the target's manager (lenient spelling).
   manager_name: (rc, { claimed_name }) =>
@@ -26,11 +42,20 @@ export const CHECKS = {
   // Level 2: a real staff member who has guests booked, with a reason that matches that visit.
   host_with_reason: (rc, { claimed_name, reason }) => {
     const host = rc.hosts.find((h) => nameMatches(claimed_name, h.names));
-    if (!host) {
-      const special = rc.refusalsFor?.find((r) => nameMatches(claimed_name, r.names));
-      return { approved: false, message: special?.message ?? rc.refusal };
-    }
+    if (!host) return refuseUnknown(rc, claimed_name);
     if (!mentionsAny(reason, host.reasonKeywords)) return { approved: false, message: rc.wrongReason };
+    return { approved: true };
+  },
+
+  // Level 3: a password reset for an account owner who gives the matching employee ID and
+  // department. `staffById` supplies the real ID, so it lives in one place (staff.json).
+  employee_reset: (rc, { claimed_name, employee_id, department }, { staffById }) => {
+    const account = rc.accounts.find((a) => nameMatches(claimed_name, a.names));
+    if (!account) return refuseUnknown(rc, claimed_name);
+    const given = employeeIdDigits(employee_id);
+    if (!given) return { approved: false, message: rc.missingId };
+    if (given !== employeeIdDigits(staffById.get(account.staffId).employeeId)) return { approved: false, message: rc.wrongId };
+    if (!mentionsAny(department, account.departments)) return { approved: false, message: rc.wrongDepartment };
     return { approved: true };
   },
 };

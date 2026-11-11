@@ -489,6 +489,7 @@ button { font: inherit; color: inherit; }
 .hack-debrief p, .hack-debrief ul { margin: 0; }
 .hack-debrief ul { padding-left: 18px; }
 .hack-next { margin-top: 12px !important; color: var(--steel); }
+.hack-after { margin-top: 12px !important; padding-left: 10px; border-left: 2px solid var(--sodium); }
 .hack-link { padding: 0; background: none; border: 0; color: var(--sodium); text-decoration: underline; cursor: pointer; font: inherit; }
 
 .hack-input { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-top: 1px solid var(--line); background: #0d1a24; }

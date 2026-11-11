@@ -103,6 +103,8 @@ export function toolsRouter({
 
     const rc = level.requestCode;
     const reason = cleanText(args.reason);
+    const employeeId = cleanText(args.employee_id);
+    const department = cleanText(args.department);
     // The first name a caller gives in a call sticks. Switching to someone else later is a lie.
     const earlier = call.trust_identity ?? firstClaim.get(call.id)?.claimed_name;
     const trust = call.trust ?? level.trust.start;
@@ -123,13 +125,13 @@ export function toolsRouter({
     } else if (trust < level.trust.codeAt) {
       outcome = { result: "not_yet", message: rc.notYet ?? DEFAULT_NOT_YET };
     } else {
-      const check = CHECKS[rc.check](rc, { claimed_name: claimedName, reason });
+      const check = CHECKS[rc.check](rc, { claimed_name: claimedName, reason, employee_id: employeeId, department }, content);
       outcome = check.approved
         ? { result: "approved", message: rc.approvedTemplate.replace("{code}", codeFor(config.codeSecret, call.player_id, call.level, level.code.words)) }
         : { result: "refused", message: check.message };
     }
 
-    const storedArgs = JSON.stringify({ claimed_name: claimedName, reason, trust, result: outcome.result });
+    const storedArgs = JSON.stringify({ claimed_name: claimedName, reason, employee_id: employeeId, department, trust, result: outcome.result });
     logToolCall.run(call.id, call.level, "request_code", earlier ?? claimedName, storedArgs, outcome.result === "approved" ? 1 : 0, now());
     if (!earlier) setIdentity.run(claimedName, call.id);
     res.json(outcome);

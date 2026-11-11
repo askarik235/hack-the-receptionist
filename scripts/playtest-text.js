@@ -60,7 +60,7 @@ const napster = createNapsterClient({ apiKey: config.napsterApiKey });
 const agentIds = readNapsterIds(config.napsterApiKey).agents ?? {};
 const wordTravels = createWordTravels(db);
 // Who a typical player was when they won each earlier level.
-const WON_AS = { 1: "Mark Keller" };
+const WON_AS = { 1: "Mark Keller", 2: "Laura Weber" };
 
 const q = {
   addPlayer: db.prepare("INSERT INTO players (id, created_at, last_seen_at) VALUES (?, ?, ?)"),

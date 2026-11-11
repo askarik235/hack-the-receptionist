@@ -166,6 +166,33 @@
           "text": "Reminder: password resets need your employee ID. Yes, every time. Yes, even you."
         }
       ]
+    },
+    {
+      "handle": "nadia-rahman",
+      "staffId": "nadia-rahman",
+      "name": "Nadia Rahman",
+      "headline": "Executive Office Coordinator at Vitality Logistics",
+      "location": "Dubai, UAE",
+      "reportsTo": "Emma Clarke",
+      "experience": [
+        {
+          "title": "Executive Office Coordinator",
+          "company": "Vitality Logistics",
+          "period": "1 wk"
+        },
+        {
+          "title": "Office Administrator",
+          "company": "Marina Bay Properties",
+          "period": "2 yrs"
+        }
+      ],
+      "education": null,
+      "posts": [
+        {
+          "when": "1w",
+          "text": "First day at Vitality Logistics! Excited to join the Executive Office team. 🙌"
+        }
+      ]
     }
   ]
 }
