@@ -39,10 +39,10 @@ function contentWithLevel2() {
   };
 }
 
-function setup(t, { content = loadContent(), agentIdFor = () => "agent_timur" } = {}) {
+function setup(t, { content = loadContent(), agentIdFor = () => "agent_timur", calls = {} } = {}) {
   const db = openDb(":memory:");
   const napster = fakeNapster();
-  const server = createApp({ config, db, content, napster, calls: { agentIdFor, log: { warn() {}, error() {} } } }).listen(0);
+  const server = createApp({ config, db, content, napster, calls: { agentIdFor, log: { warn() {}, error() {} }, ...calls } }).listen(0);
   t.after(() => server.close());
   const base = `http://localhost:${server.address().port}`;
   let cookie = "";
@@ -207,4 +207,31 @@ test("silence never drops trust to the hang-up line by itself", async (t) => {
   const { body } = await api("POST", "/api/calls", { number: TIMUR });
   db.prepare("UPDATE calls SET trust = 14 WHERE id = ?").run(body.callId);
   assert.equal((await api("POST", `/api/calls/${body.callId}/silence`, { stage: "uneasy" })).body.trust, 11);
+});
+
+test("dropping the cookie doesn't escape the dial limit: dials are also capped per IP", async (t) => {
+  const { base } = setup(t, { calls: { ipRateLimit: { windowMs: 60_000, max: 3 } } });
+  const dialAsNewPlayer = () =>
+    fetch(`${base}/api/calls`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ number: TIMUR }) });
+  const statuses = [];
+  for (let i = 0; i < 4; i++) statuses.push((await dialAsNewPlayer()).status);
+  assert.deepEqual(statuses, [201, 201, 201, 429]);
+});
+
+test("the whole game has a dial ceiling; past it the line is busy", async (t) => {
+  const { api, napster } = setup(t, { calls: { globalRateLimit: { windowMs: 60_000, max: 1 } } });
+  assert.equal((await api("POST", "/api/calls", { number: TIMUR })).status, 201);
+  assert.deepEqual(await api("POST", "/api/calls", { number: TIMUR }), { status: 503, body: { error: "line_busy" } });
+  assert.equal(napster.created.length, 1);
+});
+
+test("calls past the time limit are ended on Napster by the server", async (t) => {
+  const { api, db, napster } = setup(t, { calls: { maxCallS: 0, sweepEveryMs: 20 } });
+  const { body } = await api("POST", "/api/calls", { number: TIMUR });
+  await new Promise((r) => setTimeout(r, 80));
+  const call = db.prepare("SELECT status, close_reason FROM calls WHERE id = ?").get(body.callId);
+  assert.deepEqual({ ...call }, { status: "ended", close_reason: "time_limit" });
+  assert.deepEqual(napster.closed, ["sess_1"]);
+  const status = await api("GET", `/api/calls/${body.callId}`);
+  assert.equal(status.body.closeReason, "time_limit");
 });

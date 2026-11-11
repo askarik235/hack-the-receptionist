@@ -2,6 +2,7 @@
 // No accounts, no personal data. The ID is also the base of the Napster externalClientId.
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { now } from "../db.js";
+import { createRateLimiter } from "./rateLimit.js";
 
 export const COOKIE_NAME = "htr_pid";
 const COOKIE_MAX_AGE_S = 60 * 60 * 24 * 365;
@@ -49,7 +50,10 @@ export function parseExternalClientId(value) {
 }
 
 // Express middleware: sets req.player = { id }, creating a guest player when needed.
-export function playerMiddleware({ db, secret, secureCookies }) {
+// New players are capped per IP: a script that drops its cookie would otherwise get a fresh
+// player (and fresh per-player rate limits) on every request.
+export function playerMiddleware({ db, secret, secureCookies, newPlayerLimit = { windowMs: 10 * 60_000, max: 30 } }) {
+  const allowNewPlayer = createRateLimiter(newPlayerLimit);
   const findPlayer = db.prepare("SELECT id FROM players WHERE id = ?");
   const touchPlayer = db.prepare("UPDATE players SET last_seen_at = ? WHERE id = ?");
   const insertPlayer = db.prepare("INSERT INTO players (id, created_at, last_seen_at) VALUES (?, ?, ?)");
@@ -62,6 +66,7 @@ export function playerMiddleware({ db, secret, secureCookies }) {
       return next();
     }
 
+    if (!allowNewPlayer(req.ip)) return res.status(429).json({ error: "too_many_new_players" });
     const id = generatePlayerId();
     const t = now();
     insertPlayer.run(id, t, t);

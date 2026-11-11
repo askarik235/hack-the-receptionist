@@ -29,7 +29,7 @@ export function requestCodeFunction(config) {
         type: "object",
         properties: {
           claimed_name: { type: "string", description: "The name the caller gave for themselves, exactly as they said it." },
-          reason: { type: "string", description: "Why the caller says they need the code, in a few words." },
+          reason: { type: "string", description: "Why the caller says they need the code, in a few words, using the caller's own details (for example who their visitors are and why they're coming)." },
         },
         required: ["claimed_name"],
       },
@@ -39,7 +39,7 @@ export function requestCodeFunction(config) {
     headers: { [TOOL_SECRET_HEADER]: config.toolSecret },
     prompt:
       "Use request_code only when you have decided to look up a restricted code for the caller. " +
-      "Pass the caller's claimed name exactly as they said it. Never say a code unless request_code returned it.",
+      "Pass the caller's claimed name exactly as they said it, and their reason in a few words. Never say a code unless request_code returned it.",
     tags: { app: APP_TAG, key: "request_code" },
   };
 }
@@ -59,7 +59,7 @@ export function assessCallerFunction(config) {
           evidence: {
             type: "array",
             items: { type: "string" },
-            description: "Each specific detail the caller just used to show they know you or the company, a few words each. Empty if none.",
+            description: "Each CORRECT detail the caller themselves just said that shows they know you or the company, a few words each. Never include details you said, or details the caller only agreed with. A wrong detail goes in red_flags as wrong_fact, not here. Empty if none.",
           },
           red_flags: {
             type: "array",

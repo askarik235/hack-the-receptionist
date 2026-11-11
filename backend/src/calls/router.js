@@ -7,11 +7,13 @@ import { externalClientIdFor } from "../lib/players.js";
 import { buildCallTags } from "../lib/callTags.js";
 import { createRateLimiter } from "../lib/rateLimit.js";
 import { readNapsterIds } from "../napster/ids.js";
+import { createWordTravels } from "../game/wordTravels.js";
 
 const OPEN = ["dialing", "live"];
 const STALE_AFTER_S = 15 * 60; // Napster closes idle calls after 3 min; anything this old is gone
 const CALL_ID = /^call_[A-Za-z0-9_-]{16}$/;
 const MAX_SILENCE_PENALTIES = 3; // per call, so a broken client can't drain trust
+const MAX_CALL_S = 10 * 60; // hard cap on a call's length, so a call left open can't run up the bill
 
 // "04 555 0142", "+971 4 555 0142", "045550142" -> "045550142"
 export function normalizeNumber(input) {
@@ -30,10 +32,17 @@ export function callsRouter({
   napster,
   agentIdFor = (level) => readNapsterIds(config.napsterApiKey).agents?.[level.agent.key],
   rateLimit = { windowMs: 60_000, max: 6 },
+  // Dials cost Napster credits, so they are also capped per IP and for the whole game.
+  ipRateLimit = { windowMs: 60_000, max: 12 },
+  globalRateLimit = { windowMs: 60_000, max: 40 },
+  maxCallS = MAX_CALL_S,
+  sweepEveryMs = 30_000,
   log = console,
 }) {
   const router = express.Router();
   const allowDial = createRateLimiter(rateLimit);
+  const allowDialFromIp = createRateLimiter(ipRateLimit);
+  const allowDialGlobal = createRateLimiter(globalRateLimit);
   const allowLookup = createRateLimiter({ windowMs: rateLimit.windowMs, max: rateLimit.max * 5 });
   const allowStatus = createRateLimiter({ windowMs: rateLimit.windowMs, max: rateLimit.max * 20 }); // the phone polls this
 
@@ -56,6 +65,8 @@ export function callsRouter({
     "INSERT INTO tool_calls (call_id, level, tool, claimed_name, arguments_json, approved, created_at) VALUES (?, ?, 'silence', NULL, ?, 0, ?)"
   );
   const findCall = db.prepare("SELECT id, level, napster_session_id, status, close_reason, trust FROM calls WHERE id = ? AND player_id = ?");
+  const overlong = db.prepare("SELECT id, napster_session_id FROM calls WHERE status IN ('dialing', 'live') AND created_at <= ?");
+  const wordTravels = createWordTravels(db);
 
   // Ends a call on Napster. A session that is already gone is fine.
   async function closeOnNapster(sessionId) {
@@ -66,6 +77,15 @@ export function callsRouter({
       if (err.status !== 404) log.warn(`Could not close Napster connection ${sessionId}: ${err.message}`);
     }
   }
+
+  // Ends any call that has run past the time limit, whatever the browser is doing.
+  async function endOverlongCalls() {
+    for (const call of overlong.all(now() - maxCallS)) {
+      if (markDone.run("ended", "time_limit", now(), call.id).changes) await closeOnNapster(call.napster_session_id);
+    }
+  }
+  const sweeper = setInterval(() => endOverlongCalls().catch((err) => log.error(`Call sweep failed: ${err.message}`)), sweepEveryMs);
+  sweeper.unref?.();
 
   // One call at a time per player: a new dial ends anything still open (e.g. after a reload).
   async function endOpenCalls(playerId, reason) {
@@ -111,20 +131,24 @@ export function callsRouter({
   router.post("/", async (req, res, next) => {
     try {
       const playerId = req.player.id;
-      if (!allowDial(playerId)) return res.status(429).json({ error: "too_many_calls" });
+      if (!allowDial(playerId) || !allowDialFromIp(req.ip)) return res.status(429).json({ error: "too_many_calls" });
       const found = resolveNumber(playerId, req.body?.number);
       if (found.error) return res.status(found.status).json({ error: found.error });
       const { level, agentId } = found;
+      if (!allowDialGlobal("all")) return res.status(503).json({ error: "line_busy" });
 
       await endOpenCalls(playerId, "replaced");
       const { callId, externalClientId } = startAttempt(playerId, level.level);
 
+      // Word travels: the character hears about tricks that won earlier levels for this player.
+      const officeNews = wordTravels.officeNews(content, playerId, level.level);
       let connection;
       try {
         connection = await napster.createConnection(agentId, {
           channelType: "webrtc",
           externalClientId,
           tags: buildCallTags(config.toolSecret, { callId, playerId, level: level.level }),
+          ...(officeNews.length ? { externalClientProfile: { office_news: officeNews } } : {}),
         });
       } catch (err) {
         markDone.run("failed", err.code ?? `http_${err.status}`, now(), callId);

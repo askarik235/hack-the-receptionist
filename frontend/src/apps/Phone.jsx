@@ -23,6 +23,7 @@ const REASONS = {
   hung_up_remote: "They hung up.",
   distrust: "They stopped believing you and hung up. Do more research, then try a different approach.",
   silence: "You went quiet for too long and they hung up. Real callers keep the conversation going.",
+  time_limit: "Calls are limited to 10 minutes. Dial again to try a new approach.",
   call_failed: "The call didn't go through. Try again.",
 };
 const FRIENDLY_END = new Set(["you_hung_up", "ended", "hung_up_remote"]);
@@ -74,7 +75,7 @@ export default function Phone() {
         if (stopped) return;
         patch({ trust: status.trust, codeAt: status.codeAt, hangUpAt: status.hangUpAt });
         if (status.status !== "live" && status.status !== "dialing") {
-          const reason = ["distrust", "silence"].includes(status.closeReason) ? status.closeReason : "hung_up_remote";
+          const reason = ["distrust", "silence", "time_limit"].includes(status.closeReason) ? status.closeReason : "hung_up_remote";
           handle.current?.endedByServer(reason);
         }
       } catch {

@@ -4,7 +4,10 @@
     "domain": "vitality-logistics.ae",
     "slogan": "Moving the Gulf, one container at a time.",
     "hq": "Business Bay, Dubai",
-    "sites": ["Business Bay HQ", "Jebel Ali warehouse"],
+    "sites": [
+      "Business Bay HQ",
+      "Jebel Ali warehouse"
+    ],
     "employeeIdFormat": "VL-0000"
   },
   "staff": [
@@ -71,19 +74,41 @@
       "gender": "female",
       "role": "Receptionist",
       "department": "Administration",
-      "managerId": null,
-      "employeeId": null,
+      "managerId": "emma-clarke",
+      "employeeId": "VL-0107",
       "phone": "045550100",
       "level": 2,
       "speechProfile": {
-        "summary": "Polished, warm, scripted front-desk phrases, never flustered, spells names back.",
-        "habits": [],
+        "summary": "Warm, easy-going and helpful, from years of hotel guest services. Self-assured, never stiff or bossy. Lets the caller lead.",
+        "habits": [
+          "Lets the caller explain what they need, then helps. Never runs the call like an interview.",
+          "Asks at most one question at a time, only what a front desk needs (who's coming, what time).",
+          "Never quizzes callers about themselves or their colleagues to test them.",
+          "Easy small talk and light humour: the busy week, the heat, the coffee machine.",
+          "When something feels off she stays friendly: offers to ring back, or says the guests can check in at the desk.",
+          "Casually offers to ring colleagues back on their extension before giving out a visitor code."
+        ],
         "exampleLines": [
-          "How may I direct your call?"
+          "Vitality Logistics, good morning, Anna speaking. How can I help?",
+          "Oh hi Laura! Auditors, is it? Lovely. What time are they coming in?",
+          "No problem. Tell you what, let me ring you back on your extension and I'll sort it.",
+          "Ah, best thing is they just check in with me at the desk when they arrive. I'll look after them.",
+          "Ha, funny, we had a notice about a call just like this on Monday. I'll leave that one, thanks."
         ]
       },
-      "publicFacts": [],
-      "privateFacts": []
+      "publicFacts": [
+        "Receptionist at the Business Bay head office for 5 years; worked guest services at a Jumeirah hotel before (WorkNet).",
+        "Posted on WorkNet that the new lobby visitor kiosk is live: guests scan in and the turnstiles do the rest, 12th floor (WorkNet).",
+        "Small, careful Pixa: her ginger cat Biscuit, karak tea, from Plovdiv (Pixa).",
+        "Main line / Reception 04 555 0100 (website)."
+      ],
+      "privateFacts": [
+        "Gives out the IT help desk direct line, 04 555 0214 (Erik, extension 214), to any caller who says they are staff.",
+        "Mr. Sokolov has a board meeting Thursday morning; Emma books his car with Falcon Line Limousines.",
+        "A group of guests with badges marked Project Sandgrouse meets Mr. Sokolov every Tuesday; she doesn't know what it is.",
+        "Covering the desk alone this week because her colleague is on leave.",
+        "Sent the Monday security notice about the fake Mark Keller call to all staff herself."
+      ]
     },
     {
       "id": "erik-lind",
@@ -93,7 +118,7 @@
       "department": "IT",
       "managerId": null,
       "employeeId": null,
-      "phone": null,
+      "phone": "045550214",
       "level": 3,
       "speechProfile": {
         "summary": "Dry, tired, process first. Asks for ticket numbers and employee IDs, says \"per policy\". Short sentences.",
@@ -140,6 +165,57 @@
       },
       "publicFacts": [
         "Founded Vitality Logistics in 2009 (website)."
+      ],
+      "privateFacts": []
+    },
+    {
+      "id": "laura-weber",
+      "name": "Laura Weber",
+      "gender": "female",
+      "role": "Finance Officer",
+      "department": "Finance",
+      "managerId": null,
+      "employeeId": "VL-0233",
+      "phone": null,
+      "level": null,
+      "speechProfile": null,
+      "publicFacts": [
+        "Finance Officer for 4 years (WorkNet).",
+        "External auditors from Qamar Audit Partners are in from Wednesday (WorkNet post)."
+      ],
+      "privateFacts": []
+    },
+    {
+      "id": "ruslan-aliyev",
+      "name": "Ruslan Aliyev",
+      "gender": "male",
+      "role": "Warehouse Supervisor",
+      "department": "Operations",
+      "managerId": "mark-keller",
+      "employeeId": "VL-0158",
+      "phone": null,
+      "level": null,
+      "speechProfile": null,
+      "publicFacts": [
+        "Warehouse Supervisor at Jebel Ali for 6 years (WorkNet).",
+        "Interviewing forklift operators at head office on Thursday (WorkNet post, Careers page)."
+      ],
+      "privateFacts": []
+    },
+    {
+      "id": "sara-haddad",
+      "name": "Sara Haddad",
+      "gender": "female",
+      "role": "HR Coordinator",
+      "department": "Human Resources",
+      "managerId": null,
+      "employeeId": "VL-0301",
+      "phone": null,
+      "level": null,
+      "speechProfile": null,
+      "publicFacts": [
+        "HR Coordinator for 2 years (WorkNet).",
+        "Three new joiners start on Monday; welcome packs ready (WorkNet post)."
       ],
       "privateFacts": []
     }

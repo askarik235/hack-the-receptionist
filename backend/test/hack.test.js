@@ -48,10 +48,13 @@ test("the right code clears the level, marks the winning call and unlocks the ne
   assert.equal(db.prepare("SELECT won FROM calls").get().won, 1);
   const content = await api("GET", "/api/content");
   assert.equal(content.body.targets[0].status, "cleared");
-  assert.equal(content.body.targets[1].status, "soon");
+  assert.equal(content.body.targets[1].status, "open");
+  assert.equal(content.body.targets[1].name, "Anna Petrova");
+  assert.equal(content.body.targets[2].status, "locked");
+  assert.ok(content.body.mail.some((m) => m.id === "briefing-2"), "Level 2's briefing arrives");
 
-  // Nothing left to hack until Level 2 exists.
-  assert.deepEqual(await api("POST", "/api/hack", { code: typed }), { status: 409, body: { error: "nothing_to_hack" } });
+  // HACK now works on Level 2, so the old code no longer clears anything.
+  assert.deepEqual(await api("POST", "/api/hack", { code: typed }), { status: 200, body: { result: "denied", level: 2 } });
 });
 
 test("wrong codes, other players' codes and junk are refused", async (t) => {
@@ -75,4 +78,17 @@ test("guessing is rate limited", async (t) => {
   let last;
   for (let i = 0; i < 4; i++) last = await api("POST", "/api/hack", { code: `REEF-000${i}` });
   assert.deepEqual(last, { status: 429, body: { error: "too_many_attempts" } });
+});
+
+test("the right code is denied until a character has actually handed it over", async (t) => {
+  const { db, api, playerId } = setup(t);
+  await api("GET", "/api/me");
+  const id = playerId();
+  const code = codeFor(config.codeSecret, id, 1, words);
+  // No call at all, then a call where the board refused: a guessed code doesn't count.
+  assert.deepEqual((await api("POST", "/api/hack", { code })).body, { result: "denied", level: 1 });
+  db.prepare("INSERT INTO calls (id, player_id, level, attempt, external_client_id, status, created_at) VALUES ('call_r', ?, 1, 1, 'x', 'ended', 1)").run(id);
+  db.prepare("INSERT INTO tool_calls (call_id, level, tool, claimed_name, arguments_json, approved, created_at) VALUES ('call_r', 1, 'request_code', 'Bob', '{}', 0, 1)").run();
+  assert.equal((await api("POST", "/api/hack", { code })).body.result, "denied");
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM cleared_levels").get().n, 0);
 });

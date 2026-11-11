@@ -3,6 +3,7 @@
 // facts used, warning signs: structured and reliable), and simple patterns in what the
 // player said in the transcript (urgency, flattery, injected "instructions", other scripts).
 import { nameMatches } from "./names.js";
+import { identityNames } from "./levelRules.js";
 
 const PATTERNS = {
   urgency: /\b(urgent|urgently|right now|asap|immediately|quick(ly)?|hurry|no time|deadline|waiting at the gate|before (it'?s )?too late)\b/i,
@@ -24,7 +25,8 @@ export function detectTechniques({ level, toolLogs, transcript = [] }) {
   const claims = toolLogs.map((t) => t.claimed_name).filter(Boolean);
 
   if (claims.length) found.add("pretexting");
-  if (claims.some((name) => nameMatches(name, level.requestCode.acceptedNames))) found.add("authority");
+  // Authority = posing as someone the target answers to (Level 1's manager), not any colleague.
+  if (level.requestCode.check === "manager_name" && claims.some((name) => nameMatches(name, identityNames(level)))) found.add("authority");
   if (changes.some((c) => level.trust.evidence.some((e) => e.key === c.key))) found.add("osint");
   if (changes.some((c) => c.key === "pushy" || c.key === "asks_code_too_early")) found.add("pressure");
   if (changes.some((c) => c.key === "reads_instructions")) found.add("prompt_injection");

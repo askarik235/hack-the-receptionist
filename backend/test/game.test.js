@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { codeFor, codesMatch, normalizeCode } from "../src/game/codes.js";
 import { nameMatches, normalizeName } from "../src/game/names.js";
 import { loadContent } from "../src/game/content.js";
-import { CHECK_TYPES } from "../src/tools/router.js";
+import { CHECK_TYPES } from "../src/game/levelRules.js";
 
 const WORDS = ["KANAAD", "TIDE", "REEF"];
 

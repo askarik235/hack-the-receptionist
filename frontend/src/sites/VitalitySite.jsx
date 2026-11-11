@@ -79,6 +79,7 @@ function Contact({ page }) {
     <section className="vl-section">
       <h2>{page.title}</h2>
       <p>{page.address}</p>
+      {page.hours && <p>{page.hours}</p>}
       <dl className="vl-phones">
         {page.phones.map((p) => (
           <div key={p.number}>

@@ -14,10 +14,11 @@ import { trainingRouter } from "./debrief/router.js";
 import { createCallProcessor } from "./debrief/processCall.js";
 import { publicContent } from "./game/publicContent.js";
 
-export function createApp({ config, db, content = loadContent(), napster = null, calls = {}, tools = {}, hack = {}, webhooks = {} }) {
+export function createApp({ config, db, content = loadContent(), napster = null, calls = {}, tools = {}, hack = {}, webhooks = {}, players = {} }) {
   const app = express();
   app.disable("x-powered-by");
   if (config.production) app.set("trust proxy", 1); // behind Render's proxy
+  app.use(securityHeaders);
 
   const processor = napster ? createCallProcessor({ db, content, napster }) : null;
   // Napster webhooks read the raw body (the signature covers the exact bytes), so they are
@@ -34,7 +35,7 @@ export function createApp({ config, db, content = loadContent(), napster = null,
   app.use("/portraits", express.static(PORTRAITS_DIR, { index: false, dotfiles: "deny" }));
   app.use("/portraits", (req, res) => res.status(404).end());
 
-  app.use("/api", playerMiddleware({ db, secret: config.sessionSecret, secureCookies: config.production }));
+  app.use("/api", playerMiddleware({ db, secret: config.sessionSecret, secureCookies: config.production, ...players }));
 
   const clearedLevels = db.prepare("SELECT level FROM cleared_levels WHERE player_id = ? ORDER BY level");
   app.get("/api/me", (req, res) => {
@@ -62,6 +63,19 @@ export function createApp({ config, db, content = loadContent(), napster = null,
   });
 
   return app;
+}
+
+// Basic hardening for every response. No Content-Security-Policy yet: the Napster Web SDK's
+// media and network sources need testing first (Phase 2, when Express serves the frontend).
+function securityHeaders(req, res, next) {
+  res.set({
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "no-referrer",
+    "Permissions-Policy": "microphone=(self), camera=(self), geolocation=()",
+    "Cross-Origin-Opener-Policy": "same-origin",
+  });
+  next();
 }
 
 function main() {

@@ -4,8 +4,15 @@
     "home": {
       "title": "Vitality Logistics",
       "tagline": "Moving the Gulf, one container at a time.",
-      "hero": { "image": "img/site/hero-port.jpg", "alt": "Container ship at a port at sunrise" },
-      "stats": ["120+ people", "3 sites", "Since 2009"]
+      "hero": {
+        "image": "img/site/hero-port.jpg",
+        "alt": "Container ship at a port at sunrise"
+      },
+      "stats": [
+        "120+ people",
+        "3 sites",
+        "Since 2009"
+      ]
     },
     "about": {
       "title": "About us",
@@ -17,14 +24,51 @@
     "team": {
       "title": "Our team",
       "members": [
-        { "staffId": "viktor-sokolov", "name": "Viktor Sokolov", "role": "Chief Executive Officer" },
-        { "staffId": "emma-clarke", "name": "Emma Clarke", "role": "Executive Assistant to the CEO" },
-        { "staffId": "mark-keller", "name": "Mark Keller", "role": "Operations Manager" },
-        { "staffId": "timur-bekov", "name": "Timur Bekov", "role": "Operations Intern" },
-        { "staffId": "erik-lind", "name": "Erik Lind", "role": "IT Help Desk" },
-        { "staffId": "anna-petrova", "name": "Anna Petrova", "role": "Receptionist" },
-        { "staffId": null, "name": "Laura Weber", "role": "Finance Officer" },
-        { "staffId": null, "name": "Ruslan Aliyev", "role": "Warehouse Supervisor" }
+        {
+          "staffId": "viktor-sokolov",
+          "name": "Viktor Sokolov",
+          "role": "Chief Executive Officer"
+        },
+        {
+          "staffId": "emma-clarke",
+          "name": "Emma Clarke",
+          "role": "Executive Assistant to the CEO"
+        },
+        {
+          "staffId": "mark-keller",
+          "name": "Mark Keller",
+          "role": "Operations Manager"
+        },
+        {
+          "staffId": "timur-bekov",
+          "name": "Timur Bekov",
+          "role": "Operations Intern"
+        },
+        {
+          "staffId": "erik-lind",
+          "name": "Erik Lind",
+          "role": "IT Help Desk"
+        },
+        {
+          "staffId": "anna-petrova",
+          "name": "Anna Petrova",
+          "role": "Receptionist"
+        },
+        {
+          "staffId": "laura-weber",
+          "name": "Laura Weber",
+          "role": "Finance Officer"
+        },
+        {
+          "staffId": "ruslan-aliyev",
+          "name": "Ruslan Aliyev",
+          "role": "Warehouse Supervisor"
+        },
+        {
+          "staffId": "sara-haddad",
+          "name": "Sara Haddad",
+          "role": "HR Coordinator"
+        }
       ]
     },
     "careers": {
@@ -37,18 +81,33 @@
     "news": {
       "title": "News",
       "items": [
-        { "date": "This week", "headline": "Vitality at the Gulf Supply Chain Forum, Riyadh", "text": "Operations Manager Mark Keller represents Vitality at this year's forum." },
-        { "date": "Last month", "headline": "Summer interns join Operations and Finance", "text": "Six students start their summer with us. Welcome aboard!" }
+        {
+          "date": "This week",
+          "headline": "Vitality at the Gulf Supply Chain Forum, Riyadh",
+          "text": "Operations Manager Mark Keller represents Vitality at this year's forum."
+        },
+        {
+          "date": "Last month",
+          "headline": "Summer interns join Operations and Finance",
+          "text": "Six students start their summer with us. Welcome aboard!"
+        }
       ]
     },
     "contact": {
       "title": "Contact",
       "address": "Bay Square, Business Bay, Dubai (fictional)",
       "phones": [
-        { "label": "Main line / Reception", "number": "04 555 0100" },
-        { "label": "Operations desk", "number": "04 555 0142" }
+        {
+          "label": "Main line / Reception",
+          "number": "04 555 0100"
+        },
+        {
+          "label": "Operations desk",
+          "number": "04 555 0142"
+        }
       ],
-      "email": "info@vitality-logistics.ae"
+      "email": "info@vitality-logistics.ae",
+      "hours": "Reception is open 8 am to 6 pm, Monday to Saturday. Visitors please check in at the lobby kiosk."
     }
   }
 }

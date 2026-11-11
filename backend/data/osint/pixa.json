@@ -12,8 +12,14 @@
           "alt": "Timur on a boat holding up a large kingfish",
           "caption": "9 kg kanaad off Musandam!! New PB 🎣🔥",
           "comments": [
-            { "handle": "mark.keller", "text": "Next trip I'm coming. I want that kingfish record." },
-            { "handle": "daniyar.b", "text": "I did all the work and he takes the photo 😂" }
+            {
+              "handle": "mark.keller",
+              "text": "Next trip I'm coming. I want that kingfish record."
+            },
+            {
+              "handle": "daniyar.b",
+              "text": "I did all the work and he takes the photo 😂"
+            }
           ]
         },
         {
@@ -35,6 +41,33 @@
           "image": "img/pixa/timur-shawarma.jpg",
           "alt": "Shawarma wrap and fries on a plastic table",
           "caption": "Lunch break fuel 🌯",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "handle": "anna.at.home",
+      "staffId": "anna-petrova",
+      "displayName": "Anna",
+      "bio": "Plovdiv → Dubai | karak tea enthusiast | Biscuit's human 🐈",
+      "posts": [
+        {
+          "id": "biscuit",
+          "image": "img/pixa/anna-biscuit.jpg",
+          "alt": "A ginger cat asleep on a laptop keyboard",
+          "caption": "Biscuit has decided he works from home now.",
+          "comments": [
+            {
+              "handle": "laura.w",
+              "text": "He's more productive than half of Finance 😂"
+            }
+          ]
+        },
+        {
+          "id": "karak",
+          "image": "img/pixa/anna-karak.jpg",
+          "alt": "A cup of karak tea on a tidy reception desk, early morning light",
+          "caption": "Two minutes before the doors open ☕",
           "comments": []
         }
       ]

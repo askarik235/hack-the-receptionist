@@ -41,8 +41,13 @@ export function hackRouter({ config, db, content, rateLimit = { windowMs: 60_000
     const level = openLevel(playerId);
     if (!level) return res.status(409).json({ error: "nothing_to_hack" });
 
+    // A code only works once a character has actually handed it over to this player (an
+    // approved request_code on a call).
+    // Without that, the code space (8 words x 10,000) could be guessed by a script. The answer
+    // is the same "denied" either way, so it doesn't reveal which check failed.
+    const handedOver = winningCall.get(playerId, level.level);
     const expected = codeFor(config.codeSecret, playerId, level.level, level.code.words);
-    if (!codesMatch(expected, req.body.code)) return res.json({ result: "denied", level: level.level });
+    if (!codesMatch(expected, req.body.code) || !handedOver) return res.json({ result: "denied", level: level.level });
 
     clearLevel(playerId, level.level);
     const next = content.levelByNumber.get(level.level + 1);

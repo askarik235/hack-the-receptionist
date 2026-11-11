@@ -3,6 +3,7 @@
 import express from "express";
 import { codeFor } from "../game/codes.js";
 import { trustMoves } from "../game/techniques.js";
+import { createRateLimiter } from "../lib/rateLimit.js";
 
 const SHOWN_CALLS = 20;
 const BACKFILL_PER_REQUEST = 3;
@@ -21,6 +22,9 @@ export function redactCodes(text, code) {
 
 export function trainingRouter({ config, db, content, processor = null }) {
   const router = express.Router();
+  // Each backfill can ask Napster for up to 3 transcripts; don't let a refresh loop hammer it.
+  const allowBackfill = createRateLimiter({ windowMs: 15_000, max: 1 });
+  const allowView = createRateLimiter({ windowMs: 60_000, max: 60 });
 
   const recentCalls = db.prepare(
     `SELECT * FROM calls WHERE player_id = ? AND status IN ('ended', 'failed')
@@ -46,8 +50,9 @@ export function trainingRouter({ config, db, content, processor = null }) {
   router.get("/", async (req, res, next) => {
     try {
       const playerId = req.player.id;
+      if (!allowView(playerId)) return res.status(429).json({ error: "too_many_requests" });
       // Fallback for calls the webhook didn't cover: analyse a few now.
-      if (processor) {
+      if (processor && allowBackfill(playerId)) {
         const ready = unprocessed.all(playerId, Math.floor(Date.now() / 1000) - 3);
         await Promise.all(ready.map((c) => processor.processCall(c.id).catch(() => false)));
       }

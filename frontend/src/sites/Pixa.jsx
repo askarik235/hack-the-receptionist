@@ -10,6 +10,8 @@ const SCENES = {
   kingfish: { glyph: "🐟", tone: "sea" },
   "warehouse-sunset": { glyph: "🌇", tone: "dusk" },
   shawarma: { glyph: "🌯", tone: "lunch" },
+  biscuit: { glyph: "🐈", tone: "lunch" },
+  karak: { glyph: "☕", tone: "dusk" },
 };
 
 function Photo({ post, large = false }) {

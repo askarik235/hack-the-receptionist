@@ -82,3 +82,21 @@ test("health needs no cookie; unknown API routes are 404; bad JSON is 400", asyn
   assert.equal(bad.status, 400);
   assert.deepEqual(await bad.json(), { error: "invalid_json" });
 });
+
+test("new players are capped per IP, and every response carries security headers", async (t) => {
+  const db = openDb(":memory:");
+  const server = createApp({ config: { sessionSecret: SECRET, production: false }, db, players: { newPlayerLimit: { windowMs: 60_000, max: 2 } } }).listen(0);
+  t.after(() => server.close());
+  const base = `http://localhost:${server.address().port}`;
+
+  const statuses = [];
+  for (let i = 0; i < 3; i++) statuses.push((await fetch(`${base}/api/me`)).status);
+  assert.deepEqual(statuses, [200, 200, 429]);
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM players").get().n, 2);
+
+  const res = await fetch(`${base}/api/health`);
+  assert.equal(res.headers.get("x-content-type-options"), "nosniff");
+  assert.equal(res.headers.get("x-frame-options"), "DENY");
+  assert.equal(res.headers.get("referrer-policy"), "no-referrer");
+  assert.match(res.headers.get("permissions-policy"), /microphone=\(self\)/);
+});

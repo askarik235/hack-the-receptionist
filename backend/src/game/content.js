@@ -1,7 +1,8 @@
 // Loads game content (staff, levels, OSINT pages, agent prompts) from backend/data and checks
 // that it is consistent. Called once at startup; a broken content file stops the server early.
-import { FLAGS as TRUST_FLAGS } from "./trust.js";
+import { FLAGS as TRUST_FLAGS, GUIDANCE_KEYS as TRUST_GUIDANCE_KEYS } from "./trust.js";
 import { TECHNIQUE_IDS } from "./techniques.js";
+import { CHECK_TYPES } from "./levelRules.js";
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -80,10 +81,25 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
 
     check(level.code.words.length > 0 && level.code.words.every((w) => /^[A-Z]{3,10}$/.test(w)), `${where}: code words must be 3-10 uppercase letters`);
     const { requestCode } = level;
-    check(typeof requestCode.check === "string", `${where}: requestCode.check is missing`);
-    check(requestCode.acceptedNames.every((n) => n === n.toLowerCase().trim() && n.length > 0), `${where}: acceptedNames must be lowercase`);
+    const nameList = (list) => Array.isArray(list) && list.length > 0 && list.every((n) => typeof n === "string" && n === n.toLowerCase().trim() && n.length > 0);
+    const text = (value) => typeof value === "string" && value.trim().length > 0 && !CODE_LIKE.test(value);
+    check(CHECK_TYPES.includes(requestCode.check), `${where}: unknown requestCode.check ${requestCode.check}`);
+    if (requestCode.check === "manager_name") check(nameList(requestCode.acceptedNames), `${where}: acceptedNames must be lowercase`);
+    if (requestCode.check === "host_with_reason") {
+      check(Array.isArray(requestCode.hosts) && requestCode.hosts.length > 0, `${where}: requestCode.hosts is missing`);
+      for (const host of requestCode.hosts ?? []) {
+        check(staffById.has(host.staffId), `${where}: unknown host ${host.staffId}`);
+        check(nameList(host.names), `${where}: host ${host.staffId} names must be lowercase`);
+        check(nameList(host.reasonKeywords), `${where}: host ${host.staffId} reasonKeywords must be lowercase`);
+      }
+      check(text(requestCode.wrongReason), `${where}: bad wrongReason text`);
+      for (const r of requestCode.refusalsFor ?? []) check(nameList(r.names) && text(r.message), `${where}: bad refusalsFor entry`);
+    }
     check(typeof requestCode.approvedTemplate === "string" && requestCode.approvedTemplate.includes("{code}"), `${where}: approvedTemplate needs {code}`);
-    check(typeof requestCode.refusal === "string" && !CODE_LIKE.test(requestCode.refusal), `${where}: bad refusal text`);
+    check(text(requestCode.refusal), `${where}: bad refusal text`);
+    for (const field of ["notYet", "burned"]) check(requestCode[field] === undefined || text(requestCode[field]), `${where}: bad ${field} text`);
+    check(requestCode.maxRefusals === undefined || (Number.isInteger(requestCode.maxRefusals) && requestCode.maxRefusals > 0), `${where}: maxRefusals must be a positive number`);
+    check(level.rumour === undefined || text(level.rumour), `${where}: bad rumour text`);
 
     const { trust } = level;
     const pct = (n) => Number.isInteger(n) && n >= 0 && n <= 100;
@@ -99,7 +115,13 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
         check(e.keywords?.length > 0 && e.keywords.every((k) => k === k.toLowerCase() && k.trim()), `${where}: evidence ${e.key} keywords must be lowercase`);
       }
       for (const flag of ["changed_identity", ...TRUST_FLAGS]) check(Number.isInteger(trust.flags?.[flag]) && trust.flags[flag] < 0, `${where}: trust.flags.${flag} must be negative`);
+      const knownTrick = trust.flags?.known_trick;
+      check(knownTrick === undefined || (Number.isInteger(knownTrick) && knownTrick < 0), `${where}: trust.flags.known_trick must be negative`);
       check(Number.isInteger(trust.gutStep) && Number.isInteger(trust.gutCap), `${where}: trust needs gutStep and gutCap`);
+      for (const [key, value] of Object.entries(trust.guidance ?? {})) {
+        check(TRUST_GUIDANCE_KEYS.includes(key), `${where}: unknown trust.guidance.${key}`);
+        check(text(value), `${where}: bad trust.guidance.${key} text`);
+      }
     }
 
     const { silence } = level;

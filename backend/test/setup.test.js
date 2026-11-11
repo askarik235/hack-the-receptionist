@@ -61,8 +61,8 @@ test("re-running updates in place, even if the saved IDs file was lost", async (
   await runSetup({ napster, config, content, ids: {}, log: quiet, portraitFor: () => null });
 
   assert.equal(store.functions.size, 2);
-  assert.equal(store.agents.size, 1);
-  assert.equal(calls.filter((c) => c.method === "POST").length, 3, "only the first run creates (2 tools + 1 agent)");
+  assert.equal(store.agents.size, content.levels.length);
+  assert.equal(calls.filter((c) => c.method === "POST").length, 2 + content.levels.length, "only the first run creates (2 tools + 1 agent per level)");
 });
 
 test("a portrait replaces the stock face and setup waits until it is ready", async () => {
@@ -78,7 +78,7 @@ test("a portrait replaces the stock face and setup waits until it is ready", asy
     if (method === "GET" && /^\/public\/companions\/companions_/.test(path)) return { ...out, status: ++polls < 2 ? "pending" : "readyToUse" };
     return out;
   };
-  await runSetup({ napster, config, content, ids, log: quiet, portraitFor: () => "timur-bekov.jpg", sleep: async () => {}, pollMs: 0 });
+  await runSetup({ napster, config, content, ids, log: quiet, portraitFor: (id) => (id === "timur-bekov" ? "timur-bekov.jpg" : null), sleep: async () => {}, pollMs: 0 });
 
   const companion = [...store.companions.values()][0];
   assert.equal(companion.pictureUrl, "https://example.ngrok-free.app/portraits/timur-bekov.jpg");
