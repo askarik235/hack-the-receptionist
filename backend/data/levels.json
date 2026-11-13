@@ -669,9 +669,10 @@
         "body": [
           "The front door was the easy part, and the client is very pleased with what came through it.",
           "Now I need to read their mail, and not just anyone's. Someone who sits close to the CEO's office.",
+          "This time you go in as someone else: Nadia Rahman, Executive Office Coordinator. No deepfake needed: she started this week, so nobody at IT knows her voice yet, and new joiners lock themselves out all the time.",
           "Target: Erik Lind, IT Help Desk. No number from the receptionist? Their own paperwork has it.",
-          "Objective: get a password for an inbox near the top. Type it into HACK, then use it to log in.",
-          "Help desks don't care who you are. They care what you can prove. Companies leave their paperwork lying around. Start with what they hand to new people.",
+          "Objective: get Nadia's email password reset. Type the temporary password into HACK, then use it to log in.",
+          "Help desks don't care who you are. They care what you can prove. New people love posting about their first week, and companies leave their paperwork lying around.",
           "— N"
         ],
         "disclaimer": "Training game. All people and companies are fictional."
@@ -688,10 +689,10 @@
           "pretexting",
           "osint"
         ],
-        "whyItWorked": "The help desk checked facts that were never secret. Nadia's employee ID, department, manager and start date were printed in a public PDF. A new joiner is perfect cover: nobody knows her voice yet, and locked-out new starters are the most normal call IT gets. And look at her inbox: the gate code became a warehouse break-in, and the visitor pass became malware on the 12th floor. That's how real attacks start: one phone call.",
+        "whyItWorked": "The help desk checked facts that were never secret. Nadia's employee ID was on her badge in a first-week selfie, the ID format was in a public PDF, and her department and manager were on WorkNet. A new joiner is perfect cover: nobody knows her voice yet, and locked-out new starters are the most normal call IT gets. And look at her inbox: the gate code became a warehouse break-in, and the visitor pass became malware on the 12th floor. That's how real attacks start: one phone call.",
         "defence": [
           "An employee ID is not a password. Confirm password resets through a second channel: the manager, a callback to the number on file, or in person.",
-          "Take old documents off public websites, and never use real staff details in templates or samples.",
+          "Keep badges out of photos, and take internal guides off public websites. Together they hand an attacker everything a help desk asks for.",
           "Email is the key to everything else. Turn on two-step login from day one, especially for new accounts and anyone close to executives."
         ]
       },

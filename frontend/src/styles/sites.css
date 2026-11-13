@@ -138,11 +138,27 @@
 .px-badge-strap { position: absolute; top: -40%; left: 50%; width: 14%; height: 52%; transform: translateX(-50%); background: #00897f; border-radius: 2px; }
 .px-badge-company { width: 100%; padding: 2px 0; background: #0f3057; color: #fff; text-align: center; font-weight: 800; }
 .px-badge-face { width: 40%; aspect-ratio: 1; border-radius: 4px; background: #c9d4dc; }
-.px-badge-name { filter: blur(3.5px); font-weight: 800; }
+.px-badge-name { font-weight: 800; }
+.px-badge-name.is-blurred { filter: blur(3.5px); }
 .px-badge-role { color: #555; }
 .px-badge-id { font-weight: 800; letter-spacing: 0.06em; color: #111; }
+.px-desk-badge { display: contents; }
 .px-photo.is-large { width: 100%; border-radius: 4px; }
 .px-photo.is-large .px-badge { font-size: 14px; }
+/* Office selfie: window wall behind two people, badges on lanyards */
+.px-photo.is-office { background: repeating-linear-gradient(90deg, transparent 0 31%, #9aa7b0 31% 33%), linear-gradient(#a9d6f0, #e6f2f8 58%, #c7ccd0 58%); }
+.px-selfie { position: absolute; inset: 0; display: flex; justify-content: center; gap: 2%; padding: 0 6%; }
+.px-person { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 44%; height: 100%; }
+.px-head { width: 46%; aspect-ratio: 0.85; border-radius: 50% 50% 46% 46%; background: linear-gradient(#4a3123 0 24%, #b9825c 24%); }
+.px-person:first-child .px-head { background: linear-gradient(#2e221c 0 34%, #c99572 34%); }
+.px-body { display: grid; justify-items: center; align-content: start; width: 100%; height: 52%; margin-top: 4%; padding-top: 12%; border-radius: 42% 42% 0 0; background: #3f5872; }
+.px-person:first-child .px-body { height: 56%; background: #e9e4dc; }
+.px-body .px-badge { width: 58%; padding: 14px 4px 6px; gap: 2px; font-size: clamp(5px, 1.1vw, 9px); transform: rotate(3deg); }
+.px-person:last-child .px-badge { transform: rotate(-9deg); }
+.px-photo.is-large .px-body .px-badge { font-size: 10px; }
+.px-badge.is-turned { aspect-ratio: 0.7; align-content: start; gap: 8%; padding-top: 22%; background: #f4f4f2; }
+.px-badge-stripe { width: 100%; height: 0.9em; background: #333; }
+.px-badge-back { color: #888; text-align: center; font-size: 0.8em; filter: blur(1.5px); }
 .px-post { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; align-items: start; }
 .px-post-side { display: grid; gap: 12px; }
 .px-caption { margin: 0; }

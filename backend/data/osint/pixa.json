@@ -27,7 +27,15 @@
           "image": "img/pixa/timur-badge.jpg",
           "alt": "Lanyard and staff badge on a desk; name blurred, badge number VL-0412 readable",
           "caption": "Day 1 at Vitality ✅",
-          "comments": []
+          "comments": [],
+          "badges": [
+            {
+              "name": "Timur Bekov",
+              "role": "Operations",
+              "employeeId": "VL-0412",
+              "blurName": true
+            }
+          ]
         },
         {
           "id": "warehouse-sunset",
@@ -68,6 +76,58 @@
           "image": "img/pixa/anna-karak.jpg",
           "alt": "A cup of karak tea on a tidy reception desk, early morning light",
           "caption": "Two minutes before the doors open ☕",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "handle": "nadia.dxb",
+      "staffId": "nadia-rahman",
+      "displayName": "Nadia",
+      "bio": "New city, new job, same coffee habit ☕ | Dubai since last week",
+      "posts": [
+        {
+          "id": "office-selfie",
+          "alt": "Office selfie by the 12th-floor windows: Nadia and Sara from HR, both with staff badges. Nadia's badge faces the camera and reads Executive Office, VL-0388. Sara's badge is turned around.",
+          "caption": "First week at Vitality ✨ 12th floor views and the best HR buddy",
+          "badges": [
+            {
+              "name": "Nadia Rahman",
+              "role": "Executive Office",
+              "employeeId": "VL-0388"
+            },
+            {
+              "name": "Sara Haddad",
+              "role": "Human Resources",
+              "turned": true
+            }
+          ],
+          "comments": [
+            {
+              "handle": "sara.haddad",
+              "text": "Welcome to the team! Lunch on Thursday? 🥗"
+            },
+            {
+              "handle": "layla.k",
+              "text": "Look at you, corporate girl!! 😍"
+            }
+          ]
+        },
+        {
+          "id": "new-city",
+          "alt": "Dubai skyline at dusk from a balcony",
+          "caption": "Landed Saturday, started Monday. No pressure 😅",
+          "comments": [
+            {
+              "handle": "layla.k",
+              "text": "So proud of you!"
+            }
+          ]
+        },
+        {
+          "id": "first-coffee",
+          "alt": "Coffee cup and a new notebook on an office desk",
+          "caption": "Week one survival kit. Still can't remember my password 🙃",
           "comments": []
         }
       ]

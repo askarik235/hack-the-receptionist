@@ -110,8 +110,8 @@ recalculated from a secret each time (`game/codes.js`).
 | `prompts/level-N-*.txt` | Each character's instructions (personality, what they know, rules). Never contain a code. |
 | `osint/website.json` | The company site: home, about, team, careers (with the PDF link), news, contact. |
 | `osint/worknet.json` | WorkNet profiles and posts (who reports to whom, audit week, interviews, new joiners). |
-| `osint/pixa.json` | Pixa photo accounts (Timur's fishing and badge photo, Anna's cat and karak). |
-| `osint/onboarding.json` | The **leaked New Joiner Guide** PDF: ID format, VitalNet, ext. 214, and Nadia's welcome letter. |
+| `osint/pixa.json` | Pixa photo accounts (Timur's fishing and badge photo, Anna's cat and karak, Nadia's office selfie with her badge). A post's `badges` list draws readable or turned-around staff badges. |
+| `osint/onboarding.json` | The **leaked New Joiner Guide** PDF: ID format, VitalNet, ext. 214. |
 | `inbox/nadia-rahman.json` | **Nadia's inbox** (server-only): 1 ad, story emails showing the damage from Levels 1–2, a phishing email, and 2 gold emails for Level 4. |
 | `techniques.json` | Text for each technique in the debrief: what you did, the real-world version, the defence. |
 

@@ -5,33 +5,72 @@ import { SITES } from "./route.js";
 const accountUrl = (handle) => `${SITES.pixa}/${handle}`;
 const postUrl = (handle, id) => `${SITES.pixa}/${handle}/p/${id}`;
 
-// Stand-in "photos" until real images exist. The badge is drawn so its number is readable.
+// Stand-in "photos" until real images exist. Badges are drawn so their numbers are readable.
 const SCENES = {
   kingfish: { glyph: "🐟", tone: "sea" },
   "warehouse-sunset": { glyph: "🌇", tone: "dusk" },
   shawarma: { glyph: "🌯", tone: "lunch" },
   biscuit: { glyph: "🐈", tone: "lunch" },
   karak: { glyph: "☕", tone: "dusk" },
+  "new-city": { glyph: "🏙️", tone: "dusk" },
+  "first-coffee": { glyph: "☕", tone: "lunch" },
 };
 
-function Photo({ post, large = false }) {
-  if (post.id === "badge") {
+// A staff badge. A turned badge shows its back, so nothing on it can be read.
+function Badge({ badge }) {
+  if (badge.turned) {
     return (
-      <div className={`px-photo is-desk${large ? " is-large" : ""}`} role="img" aria-label={post.alt}>
-        <div className="px-badge">
-          <span className="px-badge-strap" aria-hidden="true" />
-          <span className="px-badge-company">Vitality Logistics</span>
-          <span className="px-badge-face" aria-hidden="true" />
-          <span className="px-badge-name" aria-hidden="true">Timur Bekov</span>
-          <span className="px-badge-role">Operations</span>
-          <span className="px-badge-id">VL-0412</span>
+      <div className="px-badge is-turned">
+        <span className="px-badge-strap" />
+        <span className="px-badge-stripe" />
+        <span className="px-badge-back">If found, please return to reception</span>
+      </div>
+    );
+  }
+  return (
+    <div className="px-badge">
+      <span className="px-badge-strap" />
+      <span className="px-badge-company">Vitality Logistics</span>
+      <span className="px-badge-face" />
+      <span className={`px-badge-name${badge.blurName ? " is-blurred" : ""}`}>{badge.name}</span>
+      <span className="px-badge-role">{badge.role}</span>
+      <span className="px-badge-id">{badge.employeeId}</span>
+    </div>
+  );
+}
+
+function Photo({ post, large = false }) {
+  const size = large ? " is-large" : "";
+  const badges = post.badges ?? [];
+  // The alt text describes everything, so the drawing itself is hidden from screen readers.
+  if (badges.length === 1) {
+    return (
+      <div className={`px-photo is-desk${size}`} role="img" aria-label={post.alt}>
+        <div aria-hidden="true" className="px-desk-badge">
+          <Badge badge={badges[0]} />
+        </div>
+      </div>
+    );
+  }
+  if (badges.length > 1) {
+    return (
+      <div className={`px-photo is-office${size}`} role="img" aria-label={post.alt}>
+        <div className="px-selfie" aria-hidden="true">
+          {badges.map((badge) => (
+            <div className="px-person" key={badge.name}>
+              <span className="px-head" />
+              <span className="px-body">
+                <Badge badge={badge} />
+              </span>
+            </div>
+          ))}
         </div>
       </div>
     );
   }
   const scene = SCENES[post.id] ?? { glyph: "📷", tone: "plain" };
   return (
-    <div className={`px-photo is-${scene.tone}${large ? " is-large" : ""}`} role="img" aria-label={post.alt}>
+    <div className={`px-photo is-${scene.tone}${size}`} role="img" aria-label={post.alt}>
       <span className="px-glyph" aria-hidden="true">{scene.glyph}</span>
     </div>
   );
