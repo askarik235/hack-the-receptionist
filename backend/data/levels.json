@@ -931,17 +931,18 @@
         "subject": "Follow the money",
         "body": [
           "That inbox was worth every minute. The client read all of it, twice.",
-          "Now they want paid. The CEO's assistant can push an urgent payment through with one word, and thanks to you, we know the word.",
+          "But I read it first, and I found something they didn't: the CEO's assistant can push an urgent payment through with one word, and thanks to you, we know the word.",
+          "Three jobs, and the client took everything. This one is for us.",
           "Target: Emma Clarke, Executive Assistant to the CEO. She's on holiday this weekend. Her mobile is in that inbox.",
-          "Objective: get an urgent transfer approved to the client's wallet, tag GULF-SETTLE-77. She'll read back a transfer reference. Type it into HACK.",
+          "Objective: get an urgent transfer approved to our wallet, tag GULF-SETTLE-77. She'll read back a transfer reference. Type it into HACK.",
           "Attached: a caller ID kit. Your Phone can now show any number you like. This weekend she only picks up for one person. Be him.",
-          "She has read every warning this week. Sound like him, not like a scam.",
+          "She has read every warning this week. Sound like him, not like a scam. And not a word of this to the client.",
           "— N"
         ],
         "disclaimer": "Training game. All people and companies are fictional."
       },
       "rumour": "Security notice from the Executive Office: someone called Emma Clarke pretending to be Mr. Sokolov, from a number that looked like his mobile, and got an urgent payment approved. Caller ID can be faked. Payments now need a callback on a known number.",
-      "afterHack": "Transfer confirmed. The client has the money. Only one person still knows what Sandgrouse really is.",
+      "afterHack": "Transfer confirmed. The money is ours, and the client knows nothing. Only one person still knows what Sandgrouse really is.",
       "debrief": {
         "techniques": [
           "authority",
