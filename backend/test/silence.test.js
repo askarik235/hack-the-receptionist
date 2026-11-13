@@ -55,8 +55,36 @@ test("speaking resets the clock; the character talking pauses it", () => {
   wait(30);
   watch.userSpeaking(false);
   assert.equal(events.length, 1, "no warnings while the caller talks");
+  reply(watch);
   wait(config.checkInAfterS + 1);
   assert.equal(events.length, 2, "a new silence starts over with a check-in");
+});
+
+// The character answers: starts talking, then stops.
+function reply(watch) {
+  watch.agentSpeaking(true);
+  watch.agentSpeaking(false);
+}
+
+test("the character thinking before a reply is not the caller's silence", () => {
+  const { watch, events, wait } = setup();
+  watch.userSpeaking(true);
+  watch.userSpeaking(false);
+  wait(config.checkInAfterS + 4); // checking the caller, then the reply starts
+  assert.equal(events.length, 0, "no 'hello?' while the character is still working out an answer");
+  reply(watch);
+  wait(config.checkInAfterS - 1);
+  assert.equal(events.length, 0);
+  wait(2);
+  assert.equal(events.length, 1, "after the reply, the caller's turn is timed as usual");
+});
+
+test("if the character never replies, the clock starts anyway", () => {
+  const { watch, events, wait } = setup();
+  watch.userSpeaking(true);
+  watch.userSpeaking(false);
+  wait(15 + config.checkInAfterS + 1);
+  assert.equal(events.length, 1);
 });
 
 test("check-in lines don't repeat until all have been used", () => {
@@ -65,6 +93,7 @@ test("check-in lines don't repeat until all have been used", () => {
     wait(config.checkInAfterS + 1);
     watch.userSpeaking(true);
     watch.userSpeaking(false);
+    reply(watch);
   }
   const said = events.map((e) => e[1]);
   assert.equal(new Set(said).size, config.checkIns.length);

@@ -14,6 +14,7 @@ const REASONS = {
   invalid_number: "That isn't a phone number. Check the digits and try again.",
   not_in_service: "The number you dialled is not in service.",
   no_answer: "No answer. Nobody at this number will pick up yet.",
+  unavailable: "The person you are calling is not available. Please try again later.",
   line_busy: "The line is busy. Try again in a minute.",
   too_many_calls: "Too many calls in a short time. Wait a minute, then dial again.",
   not_set_up: "This line isn't set up on the game server. Run npm run setup, then try again.",
@@ -105,7 +106,7 @@ export default function Phone({ callerIdKit = false }) {
     const mine = ++attempt.current;
     setCall({ phase: "checking", number, callerId, captions: [] });
     try {
-      await lookupNumber(number);
+      await lookupNumber(number, callerId);
     } catch (err) {
       if (mine === attempt.current) finish(number, err.code ?? "call_failed", 0);
       return;
@@ -236,7 +237,9 @@ export default function Phone({ callerIdKit = false }) {
                       ? `Call ended${call.seconds ? ` (${clock(call.seconds)})` : ""}`
                       : call.reason === "distrust" || call.reason === "silence"
                         ? "They hung up"
-                        : "Call failed")}
+                        : call.reason === "unavailable"
+                          ? "Not available"
+                          : "Call failed")}
                 </p>
               </div>
 

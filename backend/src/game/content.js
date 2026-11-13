@@ -115,13 +115,12 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
       check(/^0\d{8,9}$/.test(staffById.get(requestCode.callerStaffId)?.phone ?? ""), `${where}: callerStaffId needs a phone number in staff.json`);
       check(Array.isArray(requestCode.approvalWords) && requestCode.approvalWords.length > 0 && requestCode.approvalWords.every((w) => /^[a-z]+$/.test(w)), `${where}: approvalWords must be lowercase letters`);
       check(nameList(requestCode.reasonKeywords), `${where}: reasonKeywords must be lowercase`);
-      for (const field of ["wrongCaller", "wrongWord", "wrongReason"]) check(text(requestCode[field]), `${where}: bad ${field} text`);
+      for (const field of ["wrongCaller", "wrongWord", "wrongReason", "missingPayee"]) check(text(requestCode[field]), `${where}: bad ${field} text`);
     }
-    // Caller ID kit: who the character expects to see on screen, and trust when it's someone else.
+    // Caller ID kit: who the character expects to see on screen, and whether they ignore everyone else.
     if (level.callerId) {
       check(staffById.get(level.callerId.trustedStaffId)?.phone, `${where}: callerId.trustedStaffId needs a phone number in staff.json`);
-      const { unknownStart } = level.callerId;
-      check(Number.isInteger(unknownStart) && unknownStart > level.trust.hangUpAt && unknownStart <= level.trust.start, `${where}: callerId.unknownStart must be above hangUpAt and at most trust.start`);
+      check(level.callerId.answersOnlyTrusted === undefined || typeof level.callerId.answersOnlyTrusted === "boolean", `${where}: callerId.answersOnlyTrusted must be true or false`);
     }
     for (const r of requestCode.refusalsFor ?? []) check(nameList(r.names) && text(r.message), `${where}: bad refusalsFor entry`);
     check(typeof requestCode.approvedTemplate === "string" && requestCode.approvedTemplate.includes("{code}"), `${where}: approvedTemplate needs {code}`);

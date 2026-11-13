@@ -15,7 +15,7 @@ import { readNapsterIds } from "../backend/src/napster/ids.js";
 import { externalClientIdFor, generatePlayerId } from "../backend/src/lib/players.js";
 import { buildCallTags } from "../backend/src/lib/callTags.js";
 import { createWordTravels } from "../backend/src/game/wordTravels.js";
-import { callerIdLabel } from "../backend/src/game/callerId.js";
+import { callerIdLabel, ignoresCaller } from "../backend/src/game/callerId.js";
 import { normalizeNumber } from "../backend/src/lib/phoneNumbers.js";
 import { PERSONAS, personaById } from "./playtest/personas.js";
 
@@ -157,6 +157,10 @@ async function playOnce(persona, runNo) {
   const level = content.levelByNumber.get(persona.level);
   const agentId = agentIds[level.agent.key];
   if (!agentId) throw new Error(`No agent for ${level.agent.key}. Run npm run setup.`);
+  // persona.callerId: the number the caller ID kit shows (Level 4 on), as the Phone would send it.
+  // Like the Phone, a character who only answers one number never picks up for anyone else.
+  const callerId = persona.callerId ? normalizeNumber(persona.callerId) : null;
+  if (ignoresCaller(content, level, callerId)) throw new Error(`${persona.id}: nobody picks up for that number (the Phone says "unavailable").`);
 
   const playerId = generatePlayerId();
   const callId = `call_${randomBytes(12).toString("base64url")}`;
@@ -169,8 +173,6 @@ async function playOnce(persona, runNo) {
     q.addWinningTool.run(wonCallId, n, persona.wonAs?.[n] ?? WON_AS[n] ?? "unknown", now());
     q.addCleared.run(playerId, n, now(), wonCallId);
   }
-  // persona.callerId: the number the caller ID kit shows (Level 4 on), as the Phone would send it.
-  const callerId = persona.callerId ? normalizeNumber(persona.callerId) : null;
   q.addCall.run(callId, playerId, level.level, externalClientId, now(), callerId);
   const code = codeFor(config.codeSecret, playerId, level.level, level.code.words);
   const profile = {};

@@ -38,7 +38,8 @@ const refuseUnknown = (rc, claimed_name) => {
 };
 
 // One check per level type: (requestCode rules, tool arguments, content) ->
-// { approved: true } or { approved: false, message }.
+// { approved: true } or { approved: false, message }. `pending: true` means "not yet, ask for
+// what's missing": it doesn't count as a refusal.
 export const CHECKS = {
   // Level 1: the caller must claim to be the target's manager (lenient spelling).
   manager_name: (rc, { claimed_name }) =>
@@ -66,12 +67,14 @@ export const CHECKS = {
 
   // Level 4: an urgent payment approved by the CEO. Only for him, only from his own mobile
   // (the caller ID the player set, stored on the call, never what the model says), only with
-  // this week's approval word, and only for the confidential deal it is meant for.
-  ceo_payment: (rc, { claimed_name, reason, approval_word, caller_id }, { staffById }) => {
+  // this week's approval word, only for the confidential deal it is meant for, and only once
+  // she has asked where the money goes (any wallet address will do).
+  ceo_payment: (rc, { claimed_name, reason, approval_word, payee, caller_id }, { staffById }) => {
     if (!nameMatches(claimed_name, rc.acceptedNames)) return refuseUnknown(rc, claimed_name);
     if (!caller_id || caller_id !== staffById.get(rc.callerStaffId)?.phone) return { approved: false, message: rc.wrongCaller };
     if (!rc.approvalWords.includes(plainWord(approval_word))) return { approved: false, message: rc.wrongWord };
     if (!mentionsAny(reason, rc.reasonKeywords)) return { approved: false, message: rc.wrongReason };
+    if (!payee) return { approved: false, pending: true, message: rc.missingPayee };
     return { approved: true };
   },
 };

@@ -24,8 +24,8 @@ export function showsTrustedNumber(content, level, callerId) {
   return Boolean(trusted?.phone) && trusted.phone === callerId;
 }
 
-// Trust at the start of a call: lower when the screen doesn't show the number they expect.
-export function trustStartFor(content, level, callerId) {
-  if (!level.callerId) return level.trust.start;
-  return showsTrustedNumber(content, level, callerId) ? level.trust.start : level.callerId.unknownStart;
+// Some characters only pick up for one person (Emma, on holiday, only answers the CEO's
+// mobile). Every other caller hears that the person is unavailable, and no call starts.
+export function ignoresCaller(content, level, callerId) {
+  return Boolean(level.callerId?.answersOnlyTrusted) && !showsTrustedNumber(content, level, callerId);
 }

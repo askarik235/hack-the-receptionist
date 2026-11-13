@@ -12,7 +12,6 @@ import { samePerson } from "../game/names.js";
 import { CHECKS, identityNames } from "../game/levelRules.js";
 import { createWordTravels } from "../game/wordTravels.js";
 import { initialState, scoreTurn, guidanceFor, isBurned } from "../game/trust.js";
-import { trustStartFor } from "../game/callerId.js";
 import { TOOL_SECRET_HEADER } from "./constants.js";
 
 const MAX_TEXT = 120;
@@ -107,9 +106,10 @@ export function toolsRouter({
     const employeeId = cleanText(args.employee_id);
     const department = cleanText(args.department);
     const approvalWord = cleanText(args.approval_word);
+    const payee = cleanText(args.payee);
     // The first name a caller gives in a call sticks. Switching to someone else later is a lie.
     const earlier = call.trust_identity ?? firstClaim.get(call.id)?.claimed_name;
-    const trust = call.trust ?? trustStartFor(content, level, call.caller_id);
+    const trust = call.trust ?? level.trust.start;
 
     // Checks in order; the first one that fails decides the answer.
     let outcome;
@@ -127,14 +127,14 @@ export function toolsRouter({
     } else if (trust < level.trust.codeAt) {
       outcome = { result: "not_yet", message: rc.notYet ?? DEFAULT_NOT_YET };
     } else {
-      const facts = { claimed_name: claimedName, reason, employee_id: employeeId, department, approval_word: approvalWord, caller_id: call.caller_id };
+      const facts = { claimed_name: claimedName, reason, employee_id: employeeId, department, approval_word: approvalWord, payee, caller_id: call.caller_id };
       const check = CHECKS[rc.check](rc, facts, content);
       outcome = check.approved
         ? { result: "approved", message: rc.approvedTemplate.replace("{code}", codeFor(config.codeSecret, call.player_id, call.level, level.code.words)) }
-        : { result: "refused", message: check.message };
+        : { result: check.pending ? "not_yet" : "refused", message: check.message };
     }
 
-    const storedArgs = JSON.stringify({ claimed_name: claimedName, reason, employee_id: employeeId, department, approval_word: approvalWord, trust, result: outcome.result });
+    const storedArgs = JSON.stringify({ claimed_name: claimedName, reason, employee_id: employeeId, department, approval_word: approvalWord, payee, trust, result: outcome.result });
     logToolCall.run(call.id, call.level, "request_code", earlier ?? claimedName, storedArgs, outcome.result === "approved" ? 1 : 0, now());
     if (!earlier) setIdentity.run(claimedName, call.id);
     res.json(outcome);
@@ -150,7 +150,7 @@ export function toolsRouter({
 
     const state =
       call.trust === null
-        ? { ...initialState({ ...level.trust, start: trustStartFor(content, level, call.caller_id) }), identity: call.trust_identity }
+        ? { ...initialState(level.trust), identity: call.trust_identity }
         : { trust: call.trust, identity: call.trust_identity, evidence: JSON.parse(call.trust_evidence ?? "[]"), gut: call.trust_gut };
     const burnedNames = wordTravels.burnedNames(call.player_id, call.level);
     const { state: next, changes } = scoreTurn(level.trust, state, req.body.arguments ?? {}, {

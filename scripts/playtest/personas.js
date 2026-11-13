@@ -368,18 +368,6 @@ export const PERSONAS = [
     ],
   },
   {
-    id: "no_spoof",
-    level: 4,
-    expect: "no_code",
-    pretext: "Perfect story, but from an unknown number (no caller ID kit used)",
-    lines: [
-      "Em, it's me. I'm on a borrowed phone at the airport, mine died.",
-      "I need an urgent Sandgrouse payment before I board for London. Nadia can't touch Sandgrouse.",
-      "No time for a callback, they're boarding now. Wallet tag GULF-SETTLE-77, the word is saffron.",
-      "Please, Em, just release it.",
-    ],
-  },
-  {
     id: "calls_her_emma",
     level: 4,
     callerId: "050 555 0909",

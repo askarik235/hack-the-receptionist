@@ -9,7 +9,7 @@ import { createRateLimiter } from "../lib/rateLimit.js";
 import { readNapsterIds } from "../napster/ids.js";
 import { createWordTravels } from "../game/wordTravels.js";
 import { normalizeNumber } from "../lib/phoneNumbers.js";
-import { callerIdKitUnlocked, callerIdLabel, trustStartFor } from "../game/callerId.js";
+import { callerIdKitUnlocked, callerIdLabel, ignoresCaller } from "../game/callerId.js";
 
 const OPEN = ["dialing", "live"];
 const STALE_AFTER_S = 15 * 60; // Napster closes idle calls after 3 min; anything this old is gone
@@ -126,10 +126,20 @@ export function callsRouter({
     return { number };
   }
 
+  // The number dialled plus the number shown: which level picks up, or why nobody does.
+  function resolveCall(playerId, body) {
+    const found = resolveNumber(playerId, body?.number);
+    if (found.error) return found;
+    const callerId = readCallerId(playerId, body?.callerId);
+    if (callerId.error) return { status: 400, error: callerId.error };
+    if (ignoresCaller(content, found.level, callerId.number)) return { status: 403, error: "unavailable" };
+    return { ...found, callerId: callerId.number };
+  }
+
   // Free pre-check before the phone asks for the microphone: no Napster session is created.
   router.post("/lookup", (req, res) => {
     if (!allowLookup(req.player.id)) return res.status(429).json({ error: "too_many_calls" });
-    const found = resolveNumber(req.player.id, req.body?.number);
+    const found = resolveCall(req.player.id, req.body);
     if (found.error) return res.status(found.status).json({ error: found.error });
     res.json({ ok: true, level: found.level.level });
   });
@@ -138,22 +148,20 @@ export function callsRouter({
     try {
       const playerId = req.player.id;
       if (!allowDial(playerId) || !allowDialFromIp(req.ip)) return res.status(429).json({ error: "too_many_calls" });
-      const found = resolveNumber(playerId, req.body?.number);
+      const found = resolveCall(playerId, req.body);
       if (found.error) return res.status(found.status).json({ error: found.error });
-      const { level, agentId } = found;
-      const callerId = readCallerId(playerId, req.body?.callerId);
-      if (callerId.error) return res.status(400).json({ error: callerId.error });
+      const { level, agentId, callerId } = found;
       if (!allowDialGlobal("all")) return res.status(503).json({ error: "line_busy" });
 
       await endOpenCalls(playerId, "replaced");
-      const { callId, externalClientId } = startAttempt(playerId, level.level, callerId.number);
+      const { callId, externalClientId } = startAttempt(playerId, level.level, callerId);
 
       // What the character knows before picking up: security notices about tricks that won
       // earlier levels for this player (word travels), and what their screen shows (caller ID).
       const profile = {};
       const officeNews = wordTravels.officeNews(content, playerId, level.level);
       if (officeNews.length) profile.office_news = officeNews;
-      if (level.callerId) profile.caller_id = callerIdLabel(content, callerId.number);
+      if (level.callerId) profile.caller_id = callerIdLabel(content, callerId);
       let connection;
       try {
         connection = await napster.createConnection(agentId, {
@@ -199,7 +207,7 @@ export function callsRouter({
     res.json({
       status: call.status,
       closeReason: call.status === "ended" ? call.close_reason : null,
-      trust: call.trust ?? trustStartFor(content, level, call.caller_id),
+      trust: call.trust ?? rules.start,
       codeAt: rules.codeAt,
       hangUpAt: rules.hangUpAt,
     });
@@ -223,7 +231,7 @@ export function callsRouter({
         await closeOnNapster(call.napster_session_id);
         return res.json({ ok: true, status: "ended" });
       }
-      let trust = call.trust ?? trustStartFor(content, level, call.caller_id);
+      let trust = call.trust ?? level.trust.start;
       if (countSilence.get(call.id).n < MAX_SILENCE_PENALTIES) {
         // Silence alone never pushes trust to the hang-up line; that's what the 20-second rule is for.
         trust = Math.max(level.trust.hangUpAt + 1, trust - level.silence.penalty);

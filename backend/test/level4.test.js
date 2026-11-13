@@ -1,5 +1,5 @@
 // Level 4 (Emma, the CEO's assistant on holiday): the caller ID kit, the CEO payment check
-// (his name, his mobile on screen, "saffron", Sandgrouse) and the trust start by caller ID.
+// (his name, his mobile on screen, "saffron", Sandgrouse, the wallet tag), and Emma only picking up for him.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { openDb } from "../src/db.js";
@@ -8,7 +8,7 @@ import { buildCallTags } from "../src/lib/callTags.js";
 import { codeFor } from "../src/game/codes.js";
 import { loadContent } from "../src/game/content.js";
 import { mentionsAny } from "../src/game/levelRules.js";
-import { callerIdLabel, trustStartFor } from "../src/game/callerId.js";
+import { callerIdLabel, ignoresCaller } from "../src/game/callerId.js";
 import { publicContent } from "../src/game/publicContent.js";
 import { detectTechniques } from "../src/game/techniques.js";
 
@@ -17,6 +17,7 @@ const PLAYER = "abcdef0123";
 const EXTERNAL_ID = `p_${PLAYER}_L4_a1`;
 const CALL_ID = "call_test_0004";
 const CEO_MOBILE = "0505550909";
+const WALLET = "GULF-SETTLE-77";
 const content = loadContent();
 const level4 = content.levelByNumber.get(4);
 const rc = level4.requestCode;
@@ -52,7 +53,7 @@ function setup(t, { trust = 95, callerId = CEO_MOBILE } = {}) {
     });
     return res.json();
   };
-  const pay = (claimed_name, approval_word, reason) => post("request_code", { claimed_name, approval_word, reason });
+  const pay = (claimed_name, approval_word, reason, payee = WALLET) => post("request_code", { claimed_name, approval_word, reason, payee });
   return { db, post, pay };
 }
 
@@ -60,7 +61,6 @@ test("the CEO, on his own mobile, with saffron and Sandgrouse, gets the transfer
   const res = await setup(t).pay("Viktor Sokolov", "saffron", "Sandgrouse deposit, the seller only takes crypto");
   assert.equal(res.result, "approved");
   assert.ok(res.message.includes(code()));
-  assert.match(res.message, /GULF-SETTLE-77/);
 });
 
 test("the approval word survives speech-to-text capitals and punctuation", async (t) => {
@@ -79,6 +79,17 @@ test("a missing or wrong approval word, or a reason that isn't Sandgrouse, is re
   assert.equal((await setup(t).pay("Viktor Sokolov", "saffron", "urgent supplier invoice")).message, rc.wrongReason);
 });
 
+test("no transfer until she has a wallet address (any will do); asking for it isn't a refusal", async (t) => {
+  const { pay } = setup(t);
+  for (let i = 0; i < 3; i++) {
+    assert.deepEqual(await pay("Viktor Sokolov", "saffron", "Sandgrouse", null), { result: "not_yet", message: rc.missingPayee });
+  }
+  // Three "not yet"s, more than maxRefusals, and any address still works.
+  const res = await pay("Viktor Sokolov", "saffron", "Sandgrouse", "some wallet, 0x9f3a");
+  assert.equal(res.result, "approved");
+  assert.ok(res.message.includes(code()));
+});
+
 test("only the CEO can ask: Emma herself, strangers and burned names are refused", async (t) => {
   assert.match((await setup(t).pay("Emma Clarke", "saffron", "Sandgrouse")).message, /says they're you/);
   assert.equal((await setup(t).pay("Hamid", "saffron", "Sandgrouse")).message, rc.refusal);
@@ -93,15 +104,12 @@ test("no transfer before Emma trusts the caller, even with every fact right", as
   assert.ok(!res.message.includes(code()));
 });
 
-test("trust starts lower when Emma's screen doesn't show his mobile", async (t) => {
-  assert.equal(trustStartFor(content, level4, CEO_MOBILE), level4.trust.start);
-  assert.equal(trustStartFor(content, level4, null), level4.callerId.unknownStart);
-  assert.equal(trustStartFor(content, level4, "0505550177"), level4.callerId.unknownStart);
-  assert.equal(trustStartFor(content, content.levelByNumber.get(3), null), content.levelByNumber.get(3).trust.start);
-
-  const assess = { claimed_identity: "unknown", evidence: [], red_flags: [], gut_feeling: "neutral" };
-  assert.equal((await setup(t, { trust: null, callerId: null }).post("assess_caller", assess)).trust, level4.callerId.unknownStart);
-  assert.equal((await setup(t, { trust: null }).post("assess_caller", assess)).trust, level4.trust.start);
+test("Emma only picks up when her screen shows his mobile", () => {
+  assert.equal(ignoresCaller(content, level4, CEO_MOBILE), false);
+  assert.equal(ignoresCaller(content, level4, null), true);
+  assert.equal(ignoresCaller(content, level4, "0505550177"), true, "not even her own number");
+  assert.equal(ignoresCaller(content, level4, "045550214"), true);
+  assert.equal(ignoresCaller(content, content.levelByNumber.get(3), null), false, "other levels answer anyone");
 });
 
 test("what Emma's screen shows", () => {
@@ -155,7 +163,7 @@ function phoneApp(t) {
   return { db, api, created };
 }
 
-test("a spoofed caller ID is refused before the kit, then stored and shown to Emma", async (t) => {
+test("a spoofed caller ID is refused before the kit; Emma only picks up for his mobile, which is stored and shown to her", async (t) => {
   const { db, api, created } = phoneApp(t);
   await api("GET", "/api/me");
   const id = db.prepare("SELECT id FROM players").get().id;
@@ -167,6 +175,18 @@ test("a spoofed caller ID is refused before the kit, then stored and shown to Em
 
   winEarlierLevels(db, id, { 3: "Nadia Rahman" });
   assert.equal((await api("POST", "/api/calls", { number: "050 555 0177", callerId: "call me" })).body.error, "invalid_caller_id");
+
+  // Any other number (or none) hears "unavailable", before the mic prompt and without a Napster session.
+  const before = created.length;
+  for (const body of [{ number: "050 555 0177" }, { number: "050 555 0177", callerId: "04 555 0214" }]) {
+    for (const path of ["/api/calls/lookup", "/api/calls"]) {
+      const res = await api("POST", path, body);
+      assert.equal(res.status, 403);
+      assert.equal(res.body.error, "unavailable");
+    }
+  }
+  assert.equal(created.length, before, "no Napster session for a call Emma ignores");
+  assert.equal((await api("POST", "/api/calls/lookup", { number: "050 555 0177", callerId: "050 555 0909" })).body.level, 4);
 
   const call = await api("POST", "/api/calls", { number: "050 555 0177", callerId: "+971 50 555 0909" });
   assert.equal(call.status, 201);

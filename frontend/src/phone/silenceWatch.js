@@ -1,9 +1,14 @@
 // Watches for the caller going quiet during a call and tells the character what to do.
-// The clock only runs while nobody is talking. Any word from the caller resets it.
+// The clock only runs when it's the caller's turn: nobody is talking, and the character has
+// answered the caller's last words (thinking and checking the caller can take a few seconds,
+// and that isn't the caller's silence). Any word from the caller resets it.
 //   checkInAfterS: "Hello? Are you still there?" (a different line each time)
 //   uneasyAfterS:  the character gets uneasy and trust drops (server side)
 //   hangUpAfterS:  the character says goodbye and the call ends
 // No JSX or browser APIs, so the backend test runner can test it with a fake clock.
+
+// If the character never answers (a noise that wasn't words, say), the clock starts anyway after this.
+const MAX_REPLY_WAIT_S = 15;
 
 export function createSilenceWatch({
   config,
@@ -18,6 +23,7 @@ export function createSilenceWatch({
 }) {
   let userTalking = false;
   let agentTalking = false;
+  let replyDueSince = null; // the caller finished speaking; the character hasn't answered yet
   let silentSince = null;
   let stage = 0; // 0 quiet, 1 checked in, 2 uneasy, 3 said goodbye
   const unused = { checkIns: [], uneasy: [], goodbyes: [] };
@@ -38,6 +44,10 @@ export function createSilenceWatch({
     if (userTalking) return reset();
     // The character talking normally pauses the clock; their check-in lines don't.
     if (agentTalking && stage === 0) return (silentSince = null);
+    if (replyDueSince !== null) {
+      if ((now() - replyDueSince) / 1000 < MAX_REPLY_WAIT_S) return (silentSince = null);
+      replyDueSince = null;
+    }
     if (silentSince === null) return (silentSince = now());
 
     const quietFor = (now() - silentSince) / 1000;
@@ -58,11 +68,13 @@ export function createSilenceWatch({
   const timer = setTimer(tick, tickMs);
   return {
     userSpeaking(on) {
+      if (!on && userTalking) replyDueSince = now(); // their turn is over; now it's the character's
       userTalking = on;
       if (on) reset();
     },
     agentSpeaking(on) {
       agentTalking = on;
+      if (on) replyDueSince = null; // the character is answering
     },
     stop: () => clearTimer(timer),
     tick, // for tests
