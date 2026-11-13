@@ -68,7 +68,8 @@ export function createSilenceWatch({
   const timer = setTimer(tick, tickMs);
   return {
     userSpeaking(on) {
-      if (!on && userTalking) replyDueSince = now(); // their turn is over; now it's the character's
+      // Their turn is over; now it's the character's (unless the character already started answering).
+      if (!on && userTalking && !agentTalking) replyDueSince = now();
       userTalking = on;
       if (on) reset();
     },

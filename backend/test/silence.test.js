@@ -2,6 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createSilenceWatch } from "../../frontend/src/phone/silenceWatch.js";
+import { isSilenceNote, mightBeSilenceNote, silenceNote } from "../../frontend/src/phone/silenceNote.js";
 import { loadContent } from "../src/game/content.js";
 
 const config = loadContent().levelByNumber.get(1).silence;
@@ -85,6 +86,26 @@ test("if the character never replies, the clock starts anyway", () => {
   watch.userSpeaking(false);
   wait(15 + config.checkInAfterS + 1);
   assert.equal(events.length, 1);
+});
+
+test("a reply that starts before the caller's 'stopped speaking' event still counts", () => {
+  const { watch, events, wait } = setup();
+  watch.userSpeaking(true);
+  watch.agentSpeaking(true); // the character starts answering first
+  watch.userSpeaking(false); // the late event
+  watch.agentSpeaking(false);
+  wait(config.checkInAfterS + 1);
+  assert.equal(events.length, 1, "the caller's turn is timed as soon as the reply ends");
+});
+
+test("the silence note: only the character's echo of it is hidden, even while it streams", () => {
+  const note = silenceNote("Hello?");
+  assert.ok(isSilenceNote(note));
+  assert.ok(isSilenceNote(`  ${note}`));
+  assert.ok(!isSilenceNote("The line's terrible, hello?"));
+  for (const piece of ["The", "The caller", "The caller has gone"]) assert.ok(mightBeSilenceNote(piece), piece);
+  assert.ok(!mightBeSilenceNote("The line"));
+  assert.ok(!mightBeSilenceNote(""));
 });
 
 test("check-in lines don't repeat until all have been used", () => {

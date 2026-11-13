@@ -200,6 +200,17 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
     ...osint.pixa.accounts.map((a) => a.staffId),
   ];
   for (const id of osintStaffIds) check(id === null || staffById.has(id), `osint: unknown staffId ${id}`);
+  // Badges drawn in Pixa photos: a readable one needs name, role and ID; a turned one shows nothing.
+  for (const account of osint.pixa.accounts) {
+    for (const post of account.posts) {
+      if (post.badges === undefined) continue;
+      const where = `pixa: ${account.handle}/${post.id}`;
+      check(Array.isArray(post.badges) && post.badges.length > 0, `${where}: badges must be a non-empty list`);
+      for (const b of post.badges ?? []) {
+        check(b.turned === true || [b.name, b.role, b.employeeId].every((f) => typeof f === "string" && f), `${where}: a readable badge needs name, role and employeeId`);
+      }
+    }
+  }
   check(!CODE_LIKE.test(JSON.stringify(osint)), "osint: public pages contain something that looks like a code");
 
   const techniqueIds = new Set();

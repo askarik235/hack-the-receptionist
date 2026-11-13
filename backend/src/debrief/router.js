@@ -4,7 +4,7 @@ import express from "express";
 import { codeFor } from "../game/codes.js";
 import { trustMoves } from "../game/techniques.js";
 import { createRateLimiter } from "../lib/rateLimit.js";
-import { isSilenceNote } from "./silenceNote.js";
+import { isSilenceNote } from "../../../frontend/src/phone/silenceNote.js";
 
 const SHOWN_CALLS = 20;
 const BACKFILL_PER_REQUEST = 3;
@@ -79,7 +79,7 @@ export function trainingRouter({ config, db, content, processor = null }) {
           // Calls saved before silence notes were filtered still have them; drop them here too.
           transcript:
             transcript
-              ?.filter((m) => !isSilenceNote(m.text))
+              ?.filter((m) => m.role === "user" || !isSilenceNote(m.text))
               .map((m) => ({ who: m.role === "user" ? "you" : "them", text: redactCodes(m.text, code) })) ?? null,
           lesson: call.won ? { whyItWorked: level.debrief.whyItWorked, defence: level.debrief.defence } : null,
         };

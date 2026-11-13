@@ -15,6 +15,7 @@ import { initialState, scoreTurn, guidanceFor, isBurned } from "../game/trust.js
 import { TOOL_SECRET_HEADER } from "./constants.js";
 
 const MAX_TEXT = 120;
+const MAX_PAYEE = 200;
 
 function secretMatches(given, expected) {
   if (typeof given !== "string") return false;
@@ -106,7 +107,8 @@ export function toolsRouter({
     const employeeId = cleanText(args.employee_id);
     const department = cleanText(args.department);
     const approvalWord = cleanText(args.approval_word);
-    const payee = cleanText(args.payee);
+    // A spoken wallet address can be long; keep the start of it rather than treating it as missing.
+    const payee = typeof args.payee === "string" && args.payee.trim() ? args.payee.trim().slice(0, MAX_PAYEE) : null;
     // The first name a caller gives in a call sticks. Switching to someone else later is a lie.
     const earlier = call.trust_identity ?? firstClaim.get(call.id)?.claimed_name;
     const trust = call.trust ?? level.trust.start;

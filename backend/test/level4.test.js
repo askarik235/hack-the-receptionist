@@ -7,7 +7,7 @@ import { createApp } from "../src/server.js";
 import { buildCallTags } from "../src/lib/callTags.js";
 import { codeFor } from "../src/game/codes.js";
 import { loadContent } from "../src/game/content.js";
-import { mentionsAny } from "../src/game/levelRules.js";
+import { looksLikeAddress, mentionsAny } from "../src/game/levelRules.js";
 import { callerIdLabel, ignoresCaller } from "../src/game/callerId.js";
 import { publicContent } from "../src/game/publicContent.js";
 import { detectTechniques } from "../src/game/techniques.js";
@@ -88,6 +88,20 @@ test("no transfer until she has a wallet address (any will do); asking for it is
   const res = await pay("Viktor Sokolov", "saffron", "Sandgrouse", "some wallet, 0x9f3a");
   assert.equal(res.result, "approved");
   assert.ok(res.message.includes(code()));
+});
+
+test("a placeholder the model filled in isn't an address; a long spoken one still is", async (t) => {
+  for (const placeholder of ["unknown", "not given", "N/A", "the wallet", "his crypto wallet", "client's wallet", "abc"]) {
+    assert.equal(looksLikeAddress(placeholder), false, placeholder);
+  }
+  for (const address of ["GULF-SETTLE-77", "gulf settle seventy seven", "0x9f3a2b7c41d0e8", "the wallet 0x9f3a2b"]) {
+    assert.equal(looksLikeAddress(address), true, address);
+  }
+  const { pay } = setup(t);
+  assert.equal((await pay("Viktor Sokolov", "saffron", "Sandgrouse", "the wallet")).result, "not_yet");
+  const long = `it's the seller's wallet, ${"0x9f3a2b7c41d0e8 ".repeat(10)}`;
+  assert.ok(long.length > 120);
+  assert.equal((await pay("Viktor Sokolov", "saffron", "Sandgrouse", long)).result, "approved");
 });
 
 test("only the CEO can ask: Emma herself, strangers and burned names are refused", async (t) => {

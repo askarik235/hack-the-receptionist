@@ -15,6 +15,17 @@ export function mentionsAny(text, keywords) {
 // "Saffron.", " SAFFRON " -> "saffron". Speech-to-text adds punctuation and capitals.
 const plainWord = (value) => (typeof value === "string" ? value.toLowerCase().replace(/[^a-z]/g, "") : "");
 
+// A payee the caller actually gave: something address-like (any wallet will do), not a
+// placeholder the model filled in because it didn't ask ("unknown", "the wallet", "n/a").
+const PLACEHOLDER_PAYEE = /\b(unknown|not (given|provided|said|known)|none|n\/?a|tbd|no address)\b/i;
+export function looksLikeAddress(payee) {
+  if (typeof payee !== "string" || PLACEHOLDER_PAYEE.test(payee)) return false;
+  const lettersAndDigits = payee.replace(/[^a-z0-9]/gi, "");
+  const words = payee.toLowerCase().replace(/['’]/g, "").replace(/[^a-z\s]/g, " ").split(/\s+/).filter(Boolean);
+  const vague = words.length > 0 && words.every((w) => ["the", "a", "his", "her", "their", "client", "clients", "crypto", "wallet", "address", "account", "seller", "sellers", "usual", "same", "one"].includes(w));
+  return lettersAndDigits.length >= 6 && !vague;
+}
+
 // Names that count as "the right person to ask" at this level (used for the trust bonus and the debrief).
 export function identityNames(level) {
   const rc = level.requestCode;
@@ -68,13 +79,13 @@ export const CHECKS = {
   // Level 4: an urgent payment approved by the CEO. Only for him, only from his own mobile
   // (the caller ID the player set, stored on the call, never what the model says), only with
   // this week's approval word, only for the confidential deal it is meant for, and only once
-  // she has asked where the money goes (any wallet address will do).
+  // she has asked where the money goes (any wallet address will do, but not a placeholder).
   ceo_payment: (rc, { claimed_name, reason, approval_word, payee, caller_id }, { staffById }) => {
     if (!nameMatches(claimed_name, rc.acceptedNames)) return refuseUnknown(rc, claimed_name);
     if (!caller_id || caller_id !== staffById.get(rc.callerStaffId)?.phone) return { approved: false, message: rc.wrongCaller };
     if (!rc.approvalWords.includes(plainWord(approval_word))) return { approved: false, message: rc.wrongWord };
     if (!mentionsAny(reason, rc.reasonKeywords)) return { approved: false, message: rc.wrongReason };
-    if (!payee) return { approved: false, pending: true, message: rc.missingPayee };
+    if (!looksLikeAddress(payee)) return { approved: false, pending: true, message: rc.missingPayee };
     return { approved: true };
   },
 };

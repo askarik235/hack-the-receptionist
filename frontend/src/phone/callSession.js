@@ -5,11 +5,7 @@ import Napster from "@touchcastllc/napster-companion-api";
 import "@touchcastllc/napster-companion-api/styles";
 import { dialCall, hangUpCall, reportSilence } from "../api.js";
 import { createSilenceWatch } from "./silenceWatch.js";
-
-// The hidden note sent when the caller goes quiet. Napster echoes it back as if the character
-// said it, so captions skip it (the backend drops it from transcripts: debrief/silenceNote.js).
-const SILENCE_NOTE_START = "The caller has gone silent.";
-const isSilenceNote = (text) => text.trimStart().startsWith(SILENCE_NOTE_START);
+import { isSilenceNote, mightBeSilenceNote, silenceNote } from "./silenceNote.js";
 
 // Server events that mean the call is over, and what the phone shows for them.
 const SHUTDOWN = {
@@ -88,13 +84,14 @@ export function startCall({ number, callerId = "", container, on }) {
       const who = role === "user" ? "you" : "them";
       if (who === "you" && m.action === "speech_started") silence?.userSpeaking(true);
       if (who === "you" && (m.action === "speech_stopped" || m.action === "completed")) silence?.userSpeaking(false);
-      // Their words stream in as pieces; show the line as it grows.
+      // Their words stream in as pieces; show the line as it grows. The echo of our hidden
+      // silence note is theirs too, so only their lines are checked for it.
       if (who === "them" && m.action === "delta" && m.content) {
         pendingText += m.content;
-        if (!isSilenceNote(pendingText)) on.caption({ who, text: pendingText, partial: true });
+        if (!mightBeSilenceNote(pendingText)) on.caption({ who, text: pendingText, partial: true });
       } else if (m.action === "completed" && m.content) {
         if (who === "them") pendingText = "";
-        if (!isSilenceNote(m.content)) on.caption({ who, text: m.content, partial: false });
+        if (who === "you" || !isSilenceNote(m.content)) on.caption({ who, text: m.content, partial: false });
       }
       return;
     }
@@ -108,7 +105,7 @@ export function startCall({ number, callerId = "", container, on }) {
         type: "send_message",
         data: {
           role: "system",
-          text: `${SILENCE_NOTE_START} Say exactly this line in your own voice, and nothing else: "${line}"`,
+          text: silenceNote(line),
           trigger_response: true,
         },
       });

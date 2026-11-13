@@ -3,7 +3,7 @@
 // as a fallback by the Training app for calls the webhook hasn't covered (e.g. no webhook in dev).
 import { now } from "../db.js";
 import { detectTechniques } from "../game/techniques.js";
-import { isSilenceNote } from "./silenceNote.js";
+import { isSilenceNote } from "../../../frontend/src/phone/silenceNote.js";
 
 const MAX_ITEMS = 400;
 const MAX_TEXT = 2000;
@@ -47,14 +47,16 @@ export function createCallProcessor({ db, content, napster, log = console }) {
       }
       if (session.status !== "closed" && session.status !== "failed") return false; // still running; try later
       transcript = (session.conversation?.items ?? [])
-        .filter((item) => !isSilenceNote(item.text))
-        .slice(0, MAX_ITEMS)
         .map((item) => ({
           // The docs say "user"/"agent"; real sessions send "User"/"Assistant". Accept both.
           role: String(item.role ?? "").toLowerCase() === "user" ? "user" : "agent",
           text: String(item.text ?? "").slice(0, MAX_TEXT),
           at: item.timestamp ?? null,
-        }));
+        }))
+        // The phone's hidden silence note comes back as the character's line. A player saying
+        // the same words is kept, so it still counts (e.g. as a prompt injection).
+        .filter((item) => item.role === "user" || !isSilenceNote(item.text))
+        .slice(0, MAX_ITEMS);
       cost = typeof session.cost === "number" ? session.cost : null;
       closeIfOpen.run(closeReason ?? session.closeReason ?? "closed", session.closedAt ?? now(), call.id);
     }

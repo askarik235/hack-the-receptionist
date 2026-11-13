@@ -56,8 +56,9 @@ function Photo({ post, large = false }) {
     return (
       <div className={`px-photo is-office${size}`} role="img" aria-label={post.alt}>
         <div className="px-selfie" aria-hidden="true">
-          {badges.map((badge) => (
-            <div className="px-person" key={badge.name}>
+          {badges.map((badge, i) => (
+            // People in a photo never move or reorder, so their position is a stable key.
+            <div className="px-person" key={i}>
               <span className="px-head" />
               <span className="px-body">
                 <Badge badge={badge} />
