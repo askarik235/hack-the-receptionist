@@ -15,7 +15,7 @@ const SHUTDOWN = {
 };
 
 // Returns the call controls straight away, so the player can hang up while it is still ringing.
-export function startCall({ number, container, on }) {
+export function startCall({ number, callerId = "", container, on }) {
   let callId = null;
   let instance = null;
   let ended = false;
@@ -49,7 +49,7 @@ export function startCall({ number, container, on }) {
 
   async function getToken() {
     if (callId) throw Object.assign(new Error("one session per call"), { code: "call_failed" });
-    const { callId: id, token, silence: lines } = await dialCall(number);
+    const { callId: id, token, silence: lines } = await dialCall(number, callerId);
     callId = id;
     silenceConfig = lines ?? null;
     on.dialled?.(id);

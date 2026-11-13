@@ -49,7 +49,8 @@ export function scoreTurn(rules, state, args, { acceptedNames, burnedNames = [] 
 
   // Identity: the first name sticks. Matching the person the code is meant for earns trust once.
   const claimed = typeof args.claimed_identity === "string" ? args.claimed_identity.trim().slice(0, MAX_TEXT) : "";
-  if (claimed && !/^(unknown|none|not given|n\/a)$/i.test(claimed)) {
+  // "It's me" is not a name: wait for the caller to say who they are.
+  if (claimed && !/^(unknown|none|not given|n\/a|me|it'?s me|it is me|myself|the caller)$/i.test(claimed)) {
     if (!next.identity) {
       next.identity = claimed;
       if (isBurned(claimed, burnedNames)) add("known_trick", rules.flags.known_trick ?? KNOWN_TRICK_PENALTY, `Used ${claimed} again after it already worked once`);

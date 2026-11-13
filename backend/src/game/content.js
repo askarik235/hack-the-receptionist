@@ -110,6 +110,19 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
       }
       for (const field of ["missingId", "wrongId", "wrongDepartment"]) check(text(requestCode[field]), `${where}: bad ${field} text`);
     }
+    if (requestCode.check === "ceo_payment") {
+      check(nameList(requestCode.acceptedNames), `${where}: acceptedNames must be lowercase`);
+      check(/^0\d{8,9}$/.test(staffById.get(requestCode.callerStaffId)?.phone ?? ""), `${where}: callerStaffId needs a phone number in staff.json`);
+      check(Array.isArray(requestCode.approvalWords) && requestCode.approvalWords.length > 0 && requestCode.approvalWords.every((w) => /^[a-z]+$/.test(w)), `${where}: approvalWords must be lowercase letters`);
+      check(nameList(requestCode.reasonKeywords), `${where}: reasonKeywords must be lowercase`);
+      for (const field of ["wrongCaller", "wrongWord", "wrongReason"]) check(text(requestCode[field]), `${where}: bad ${field} text`);
+    }
+    // Caller ID kit: who the character expects to see on screen, and trust when it's someone else.
+    if (level.callerId) {
+      check(staffById.get(level.callerId.trustedStaffId)?.phone, `${where}: callerId.trustedStaffId needs a phone number in staff.json`);
+      const { unknownStart } = level.callerId;
+      check(Number.isInteger(unknownStart) && unknownStart > level.trust.hangUpAt && unknownStart <= level.trust.start, `${where}: callerId.unknownStart must be above hangUpAt and at most trust.start`);
+    }
     for (const r of requestCode.refusalsFor ?? []) check(nameList(r.names) && text(r.message), `${where}: bad refusalsFor entry`);
     check(typeof requestCode.approvedTemplate === "string" && requestCode.approvedTemplate.includes("{code}"), `${where}: approvedTemplate needs {code}`);
     check(text(requestCode.refusal), `${where}: bad refusal text`);
@@ -176,7 +189,7 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
 
   const numbers = new Set();
   for (const entry of phoneBook) {
-    check(/^0\d{8}$/.test(entry.number), `phoneBook: bad number ${entry.number}`);
+    check(/^0\d{8,9}$/.test(entry.number), `phoneBook: bad number ${entry.number}`); // landline 04..., mobile 05...
     check(!numbers.has(entry.number), `phoneBook: duplicate number ${entry.number}`);
     check(levelByNumber.has(entry.level), `phoneBook: ${entry.number} points to unknown level ${entry.level}`);
     numbers.add(entry.number);

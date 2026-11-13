@@ -25,12 +25,17 @@ const REASONS = {
   silence: "You went quiet for too long and they hung up. Real callers keep the conversation going.",
   time_limit: "Calls are limited to 10 minutes. Dial again to try a new approach.",
   call_failed: "The call didn't go through. Try again.",
+  invalid_caller_id: "The caller ID kit doesn't understand that number. Check the digits, or clear it to call from your own number.",
+  no_caller_id_kit: "You don't have a caller ID kit yet.",
 };
 const FRIENDLY_END = new Set(["you_hung_up", "ended", "hung_up_remote"]);
 
+// "045550142" -> "04 555 0142" (landline), "0505550177" -> "050 555 0177" (mobile)
 export const formatNumber = (number) => {
   const d = digitsOf(number);
-  return d.length === 9 && d.startsWith("0") ? `${d.slice(0, 2)} ${d.slice(2, 5)} ${d.slice(5)}` : number;
+  if (d.length === 9 && d.startsWith("0")) return `${d.slice(0, 2)} ${d.slice(2, 5)} ${d.slice(5)}`;
+  if (d.length === 10 && d.startsWith("0")) return `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}`;
+  return number;
 };
 const clock = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
@@ -42,11 +47,15 @@ function readMicOk() {
   }
 }
 
-export default function Phone() {
+// callerIdKit: the player has NIGHTJAR's caller ID kit (Level 4 on) and can choose the
+// number the other phone shows.
+export default function Phone({ callerIdKit = false }) {
   const contacts = useContacts();
   const recents = useRecents();
   const [tab, setTab] = useState("keypad");
   const [typed, setTyped] = useState("");
+  const [showAs, setShowAs] = useState("");
+  const callerId = callerIdKit ? showAs.trim() : "";
   const [call, setCall] = useState(null); // { phase, number, reason, startedAt, muted, video, speaking, captions }
   const [now, setNow] = useState(Date.now());
   const handle = useRef(null);
@@ -94,7 +103,7 @@ export default function Phone() {
     const number = raw.trim();
     if (!number || call) return;
     const mine = ++attempt.current;
-    setCall({ phase: "checking", number, captions: [] });
+    setCall({ phase: "checking", number, callerId, captions: [] });
     try {
       await lookupNumber(number);
     } catch (err) {
@@ -102,11 +111,11 @@ export default function Phone() {
       return;
     }
     if (mine !== attempt.current) return;
-    if (readMicOk()) connect(number);
+    if (readMicOk()) connect(number, callerId);
     else patch({ phase: "mic" });
   }
 
-  async function allowMic(number) {
+  async function allowMic(number, shownAs) {
     const mine = attempt.current;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -116,7 +125,7 @@ export default function Phone() {
       } catch {
         /* ask again next visit */
       }
-      if (mine === attempt.current) connect(number);
+      if (mine === attempt.current) connect(number, shownAs);
     } catch {
       if (mine === attempt.current) finish(number, "mic_blocked", 0);
     }
@@ -132,11 +141,12 @@ export default function Phone() {
     else cancel();
   }
 
-  function connect(number) {
+  function connect(number, shownAs) {
     patch({ phase: "calling" });
     let startedAt = null;
     handle.current = startCall({
       number,
+      callerId: shownAs,
       container: videoBox.current,
       on: {
         connected: () => {
@@ -199,7 +209,7 @@ export default function Phone() {
                 game's voice service only for this call.
               </p>
               <p className="phone-mic-note">Everyone you call is fictional. Never share real passwords or personal details.</p>
-              <button type="button" className="phone-btn is-primary" onClick={() => allowMic(call.number)}>
+              <button type="button" className="phone-btn is-primary" onClick={() => allowMic(call.number, call.callerId)}>
                 Allow microphone
               </button>
               <button type="button" className="phone-btn" onClick={cancel}>
@@ -214,6 +224,9 @@ export default function Phone() {
                 </div>
                 <h3>{callerName ?? formatNumber(call.number)}</h3>
                 {callerName && <p className="phone-number">{formatNumber(call.number)}</p>}
+                {call.callerId && call.phase !== "ended" && (
+                  <p className="phone-showing">They see: {nameFor(contacts, call.callerId) ?? formatNumber(call.callerId)}</p>
+                )}
                 <p className="phone-status" aria-live="polite">
                   {call.phase === "checking" && "Dialling…"}
                   {call.phase === "calling" && "Ringing…"}
@@ -285,6 +298,20 @@ export default function Phone() {
                   dial(typed);
                 }}
               >
+                {callerIdKit && (
+                  <div className={`phone-spoof${showAs.trim() ? " is-set" : ""}`}>
+                    <label htmlFor="phone-show-as">Show as</label>
+                    <input
+                      id="phone-show-as"
+                      inputMode="tel"
+                      autoComplete="off"
+                      value={showAs}
+                      maxLength={20}
+                      placeholder="Your own number (hidden)"
+                      onChange={(e) => setShowAs(e.target.value.replace(/[^\d+() -]/g, ""))}
+                    />
+                  </div>
+                )}
                 <label className="visually-hidden" htmlFor="phone-dial">
                   Number to call
                 </label>

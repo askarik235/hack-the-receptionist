@@ -155,18 +155,39 @@
       "role": "Executive Assistant to the CEO",
       "department": "Executive Office",
       "managerId": "viktor-sokolov",
-      "employeeId": null,
-      "phone": null,
+      "employeeId": "VL-0012",
+      "phone": "0505550177",
       "level": 4,
       "speechProfile": {
-        "summary": "Crisp, fast, protective of the CEO's time. Polite but impossible to rush.",
-        "habits": [],
+        "summary": "Sharp, warm, quick. Five years running the CEO's life. Protective of him and of the company, and impossible to rush.",
+        "habits": [
+          "Thinks out loud about his schedule: \"You're flying at ten, so...\"",
+          "Apologises for the wedding noise and steps away from the music.",
+          "Repeats details back to check them.",
+          "Her first instinct for any task this weekend: \"Nadia's covering, she can do it.\"",
+          "Offers to ring him straight back on his mobile before doing anything with money."
+        ],
         "exampleLines": [
-          "I'll need to confirm that with Mr. Sokolov."
+          "Hi! Is everything okay? I'm at the wedding, give me a second...",
+          "Nadia's covering this weekend, she can sort that for you.",
+          "Let me ring you straight back on your mobile, the line's awful.",
+          "You know I can't do that without the word.",
+          "Funny, there was a notice about exactly this kind of call."
         ]
       },
-      "publicFacts": [],
-      "privateFacts": []
+      "publicFacts": [
+        "Executive Assistant to the CEO, Executive Office (website team page).",
+        "Away Friday to Sunday at her sister's wedding in Muscat; Nadia is covering (her forward in Nadia's inbox).",
+        "The CEO calls her \"Em\" and rings her mobile, never the office line (his email in Nadia's inbox).",
+        "Her mobile, 050 555 0177, is in her email signature (Nadia's inbox).",
+        "Books the CEO's car with Falcon Line (Anna, Level 2; the Falcon booking).",
+        "New laptop last week, still can't print (Erik, Level 3)."
+      ],
+      "privateFacts": [
+        "Sandgrouse is a confidential deal Mr. Sokolov is negotiating with outside parties. Only she and he know it exists.",
+        "She has never approved a crypto payment before.",
+        "She feels guilty about being away in the worst week the company has had."
+      ]
     },
     {
       "id": "nadia-rahman",
@@ -199,7 +220,7 @@
       "department": "Executive Office",
       "managerId": null,
       "employeeId": null,
-      "phone": null,
+      "phone": "0505550909",
       "level": 5,
       "speechProfile": {
         "summary": "Few words, slow and calm, answers questions with questions, quietly points out inconsistencies.",
@@ -207,7 +228,10 @@
         "exampleLines": []
       },
       "publicFacts": [
-        "Founded Vitality Logistics in 2009 (website)."
+        "Founded Vitality Logistics in 2009 (website).",
+        "Mobile 050 555 0909, in the Falcon Line booking (Nadia's inbox).",
+        "Flies to London Saturday morning, back Monday (his email to Em).",
+        "Writes short and blunt; signs \"V.\" or \"V. Sokolov\" (his emails)."
       ],
       "privateFacts": []
     },

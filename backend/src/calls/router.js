@@ -8,6 +8,8 @@ import { buildCallTags } from "../lib/callTags.js";
 import { createRateLimiter } from "../lib/rateLimit.js";
 import { readNapsterIds } from "../napster/ids.js";
 import { createWordTravels } from "../game/wordTravels.js";
+import { normalizeNumber } from "../lib/phoneNumbers.js";
+import { callerIdKitUnlocked, callerIdLabel, trustStartFor } from "../game/callerId.js";
 
 const OPEN = ["dialing", "live"];
 const STALE_AFTER_S = 15 * 60; // Napster closes idle calls after 3 min; anything this old is gone
@@ -15,15 +17,7 @@ const CALL_ID = /^call_[A-Za-z0-9_-]{16}$/;
 const MAX_SILENCE_PENALTIES = 3; // per call, so a broken client can't drain trust
 const MAX_CALL_S = 10 * 60; // hard cap on a call's length, so a call left open can't run up the bill
 
-// "04 555 0142", "+971 4 555 0142", "045550142" -> "045550142"
-export function normalizeNumber(input) {
-  if (typeof input !== "string" || input.length > 25) return null;
-  let digits = input.replace(/[\s().+-]/g, "");
-  if (!/^\d{6,15}$/.test(digits)) return null;
-  if (digits.startsWith("00971")) digits = "0" + digits.slice(5);
-  else if (digits.startsWith("971")) digits = "0" + digits.slice(3);
-  return digits;
-}
+export { normalizeNumber };
 
 export function callsRouter({
   config,
@@ -47,13 +41,14 @@ export function callsRouter({
   const allowStatus = createRateLimiter({ windowMs: rateLimit.windowMs, max: rateLimit.max * 20 }); // the phone polls this
 
   const isCleared = db.prepare("SELECT 1 FROM cleared_levels WHERE player_id = ? AND level = ?");
+  const clearedLevels = db.prepare("SELECT level FROM cleared_levels WHERE player_id = ?");
   const openCalls = db.prepare(
     `SELECT id, napster_session_id, created_at FROM calls WHERE player_id = ? AND status IN ('dialing', 'live')`
   );
   const nextAttempt = db.prepare("SELECT COALESCE(MAX(attempt), 0) + 1 AS n FROM calls WHERE player_id = ? AND level = ?");
   const insertCall = db.prepare(
-    `INSERT INTO calls (id, player_id, level, attempt, external_client_id, status, created_at)
-     VALUES (?, ?, ?, ?, ?, 'dialing', ?)`
+    `INSERT INTO calls (id, player_id, level, attempt, external_client_id, status, created_at, caller_id)
+     VALUES (?, ?, ?, ?, ?, 'dialing', ?, ?)`
   );
   const markLive = db.prepare("UPDATE calls SET status = 'live', napster_session_id = ? WHERE id = ?");
   const markDone = db.prepare(
@@ -64,7 +59,7 @@ export function callsRouter({
   const logSilence = db.prepare(
     "INSERT INTO tool_calls (call_id, level, tool, claimed_name, arguments_json, approved, created_at) VALUES (?, ?, 'silence', NULL, ?, 0, ?)"
   );
-  const findCall = db.prepare("SELECT id, level, napster_session_id, status, close_reason, trust FROM calls WHERE id = ? AND player_id = ?");
+  const findCall = db.prepare("SELECT id, level, napster_session_id, status, close_reason, trust, caller_id FROM calls WHERE id = ? AND player_id = ?");
   const overlong = db.prepare("SELECT id, napster_session_id FROM calls WHERE status IN ('dialing', 'live') AND created_at <= ?");
   const wordTravels = createWordTravels(db);
 
@@ -95,11 +90,11 @@ export function callsRouter({
     }
   }
 
-  const startAttempt = db.transaction((playerId, level) => {
+  const startAttempt = db.transaction((playerId, level, callerId) => {
     const attempt = nextAttempt.get(playerId, level).n;
     const callId = `call_${randomBytes(12).toString("base64url")}`;
     const externalClientId = externalClientIdFor(playerId, level, attempt);
-    insertCall.run(callId, playerId, level, attempt, externalClientId, now());
+    insertCall.run(callId, playerId, level, attempt, externalClientId, now(), callerId);
     return { callId, attempt, externalClientId };
   });
 
@@ -120,6 +115,17 @@ export function callsRouter({
     return { level, agentId };
   }
 
+  // The number the player chose to show (caller ID kit). Empty = no caller ID. Only allowed
+  // once the kit is unlocked.
+  function readCallerId(playerId, raw) {
+    if (raw === undefined || raw === null || raw === "") return { number: null };
+    const number = normalizeNumber(raw);
+    if (!number) return { error: "invalid_caller_id" };
+    const cleared = clearedLevels.all(playerId).map((row) => row.level);
+    if (!callerIdKitUnlocked(content, cleared)) return { error: "no_caller_id_kit" };
+    return { number };
+  }
+
   // Free pre-check before the phone asks for the microphone: no Napster session is created.
   router.post("/lookup", (req, res) => {
     if (!allowLookup(req.player.id)) return res.status(429).json({ error: "too_many_calls" });
@@ -135,20 +141,26 @@ export function callsRouter({
       const found = resolveNumber(playerId, req.body?.number);
       if (found.error) return res.status(found.status).json({ error: found.error });
       const { level, agentId } = found;
+      const callerId = readCallerId(playerId, req.body?.callerId);
+      if (callerId.error) return res.status(400).json({ error: callerId.error });
       if (!allowDialGlobal("all")) return res.status(503).json({ error: "line_busy" });
 
       await endOpenCalls(playerId, "replaced");
-      const { callId, externalClientId } = startAttempt(playerId, level.level);
+      const { callId, externalClientId } = startAttempt(playerId, level.level, callerId.number);
 
-      // Word travels: the character hears about tricks that won earlier levels for this player.
+      // What the character knows before picking up: security notices about tricks that won
+      // earlier levels for this player (word travels), and what their screen shows (caller ID).
+      const profile = {};
       const officeNews = wordTravels.officeNews(content, playerId, level.level);
+      if (officeNews.length) profile.office_news = officeNews;
+      if (level.callerId) profile.caller_id = callerIdLabel(content, callerId.number);
       let connection;
       try {
         connection = await napster.createConnection(agentId, {
           channelType: "webrtc",
           externalClientId,
           tags: buildCallTags(config.toolSecret, { callId, playerId, level: level.level }),
-          ...(officeNews.length ? { externalClientProfile: { office_news: officeNews } } : {}),
+          ...(Object.keys(profile).length ? { externalClientProfile: profile } : {}),
         });
       } catch (err) {
         markDone.run("failed", err.code ?? `http_${err.status}`, now(), callId);
@@ -182,11 +194,12 @@ export function callsRouter({
     if (!CALL_ID.test(req.params.callId)) return res.status(404).json({ error: "not_found" });
     const call = findCall.get(req.params.callId, req.player.id);
     if (!call) return res.status(404).json({ error: "not_found" });
-    const { trust: rules } = content.levelByNumber.get(call.level);
+    const level = content.levelByNumber.get(call.level);
+    const rules = level.trust;
     res.json({
       status: call.status,
       closeReason: call.status === "ended" ? call.close_reason : null,
-      trust: call.trust ?? rules.start,
+      trust: call.trust ?? trustStartFor(content, level, call.caller_id),
       codeAt: rules.codeAt,
       hangUpAt: rules.hangUpAt,
     });
@@ -210,7 +223,7 @@ export function callsRouter({
         await closeOnNapster(call.napster_session_id);
         return res.json({ ok: true, status: "ended" });
       }
-      let trust = call.trust ?? level.trust.start;
+      let trust = call.trust ?? trustStartFor(content, level, call.caller_id);
       if (countSilence.get(call.id).n < MAX_SILENCE_PENALTIES) {
         // Silence alone never pushes trust to the hang-up line; that's what the 20-second rule is for.
         trust = Math.max(level.trust.hangUpAt + 1, trust - level.silence.penalty);

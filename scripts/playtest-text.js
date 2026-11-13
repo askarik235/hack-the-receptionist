@@ -15,6 +15,8 @@ import { readNapsterIds } from "../backend/src/napster/ids.js";
 import { externalClientIdFor, generatePlayerId } from "../backend/src/lib/players.js";
 import { buildCallTags } from "../backend/src/lib/callTags.js";
 import { createWordTravels } from "../backend/src/game/wordTravels.js";
+import { callerIdLabel } from "../backend/src/game/callerId.js";
+import { normalizeNumber } from "../backend/src/lib/phoneNumbers.js";
 import { PERSONAS, personaById } from "./playtest/personas.js";
 
 const GREETING_WAIT_MS = 6000; // the character may or may not speak first
@@ -60,12 +62,12 @@ const napster = createNapsterClient({ apiKey: config.napsterApiKey });
 const agentIds = readNapsterIds(config.napsterApiKey).agents ?? {};
 const wordTravels = createWordTravels(db);
 // Who a typical player was when they won each earlier level.
-const WON_AS = { 1: "Mark Keller", 2: "Laura Weber" };
+const WON_AS = { 1: "Mark Keller", 2: "Laura Weber", 3: "Nadia Rahman" };
 
 const q = {
   addPlayer: db.prepare("INSERT INTO players (id, created_at, last_seen_at) VALUES (?, ?, ?)"),
   addCall: db.prepare(
-    `INSERT INTO calls (id, player_id, level, attempt, external_client_id, status, created_at) VALUES (?, ?, ?, 1, ?, 'dialing', ?)`
+    `INSERT INTO calls (id, player_id, level, attempt, external_client_id, status, created_at, caller_id) VALUES (?, ?, ?, 1, ?, 'dialing', ?, ?)`
   ),
   // For Level 2+: pretend the player already won the earlier levels (needed for "word travels").
   addWonCall: db.prepare(
@@ -167,9 +169,14 @@ async function playOnce(persona, runNo) {
     q.addWinningTool.run(wonCallId, n, persona.wonAs?.[n] ?? WON_AS[n] ?? "unknown", now());
     q.addCleared.run(playerId, n, now(), wonCallId);
   }
-  q.addCall.run(callId, playerId, level.level, externalClientId, now());
+  // persona.callerId: the number the caller ID kit shows (Level 4 on), as the Phone would send it.
+  const callerId = persona.callerId ? normalizeNumber(persona.callerId) : null;
+  q.addCall.run(callId, playerId, level.level, externalClientId, now(), callerId);
   const code = codeFor(config.codeSecret, playerId, level.level, level.code.words);
+  const profile = {};
   const officeNews = wordTravels.officeNews(content, playerId, level.level);
+  if (officeNews.length) profile.office_news = officeNews;
+  if (level.callerId) profile.caller_id = callerIdLabel(content, callerId);
 
   const started = Date.now();
   const connection = await napster.createConnection(agentId, {
@@ -177,7 +184,7 @@ async function playOnce(persona, runNo) {
     modality: "text",
     externalClientId,
     tags: buildCallTags(config.toolSecret, { callId, playerId, level: level.level }),
-    ...(officeNews.length ? { externalClientProfile: { office_news: officeNews } } : {}),
+    ...(Object.keys(profile).length ? { externalClientProfile: profile } : {}),
   });
   const sessionId = connection.connection.id;
   q.live.run(sessionId, callId);

@@ -13,20 +13,24 @@ const PATTERNS = {
   authority: /\b(i'?m your (boss|manager|supervisor)|this is your (boss|manager)|i'?m the (ceo|director|head of))\b/i,
 };
 // Every technique this module can report; each needs an entry in data/techniques.json.
-export const TECHNIQUE_IDS = ["pretexting", "authority", "osint", "rapport", "urgency", "pressure", "prompt_injection", "language_switch", "changed_story"];
+export const TECHNIQUE_IDS = ["pretexting", "authority", "osint", "rapport", "urgency", "pressure", "prompt_injection", "language_switch", "changed_story", "caller_id_spoofing"];
+// Checks where the caller poses as someone the target answers to (their manager, the CEO).
+const AUTHORITY_CHECKS = new Set(["manager_name", "ceo_payment"]);
 // Letters from scripts other than Latin (Cyrillic, Arabic, CJK, ...).
 const OTHER_SCRIPT = /[Ѐ-ӿ؀-ۿ֐-׿぀-ヿ一-鿿฀-๿ऀ-ॿ]{3,}/;
 
 // toolLogs: rows from tool_calls for this call (oldest first). transcript: [{ role, text }].
-export function detectTechniques({ level, toolLogs, transcript = [] }) {
+// callerId: the number the player chose to show on this call, if any.
+export function detectTechniques({ level, toolLogs, transcript = [], callerId = null }) {
   const found = new Set();
   const assessments = toolLogs.filter((t) => t.tool === "assess_caller").map((t) => JSON.parse(t.arguments_json));
   const changes = assessments.flatMap((a) => a.changes ?? []);
   const claims = toolLogs.map((t) => t.claimed_name).filter(Boolean);
 
   if (claims.length) found.add("pretexting");
-  // Authority = posing as someone the target answers to (Level 1's manager), not any colleague.
-  if (level.requestCode.check === "manager_name" && claims.some((name) => nameMatches(name, identityNames(level)))) found.add("authority");
+  // Authority = posing as someone the target answers to (a manager, the CEO), not any colleague.
+  if (AUTHORITY_CHECKS.has(level.requestCode.check) && claims.some((name) => nameMatches(name, identityNames(level)))) found.add("authority");
+  if (callerId) found.add("caller_id_spoofing");
   if (changes.some((c) => level.trust.evidence.some((e) => e.key === c.key))) found.add("osint");
   if (changes.some((c) => c.key === "pushy" || c.key === "asks_code_too_early")) found.add("pressure");
   if (changes.some((c) => c.key === "reads_instructions")) found.add("prompt_injection");

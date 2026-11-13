@@ -55,7 +55,7 @@ export function createCallProcessor({ db, content, napster, log = console }) {
       closeIfOpen.run(closeReason ?? session.closeReason ?? "closed", session.closedAt ?? now(), call.id);
     }
 
-    const techniques = detectTechniques({ level, toolLogs: toolLogs.all(call.id), transcript });
+    const techniques = detectTechniques({ level, toolLogs: toolLogs.all(call.id), transcript, callerId: call.caller_id });
     store(call, transcript, cost, techniques);
     return true;
   }

@@ -80,6 +80,10 @@ const MIGRATIONS = [
     PRIMARY KEY (player_id, technique)
   );
   `,
+  // 5: caller ID spoofing (Level 4 on): the number the player chose to show on this call.
+  `
+  ALTER TABLE calls ADD COLUMN caller_id TEXT;
+  `,
 ];
 
 export function openDb(path) {

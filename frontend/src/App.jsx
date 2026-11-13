@@ -61,7 +61,7 @@ export default function App() {
       browser: () => <Browser osint={content?.osint} request={browserRequest} />,
       notes: () => <Notes />,
       training: () => <Training />,
-      phone: () => <Phone />,
+      phone: () => <Phone callerIdKit={Boolean(content?.features?.callerIdKit)} />,
       hack: () => (
         <Hack
           target={content?.targets.find((t) => t.status === "open")}

@@ -71,6 +71,14 @@
       "realWorld": "This rarely works: a story that changes is the clearest sign of a lie.",
       "defence": "Notice when details don't add up, and end the call if the caller's identity changes.",
       "category": "What gave you away"
+    },
+    {
+      "id": "caller_id_spoofing",
+      "name": "Caller ID spoofing",
+      "whatYouDid": "You made their phone show a number they trust before you said a word.",
+      "realWorld": "Spoofing apps and cheap internet phone services let anyone choose the number that appears on screen. Fraudsters use it to look like a bank, the police or the boss.",
+      "defence": "Caller ID proves nothing. For anything that matters, hang up and call back on a number you already have.",
+      "category": "Social engineering"
     }
   ]
 }

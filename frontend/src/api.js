@@ -17,7 +17,8 @@ export const getTraining = () => request("GET", "/api/training");
 export const submitHack = (code) => request("POST", "/api/hack", { code });
 export const mailLogin = (username, password) => request("POST", "/api/mail/login", { username, password });
 export const lookupNumber = (number) => request("POST", "/api/calls/lookup", { number });
-export const dialCall = (number) => request("POST", "/api/calls", { number });
+// callerId: the number the caller ID kit shows (Level 4 on); empty = no caller ID.
+export const dialCall = (number, callerId) => request("POST", "/api/calls", callerId ? { number, callerId } : { number });
 export const getCallStatus = (callId) => request("GET", `/api/calls/${encodeURIComponent(callId)}`);
 export const reportSilence = (callId, stage) => request("POST", `/api/calls/${encodeURIComponent(callId)}/silence`, { stage });
 export const hangUpCall = (callId) => request("DELETE", `/api/calls/${encodeURIComponent(callId)}`, undefined, { keepalive: true });

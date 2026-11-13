@@ -1,5 +1,7 @@
 // What the browser is allowed to see. Built from an explicit allow-list so that prompts,
 // private facts, code words, accepted names and agent settings can never leak by accident.
+import { callerIdKitUnlocked } from "./callerId.js";
+
 export const BOARD_SIZE = 5;
 
 export function publicContent(content, clearedLevels) {
@@ -40,5 +42,7 @@ export function publicContent(content, clearedLevels) {
     targets,
     mail,
     osint: content.osint,
+    // Phone features the player has unlocked (the caller ID kit arrives with Level 4).
+    features: { callerIdKit: callerIdKitUnlocked(content, clearedLevels) },
   };
 }

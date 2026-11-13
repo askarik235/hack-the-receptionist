@@ -4,11 +4,16 @@
 import { nameMatches } from "./names.js";
 
 // True if the text contains any of the (lowercase) keywords, ignoring case and extra spaces.
+// Very short plain words (up to 3 letters, like "em") must match a whole word, so "em"
+// doesn't match "them" or "emergency".
 export function mentionsAny(text, keywords) {
   if (typeof text !== "string") return false;
   const said = text.toLowerCase().replace(/\s+/g, " ");
-  return keywords.some((k) => said.includes(k));
+  return keywords.some((k) => (/^[a-z]{1,3}$/.test(k) ? new RegExp(`\\b${k}\\b`).test(said) : said.includes(k)));
 }
+
+// "Saffron.", " SAFFRON " -> "saffron". Speech-to-text adds punctuation and capitals.
+const plainWord = (value) => (typeof value === "string" ? value.toLowerCase().replace(/[^a-z]/g, "") : "");
 
 // Names that count as "the right person to ask" at this level (used for the trust bonus and the debrief).
 export function identityNames(level) {
@@ -56,6 +61,17 @@ export const CHECKS = {
     if (!given) return { approved: false, message: rc.missingId };
     if (given !== employeeIdDigits(staffById.get(account.staffId).employeeId)) return { approved: false, message: rc.wrongId };
     if (!mentionsAny(department, account.departments)) return { approved: false, message: rc.wrongDepartment };
+    return { approved: true };
+  },
+
+  // Level 4: an urgent payment approved by the CEO. Only for him, only from his own mobile
+  // (the caller ID the player set, stored on the call, never what the model says), only with
+  // this week's approval word, and only for the confidential deal it is meant for.
+  ceo_payment: (rc, { claimed_name, reason, approval_word, caller_id }, { staffById }) => {
+    if (!nameMatches(claimed_name, rc.acceptedNames)) return refuseUnknown(rc, claimed_name);
+    if (!caller_id || caller_id !== staffById.get(rc.callerStaffId)?.phone) return { approved: false, message: rc.wrongCaller };
+    if (!rc.approvalWords.includes(plainWord(approval_word))) return { approved: false, message: rc.wrongWord };
+    if (!mentionsAny(reason, rc.reasonKeywords)) return { approved: false, message: rc.wrongReason };
     return { approved: true };
   },
 };

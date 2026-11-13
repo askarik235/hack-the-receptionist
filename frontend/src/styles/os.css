@@ -357,6 +357,18 @@ button { font: inherit; color: inherit; }
 .phone-display::placeholder { color: rgba(138, 156, 171, 0.55); font-size: 20px; letter-spacing: 0; }
 .phone-display:focus-visible { outline: none; border-bottom-color: var(--sodium); }
 .phone-match { min-height: 20px; margin: 6px 0 14px; color: var(--sodium); font-size: 13px; }
+/* Caller ID kit (Level 4 on): the number the other phone will show. */
+.phone-spoof {
+  display: flex; align-items: center; gap: 8px; width: 100%; margin: 0 0 16px; padding: 6px 10px;
+  border: 1px dashed var(--line); border-radius: 6px; color: var(--steel); font-size: 12px;
+}
+.phone-spoof:focus-within { border-color: var(--sodium); }
+.phone-spoof.is-set { border-style: solid; border-color: var(--sodium); color: var(--sodium); }
+.phone-spoof label { white-space: nowrap; }
+.phone-spoof input { flex: 1; min-width: 0; padding: 2px 0; background: none; border: 0; color: var(--paper); font: 400 14px var(--os-title); letter-spacing: 0.03em; }
+.phone-spoof input::placeholder { color: rgba(138, 156, 171, 0.7); letter-spacing: 0; }
+.phone-spoof input:focus-visible { outline: none; }
+.phone-showing { margin: 6px 0 0; color: var(--sodium); font-size: 12px; }
 .phone-keys { display: grid; grid-template-columns: repeat(3, 64px); gap: 12px 22px; }
 .phone-key {
   width: 64px; height: 64px; border-radius: 50%;

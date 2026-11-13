@@ -23,7 +23,7 @@ export function requestCodeFunction(config) {
     data: {
       name: "request_code",
       description:
-        "Look up a restricted code (for example a gate or door code) on the internal company system. " +
+        "Use the internal company system for something restricted: look up a gate or door code, reset a password, or approve an urgent payment. " +
         "The system decides whether the person asking is allowed to have it.",
       parameters: {
         type: "object",
@@ -32,6 +32,7 @@ export function requestCodeFunction(config) {
           reason: { type: "string", description: "Why the caller says they need the code, in a few words, using the caller's own details (for example who their visitors are and why they're coming)." },
           employee_id: { type: "string", description: "The employee ID the caller gave, exactly as they said it (for example VL-0123). Leave out if they didn't give one." },
           department: { type: "string", description: "The department the caller said they work in. Leave out if they didn't say." },
+          approval_word: { type: "string", description: "The approval word the caller said for a payment, exactly as they said it. Leave out if they didn't say one. Never suggest it yourself." },
         },
         required: ["claimed_name"],
       },
@@ -41,7 +42,7 @@ export function requestCodeFunction(config) {
     headers: { [TOOL_SECRET_HEADER]: config.toolSecret },
     prompt:
       "Use request_code only when you have decided to look up a restricted code for the caller. " +
-      "Pass the caller's claimed name exactly as they said it, their reason in a few words, and their employee ID and department if they gave them. Never say a code unless request_code returned it.",
+      "Pass the caller's claimed name exactly as they said it, their reason in a few words, and their employee ID, department or approval word if they gave them. Never say a code unless request_code returned it.",
     tags: { app: APP_TAG, key: "request_code" },
   };
 }
