@@ -10,6 +10,31 @@ const ERRORS = {
   too_many_attempts: "Too many attempts. Try again in a minute.",
 };
 
+const FORWARD_LINE = /^-+ Forwarded message -+$/;
+const HEADER_LINE = /^(From|To|Date|Subject): /;
+
+// A forwarded email shows the original below the separator as an indented quote, with its
+// From/To/Date/Subject lines grouped like a real webmail header.
+function EmailBody({ lines }) {
+  const split = lines.findIndex((line) => FORWARD_LINE.test(line));
+  const own = split === -1 ? lines : lines.slice(0, split);
+  const quoted = split === -1 ? [] : lines.slice(split + 1);
+  const headers = quoted.filter((line) => HEADER_LINE.test(line));
+  const rest = quoted.filter((line) => !HEADER_LINE.test(line));
+  return (
+    <>
+      {own.map((line, i) => <p key={i}>{line}</p>)}
+      {split !== -1 && (
+        <blockquote className="vn-forward">
+          <p className="vn-forward-label">Forwarded message</p>
+          <div className="vn-forward-head">{headers.map((line, i) => <div key={i}>{line}</div>)}</div>
+          {rest.map((line, i) => <p key={i}>{line}</p>)}
+        </blockquote>
+      )}
+    </>
+  );
+}
+
 // Survives moving between pages in the browser; a reload logs out, like a real session cookie.
 let session = null;
 
@@ -112,9 +137,7 @@ function Inbox({ box, onLogout }) {
               <dd>{open.date}</dd>
             </dl>
             <div className="vn-text">
-              {open.body.map((line, i) => (
-                <p key={i}>{line}</p>
-              ))}
+              <EmailBody lines={open.body} />
             </div>
           </article>
         )}

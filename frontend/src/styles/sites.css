@@ -226,6 +226,9 @@
 .vn-meta dt { color: #7a838b; }
 .vn-meta dd { margin: 0; }
 .vn-text p { margin: 0 0 10px; max-width: 68ch; }
+.vn-forward { margin: 18px 0 0; padding: 4px 0 0 14px; border-left: 3px solid var(--vn-line); color: #3a444c; }
+.vn-forward .vn-forward-label { margin-bottom: 6px; font-size: 12px; font-weight: 600; color: #5b666e; }
+.vn-forward-head { margin: 0 0 14px; font-size: 13px; line-height: 1.45; color: #5b666e; }
 @media (max-width: 640px) {
   .vn-body { grid-template-columns: 1fr; }
   .vn-list { max-height: 40vh; border-right: 0; border-bottom: 1px solid var(--vn-line); }

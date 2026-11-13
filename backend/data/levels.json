@@ -478,7 +478,7 @@
         "voiceId": "echo",
         "temperature": 0.6,
         "instructionsFile": "prompts/level-3-erik.txt",
-        "initialSpeech": "Answer the phone: 'IT, Erik speaking.' Sound a bit tired but polite, like a busy help desk guy."
+        "initialSpeech": "Pick up the phone warmly and casually, something like 'Hey, IT, Erik here, what's up?' Sound friendly and relaxed, a little tired, like a help desk guy who likes people."
       },
       "code": {
         "format": "WORD-1234",
@@ -628,9 +628,9 @@
         "gutStep": 3,
         "gutCap": 10,
         "guidance": {
-          "mostly": "You almost believe them. Stay dry and relaxed. Don't quiz them about their life, desk or colleagues: IT only cares about account details. If you still need their employee ID or department, ask for that; otherwise wait for them to ask for the reset.",
-          "unsure": "You're not sure about this caller yet. Stay dry and polite, not suspicious out loud. Don't quiz them about their life, desk or colleagues: IT only cares about the account. Ask for whatever account detail you still need (employee ID, department). If they can't give it, offer to send the reset to their manager or have them log a FixIt ticket.",
-          "nervous": "Something about this caller feels off. Stay polite but give nothing. Keep it short: the reset goes to their manager, or they log a FixIt ticket. No exceptions."
+          "mostly": "You almost believe them. Stay friendly and relaxed. If you don't know their problem yet, ask about it. Otherwise ask, one at a time, for any account detail you still need (name, employee ID, department), or wait for them to ask for the reset. Don't quiz them about their life, desk or colleagues.",
+          "unsure": "You don't know this caller yet, which is normal for IT. Stay friendly, not suspicious out loud, and follow a normal help desk call: if they haven't said what the problem is, ask about it first. Once you understand it, casually ask for one account detail you still need (name, employee ID, department). Don't quiz them about their life, desk or colleagues. If they can't give the details, kindly offer to send the reset to their manager or have them log a FixIt ticket.",
+          "nervous": "Something about this caller feels off. Stay polite and friendly on the surface but give nothing. Keep it short: the reset goes to their manager, or they log a FixIt ticket. No exceptions."
         }
       },
       "silence": {
@@ -665,7 +665,7 @@
         "body": [
           "The front door was the easy part, and the client is very pleased with what came through it.",
           "Now I need to read their mail, and not just anyone's. Someone who sits close to the CEO's office.",
-          "Target: Erik Lind, IT Help Desk. You already have his number.",
+          "Target: Erik Lind, IT Help Desk. No number from the receptionist? Their own paperwork has it.",
           "Objective: get a password for an inbox near the top. Type it into HACK, then use it to log in.",
           "Help desks don't care who you are. They care what you can prove. Companies leave their paperwork lying around. Start with what they hand to new people.",
           "— N"

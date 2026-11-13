@@ -144,7 +144,7 @@ test("VitalNet Mail opens Nadia's inbox only after HACK, and only with this play
   assert.equal(ok.status, 200);
   assert.equal(ok.body.address, "nadia.rahman@vitality-logistics.ae");
   assert.equal(ok.body.emails.length, 8);
-  assert.ok(ok.body.emails.some((e) => e.id === "emma-handover"));
+  assert.ok(ok.body.emails.some((e) => e.id === "ceo-forward"));
 
   const wrongPassword = await login("nadia.rahman", code("someoneelse"));
   assert.equal(wrongPassword.status, 401);
@@ -156,7 +156,7 @@ test("VitalNet Mail opens Nadia's inbox only after HACK, and only with this play
 test("the inbox is never part of the public content", async (t) => {
   const { api } = await playerWithPassword(t);
   const body = JSON.stringify((await api("GET", "/api/content")).body);
-  for (const secret of ["saffron", "Handover while", "88214", "inbox/nadia", "Al Noor"]) assert.ok(!body.includes(secret), `leaked: ${secret}`);
+  for (const secret of ["saffron", "enjoy Muscat", "Sandgrouse folder locked", "88214", "inbox/nadia", "Al Noor"]) assert.ok(!body.includes(secret), `leaked: ${secret}`);
   assert.ok(body.includes("new-joiner-guide-2024.pdf"), "the leaked PDF is public on purpose");
 });
 
