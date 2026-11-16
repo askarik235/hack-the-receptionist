@@ -36,12 +36,23 @@ export function publicContent(content, clearedLevels) {
       body: level.briefing.body,
       disclaimer: level.briefing.disclaimer,
     }));
+  // The last word after a level (the ending after Level 5), listed above that level's briefing.
+  for (const level of content.levels) {
+    if (!level.ending || !cleared.has(level.level)) continue;
+    const { from, subject, body, disclaimer } = level.ending;
+    mail.push({ id: `ending-${level.level}`, level: level.level, order: level.level + 0.5, from, subject, body, disclaimer });
+  }
+
+  // Website news that only appears once the story gets there (e.g. the police statement after Level 4).
+  const { website } = content.osint;
+  const news = website.pages.news.items.filter((item) => !item.afterLevel || cleared.has(item.afterLevel)).map(({ afterLevel, ...item }) => item);
+  const osint = { ...content.osint, website: { ...website, pages: { ...website.pages, news: { ...website.pages.news, items: news } } } };
 
   return {
     company: { name: content.company.name, domain: content.company.domain },
     targets,
     mail,
-    osint: content.osint,
+    osint,
     // Phone features the player has unlocked (the caller ID kit arrives with Level 4).
     features: { callerIdKit: callerIdKitUnlocked(content, clearedLevels) },
   };

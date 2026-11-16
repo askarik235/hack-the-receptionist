@@ -15,6 +15,7 @@ import { readNapsterIds } from "../backend/src/napster/ids.js";
 import { externalClientIdFor, generatePlayerId } from "../backend/src/lib/players.js";
 import { buildCallTags } from "../backend/src/lib/callTags.js";
 import { createWordTravels } from "../backend/src/game/wordTravels.js";
+import { createPlayerHistory } from "../backend/src/game/playerHistory.js";
 import { callerIdLabel, ignoresCaller } from "../backend/src/game/callerId.js";
 import { normalizeNumber } from "../backend/src/lib/phoneNumbers.js";
 import { PERSONAS, personaById } from "./playtest/personas.js";
@@ -61,8 +62,9 @@ const content = loadContent();
 const napster = createNapsterClient({ apiKey: config.napsterApiKey });
 const agentIds = readNapsterIds(config.napsterApiKey).agents ?? {};
 const wordTravels = createWordTravels(db);
+const playerHistory = createPlayerHistory(db, content);
 // Who a typical player was when they won each earlier level.
-const WON_AS = { 1: "Mark Keller", 2: "Laura Weber", 3: "Nadia Rahman" };
+const WON_AS = { 1: "Mark Keller", 2: "Laura Weber", 3: "Nadia Rahman", 4: "Viktor Sokolov" };
 
 const q = {
   addPlayer: db.prepare("INSERT INTO players (id, created_at, last_seen_at) VALUES (?, ?, ?)"),
@@ -175,10 +177,17 @@ async function playOnce(persona, runNo) {
   }
   q.addCall.run(callId, playerId, level.level, externalClientId, now(), callerId);
   const code = codeFor(config.codeSecret, playerId, level.level, level.code.words);
+  // Level 5: "{reference}" in a persona's lines is this test player's own Level 4 transfer
+  // reference; "{wrongReference}" is a real-looking one that belongs to someone else.
+  const proofLevel = content.levelByNumber.get(level.requestCode.referenceLevel);
+  const referenceOf = (id) => (proofLevel ? codeFor(config.codeSecret, id, proofLevel.level, proofLevel.code.words) : "");
+  const fillIn = (line) => line.replaceAll("{reference}", referenceOf(playerId)).replaceAll("{wrongReference}", referenceOf(`${playerId}x`));
   const profile = {};
   const officeNews = wordTravels.officeNews(content, playerId, level.level);
   if (officeNews.length) profile.office_news = officeNews;
   if (level.callerId) profile.caller_id = callerIdLabel(content, callerId);
+  const history = playerHistory(playerId, level, callId);
+  if (history) profile.player_history = history;
 
   const started = Date.now();
   const connection = await napster.createConnection(agentId, {
@@ -201,13 +210,15 @@ async function playOnce(persona, runNo) {
   let turns = 0;
   for (const t of await socket.nextReply(GREETING_WAIT_MS)) say("them", t);
 
-  for (const line of persona.lines) {
+  for (const line of persona.lines.map(fillIn)) {
     if (socket.isClosed()) break;
     say("you", line);
     socket.send(line);
     turns++;
     const reply = await socket.nextReply();
-    for (const t of reply) say("them", t.replace(new RegExp(code.split("-")[1], "g"), "####"));
+    // Hide the code's digits, also when spoken with separators ("1-9-5-2", "1 9 5 2").
+    const digitsPattern = new RegExp(code.split("-")[1].split("").join("[\\s.,-]*"), "g");
+    for (const t of reply) say("them", t.replace(digitsPattern, "####"));
     if (gotCodeIn(reply)) spokeCode = true;
     const state = q.call.get(callId);
     console.log(`        trust ${state.trust ?? level.trust.start}%${state.status === "ended" ? `, call ended (${state.close_reason})` : ""}`);

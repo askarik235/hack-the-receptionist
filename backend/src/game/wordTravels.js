@@ -16,6 +16,9 @@ export function createWordTravels(db) {
     // Names this player already used to win an earlier level.
     burnedNames: (playerId, level) => winners.all(playerId, level).map((row) => row.claimed_name).filter(Boolean),
 
+    // The same, with the level each name won: [{ level, claimed_name }].
+    winningClaims: (playerId, level) => winners.all(playerId, level).filter((row) => row.claimed_name),
+
     // Security notices the character at `level` has heard, one per earlier level this player won.
     officeNews(content, playerId, level) {
       return winners

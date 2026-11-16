@@ -79,6 +79,14 @@
       "realWorld": "Spoofing apps and cheap internet phone services let anyone choose the number that appears on screen. Fraudsters use it to look like a bank, the police or the boss.",
       "defence": "Caller ID proves nothing. For anything that matters, hang up and call back on a number you already have.",
       "category": "Social engineering"
+    },
+    {
+      "id": "police_impersonation",
+      "name": "Impersonating the police",
+      "whatYouDid": "You posed as the detective a frightened victim was waiting for, and used the details of the crime as proof.",
+      "realWorld": "Fake police officers and fake bank fraud teams call people who have just been scammed or robbed. The victim wants help, and the caller knows the case because they caused it.",
+      "defence": "Real police never ask for codes, passwords or money on the phone. Hang up and call the station on its official number.",
+      "category": "Social engineering"
     }
   ]
 }

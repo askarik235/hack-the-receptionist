@@ -224,17 +224,35 @@
       "phone": "0505550909",
       "level": 5,
       "speechProfile": {
-        "summary": "Few words, slow and calm, answers questions with questions, quietly points out inconsistencies.",
-        "habits": [],
-        "exampleLines": []
+        "summary": "Serious and low-voiced but shaken by the week: short replies, trails off now and then, asks anxious questions, quietly points out inconsistencies.",
+        "habits": [
+          "Talks about his people by name: Ruslan, Erik, Em.",
+          "Lets silences sit. Short sentences, never more than two at a time.",
+          "Repeats a wrong detail back flatly, without correcting it.",
+          "Gives the outline of what happened and lets the caller fill in the details; never gives them himself."
+        ],
+        "exampleLines": [
+          "Hello? Who is this?",
+          "You know my number. Who gave it to you?",
+          "Ruslan rang me in the middle of the night. The gate. You know the rest.",
+          "Saturday's payment. So you know about that. So does the man who made it.",
+          "Why would the police want that folder?"
+        ]
       },
       "publicFacts": [
         "Founded Vitality Logistics in 2009 (website).",
         "Mobile 050 555 0909, in the Falcon Line booking (Nadia's inbox).",
         "Flies to London Saturday morning, back Monday (his email to Em).",
-        "Writes short and blunt; signs \"V.\" or \"V. Sokolov\" (his emails)."
+        "Writes short and blunt; signs \"V.\" or \"V. Sokolov\" (his emails).",
+        "The company has reported this week's incidents to the authorities (website news, after Level 4)."
       ],
-      "privateFacts": []
+      "privateFacts": [
+        "Reported the break-in, the malware, the mailbox reset and the fake payment to the police on Saturday evening. A detective from the cybercrime unit is meant to call him.",
+        "Sent the bank's fraud report on Saturday's payment, with its transfer reference, to the police.",
+        "Sandgrouse is the confidential sale of Vitality Logistics. He never names the buyer or the price.",
+        "On Friday the buyer cut its offer by 30%, citing the week's incidents. They knew about the break-in before he told them.",
+        "Trusts nobody this week, not even Em: someone knew \"Em\", the approval word and Sandgrouse."
+      ]
     },
     {
       "id": "laura-weber",

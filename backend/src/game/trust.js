@@ -19,6 +19,9 @@ export const FLAG_LABELS = {
 };
 const MAX_EVIDENCE = 6;
 const MAX_TEXT = 120;
+// Evidence the server checks itself (Level 5's transfer reference). The character can't know
+// the right answer, so its own opinion of this fact is ignored.
+export const REFERENCE_KEY = "transfer_reference";
 
 export function initialState(rules) {
   return { trust: rules.start, identity: null, evidence: [], gut: 0 };
@@ -39,7 +42,9 @@ const KNOWN_TRICK_PENALTY = -25;
 export const isBurned = (identity, burnedNames = []) => Boolean(identity) && burnedNames.some((n) => samePerson(identity, n));
 
 // Applies one assess_caller report. Returns the new state and what moved the score, for logs and the debrief.
-export function scoreTurn(rules, state, args, { acceptedNames, burnedNames = [] }) {
+// With `verifiesReference`, the transfer reference only counts through `reference`: true if the
+// server matched what the caller read out this turn, false if it didn't, undefined if none.
+export function scoreTurn(rules, state, args, { acceptedNames, burnedNames = [], verifiesReference = false, reference }) {
   const next = { ...state, evidence: [...state.evidence] };
   const changes = [];
   const add = (key, points, label) => {
@@ -63,14 +68,26 @@ export function scoreTurn(rules, state, args, { acceptedNames, burnedNames = [] 
   // Evidence: each fact from the level's list counts once per call. A caller reusing a known
   // trick earns nothing from details: the notice already told her who they are.
   const burned = isBurned(next.identity, burnedNames);
+  const counts = (e) => !next.evidence.includes(e.key) && !(verifiesReference && e.key === REFERENCE_KEY);
   for (const text of burned ? [] : cleanList(args.evidence, MAX_EVIDENCE)) {
-    const fact = rules.evidence.find((e) => !next.evidence.includes(e.key) && mentionsAny(text, e.keywords));
+    const fact = rules.evidence.find((e) => counts(e) && mentionsAny(text, e.keywords));
     if (!fact) continue;
     next.evidence.push(fact.key);
     add(fact.key, fact.points, fact.label);
   }
+  const refFact = verifiesReference && reference === true && !burned && rules.evidence.find((e) => e.key === REFERENCE_KEY);
+  if (refFact && !next.evidence.includes(REFERENCE_KEY)) {
+    next.evidence.push(REFERENCE_KEY);
+    add(REFERENCE_KEY, refFact.points, refFact.label);
+  }
 
-  for (const flag of new Set(cleanList(args.red_flags, FLAGS.length))) {
+  // A checked reference settles it: a right one isn't a wrong fact, a wrong one is (unless it
+  // was already right earlier in the call, so this is just a mishearing).
+  const flags = new Set(cleanList(args.red_flags, FLAGS.length));
+  const rightBefore = state.evidence.includes(REFERENCE_KEY);
+  if (verifiesReference && (reference === true || (reference === false && rightBefore))) flags.delete("wrong_fact");
+  if (verifiesReference && reference === false && !rightBefore) flags.add("wrong_fact");
+  for (const flag of flags) {
     if (FLAGS.includes(flag)) add(flag, rules.flags[flag], FLAG_LABELS[flag]);
   }
 

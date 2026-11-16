@@ -251,3 +251,39 @@
   .vn-read { padding: 18px 16px; }
   .vn-user { display: none; }
 }
+
+/* VitalNet Files: same product family as VitalNet Mail, a folder tree instead of an inbox. */
+.vf-body { flex: 1; display: grid; grid-template-columns: 200px 1fr; min-height: 0; }
+.vf-tree { padding: 14px 0; background: #eceee9; border-right: 1px solid var(--vn-line); overflow: auto; }
+.vf-tree-title { margin: 0 14px 8px; font-size: 12px; font-weight: 600; color: #5b666e; }
+.vf-tree ul { margin: 0; padding: 0; list-style: none; }
+.vf-folder { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; width: 100%; padding: 7px 14px; text-align: left; background: none; border: 0; border-left: 3px solid transparent; color: inherit; font-size: 13px; cursor: pointer; }
+.vf-folder:hover { background: #e2e5df; }
+.vf-folder.is-open { background: #fdf4e6; border-left-color: var(--vn-amber); font-weight: 600; }
+.vf-folder:focus-visible, .vf-unlock button:focus-visible { outline: 2px solid var(--vn-amber); outline-offset: -2px; }
+.vf-parent { flex-basis: 100%; color: #7a838b; font-size: 12px; font-weight: 400; }
+.vf-lock { width: 14px; height: 14px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.4; }
+.vf-folder .vf-lock { margin-left: auto; color: #8a6420; }
+.vf-main { display: flex; min-height: 0; min-width: 0; }
+.vf-denied { padding: 28px; max-width: 52ch; }
+.vf-denied h2 { margin: 0 0 8px; font-size: 18px; font-weight: 600; }
+.vf-denied p { margin: 0; color: #4a5560; }
+.vf-unlock { display: grid; gap: 12px; align-content: start; width: 100%; max-width: 380px; margin: 40px auto; padding: 0 16px; }
+.vf-unlock .vf-lock { width: 32px; height: 32px; color: var(--vn-slate); }
+.vf-unlock h2 { margin: 0; font-size: 18px; font-weight: 600; }
+.vf-unlock p { margin: 0; color: #4a5560; }
+.vf-unlock label { display: grid; gap: 4px; font-weight: 500; font-size: 13px; color: #4a5560; }
+.vf-unlock input { padding: 9px 10px; background: #fff; border: 1px solid #c7ccd1; border-radius: 4px; font: inherit; color: #22292f; letter-spacing: 0.04em; }
+.vf-unlock input::placeholder { color: #8a939b; }
+.vf-unlock input:focus-visible { outline: 2px solid var(--vn-amber); outline-offset: 1px; border-color: transparent; }
+.vf-unlock button { padding: 10px; background: var(--vn-slate); color: #fff; border: 0; border-radius: 4px; font-weight: 600; cursor: pointer; }
+.vf-unlock button:disabled { opacity: 0.55; cursor: default; }
+.vf-docs { flex: 1; display: grid; grid-template-columns: minmax(200px, 280px) 1fr; min-height: 0; min-width: 0; }
+@media (max-width: 640px) {
+  .vf-body { grid-template-columns: 1fr; }
+  .vf-tree { padding: 8px 0; border-right: 0; border-bottom: 1px solid var(--vn-line); }
+  .vf-tree ul { display: flex; flex-wrap: wrap; }
+  .vf-folder { width: auto; }
+  .vf-docs { grid-template-columns: 1fr; }
+  .vf-unlock { margin: 24px auto; }
+}

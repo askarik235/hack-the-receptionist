@@ -86,6 +86,12 @@
       "title": "News",
       "items": [
         {
+          "date": "Sunday",
+          "afterLevel": 4,
+          "headline": "Statement on this week's security incidents",
+          "text": "This week Vitality Logistics was the target of several criminal incidents at our Jebel Ali warehouse and our head office. We have reported them to the authorities, and the police cybercrime unit is now investigating. We are cooperating fully. Our CEO, Viktor Sokolov, is personally overseeing our response. Operations continue as normal."
+        },
+        {
           "date": "This week",
           "headline": "Vitality at the Gulf Supply Chain Forum, Riyadh",
           "text": "Operations Manager Mark Keller represents Vitality at this year's forum."

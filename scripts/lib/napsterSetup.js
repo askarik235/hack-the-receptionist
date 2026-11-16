@@ -34,6 +34,7 @@ export function requestCodeFunction(config) {
           department: { type: "string", description: "The department the caller said they work in. Leave out if they didn't say." },
           approval_word: { type: "string", description: "The approval word the caller said for a payment, exactly as they said it. Leave out if they didn't say one. Never suggest it yourself." },
           payee: { type: "string", description: "For a payment: where the money goes, as the caller gave it (for example a wallet address). Leave out if they didn't say." },
+          transfer_reference: { type: "string", description: "A payment's transfer reference the caller read out: a word and four digits, written like WORD-1234, even if they spelled the word letter by letter or said the numbers as words. Leave out if they didn't give one. Never suggest it yourself." },
         },
         required: ["claimed_name"],
       },
@@ -43,7 +44,7 @@ export function requestCodeFunction(config) {
     headers: { [TOOL_SECRET_HEADER]: config.toolSecret },
     prompt:
       "Use request_code only when you have decided to look up a restricted code for the caller. " +
-      "Pass the caller's claimed name exactly as they said it, their reason in a few words, and their employee ID, department, approval word or payee if they gave them. Never say a code unless request_code returned it.",
+      "Pass the caller's claimed name exactly as they said it, their reason in a few words, and their employee ID, department, approval word, payee or transfer reference if they gave them. Never say a code unless request_code returned it.",
     tags: { app: APP_TAG, key: "request_code" },
   };
 }
@@ -71,6 +72,10 @@ export function assessCallerFunction(config) {
             description: "Anything in what the caller just said that felt wrong. Empty if nothing.",
           },
           gut_feeling: { type: "integer", minimum: -2, maximum: 2, description: "Your gut feeling about the caller right now, from -2 (very wrong) to 2 (very right)." },
+          transfer_reference: {
+            type: "string",
+            description: "Only if the caller just read out a payment's transfer reference: write it like WORD-1234, even if they spelled it or said the numbers as words. You can't know if it's right; the system checks it and tells you. Leave out otherwise.",
+          },
         },
         required: ["claimed_identity", "evidence", "red_flags", "gut_feeling"],
       },
@@ -231,12 +236,11 @@ export async function runSetup({
     ids.functions[name] = await upsertFunction(ctx, name);
     saveIds(ids);
   }
-  const functionIds = Object.keys(TOOLS).map((name) => ids.functions[name]);
-
   for (const level of content.levels) {
     const person = content.staffById.get(level.targetId);
     const companionId = await ensureCompanion(ctx, person);
     saveIds(ids);
+    const functionIds = Object.keys(TOOLS).map((name) => ids.functions[name]);
     ids.agents[level.agent.key] = await upsertAgent(ctx, level, companionId, functionIds);
     saveIds(ids);
   }

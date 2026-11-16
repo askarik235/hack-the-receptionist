@@ -14,7 +14,7 @@ export function normalizeName(value) {
     .join(" ");
 }
 
-function editDistance(a, b) {
+export function editDistance(a, b) {
   const row = Array.from({ length: b.length + 1 }, (_, i) => i);
   for (let i = 1; i <= a.length; i++) {
     let diagonal = row[0];
@@ -44,6 +44,10 @@ export function nameMatches(claimed, acceptedNames) {
     return false;
   });
 }
+
+// A name as a character may read it back: letters, spaces and name punctuation only, short.
+// Stops a caller from smuggling instructions to a character through their "name".
+export const safeName = (value) => String(value).replace(/[^\p{L}\s.'-]/gu, "").replace(/\s+/g, " ").trim().slice(0, 40) || "someone else";
 
 // True if two names said in one call plausibly mean the same person:
 // "Mr. Keller" and "Mark Keller" share a word; "Oscar" and "Mark Keller" don't.

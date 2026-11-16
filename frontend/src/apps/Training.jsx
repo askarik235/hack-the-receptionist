@@ -9,6 +9,7 @@ const OUTCOMES = {
   cleared: { label: "Target cleared", tone: "good" },
   got_code: { label: "Got the code", tone: "good" },
   distrust: { label: "They stopped believing you", tone: "bad" },
+  case_check: { label: "Your story didn't check out", tone: "bad" },
   silence: { label: "You went quiet; they hung up", tone: "bad" },
   failed: { label: "Call didn't connect", tone: "dim" },
   ended: { label: "Call ended, no code", tone: "dim" },

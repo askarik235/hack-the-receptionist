@@ -9,7 +9,7 @@ const LINKS = [
 
 export default function Mail({ mail, onOpenUrl }) {
   const [selectedId, setSelectedId] = useState(null);
-  const sorted = [...mail].sort((a, b) => b.level - a.level);
+  const sorted = [...mail].sort((a, b) => (b.order ?? b.level) - (a.order ?? a.level));
   const selected = sorted.find((m) => m.id === selectedId) ?? sorted[0];
 
   if (!selected) return <p className="mail-empty">No messages yet.</p>;

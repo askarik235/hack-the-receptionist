@@ -43,6 +43,7 @@ export function trainingRouter({ config, db, content, processor = null }) {
     if (call.won) return "cleared";
     if (logs.some((t) => t.tool === "request_code" && t.approved)) return "got_code";
     if (call.close_reason === "distrust") return "distrust";
+    if (call.close_reason === "case_check") return "case_check";
     if (call.close_reason === "silence") return "silence";
     if (call.status === "failed") return "failed";
     return "ended";

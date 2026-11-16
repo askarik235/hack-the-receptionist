@@ -1,0 +1,61 @@
+{
+  "documents": [
+    {
+      "id": "heads-of-terms",
+      "title": "Project Sandgrouse: heads of terms",
+      "kind": "PDF, signed",
+      "date": "18 September",
+      "body": [
+        "STRICTLY PRIVATE AND CONFIDENTIAL. SUBJECT TO CONTRACT.",
+        "Seller: Viktor Sokolov, sole shareholder of Vitality Logistics LLC.",
+        "Buyer: Meridian Gulf Holdings Ltd.",
+        "Transaction: purchase of 100% of the shares of Vitality Logistics LLC.",
+        "Price: AED 240 million, payable in cash at completion, subject to due diligence.",
+        "Due diligence: from 1 October, the buyer's advisers get read access to the company's shared drive, contracts and security reports.",
+        "Confidentiality: neither party will tell staff, customers or the press until signing. Code name for all communication: Sandgrouse.",
+        "Target signing date: end of November."
+      ]
+    },
+    {
+      "id": "dd-access",
+      "title": "Due diligence access log",
+      "kind": "Spreadsheet export",
+      "date": "Updated Friday",
+      "body": [
+        "Accounts created for Meridian Gulf Holdings' advisers: 4.",
+        "Access granted: shared drive (read only), HR directory, staff list with phone extensions, site security procedures, onboarding pack.",
+        "Most viewed folders in October: Operations > Jebel Ali gate procedures; Reception > visitor passes; IT > help desk password resets; Executive Office > payments.",
+        "Note from Erik Lind, IT: \"Why does a buyer need our password reset procedure? Asked Emma to check with V.\""
+      ]
+    },
+    {
+      "id": "revised-offer",
+      "title": "Letter from Meridian: revised offer",
+      "kind": "Letter",
+      "date": "Friday",
+      "from": "Meridian Gulf Holdings, Board of Directors",
+      "body": [
+        "Dear Mr. Sokolov,",
+        "Following the serious operational and security incidents at Vitality Logistics this month (the theft at your Jebel Ali warehouse, the malware infection at your head office and the compromise of staff email accounts), our board has reassessed the risk of this transaction.",
+        "We are prepared to proceed at a revised price of AED 168 million, 30% below the price agreed in September.",
+        "This offer is valid until Wednesday. We trust you will agree that a quick completion is in everyone's interest, given the circumstances.",
+        "Yours sincerely,",
+        "Meridian Gulf Holdings"
+      ]
+    },
+    {
+      "id": "viktor-note",
+      "title": "Note to self",
+      "kind": "Text file",
+      "date": "Saturday, 22:10",
+      "from": "V. Sokolov",
+      "body": [
+        "Meridian's letter mentions the break-in. I told nobody outside the company until Monday afternoon. Their adviser called me on Monday morning to ask if \"everything was all right at Jebel Ali\".",
+        "Every attack this week used something from the files we opened to them in October.",
+        "And now there's a payment none of us made.",
+        "Who gains if Vitality is worth 30% less?",
+        "Don't sign. Not before the police see this."
+      ]
+    }
+  ]
+}

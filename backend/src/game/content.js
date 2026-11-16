@@ -55,8 +55,10 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
     Array.isArray(list) && list.length >= min && list.every((t) => typeof t === "string" && t.trim() && t.length <= maxLength);
 
   const levelByNumber = new Map();
+  const levelsByNumberInFile = new Map(levels.map((l) => [l.level, l]));
   const prompts = new Map();
   const mailboxes = new Map();
+  const vaults = new Map();
   const usedVoices = new Set();
   for (const level of levels) {
     const where = `level ${level.level}`;
@@ -110,6 +112,12 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
       }
       for (const field of ["missingId", "wrongId", "wrongDepartment"]) check(text(requestCode[field]), `${where}: bad ${field} text`);
     }
+    if (requestCode.check === "investigator_evidence") {
+      const proof = levelsByNumberInFile.get(requestCode.referenceLevel);
+      check(proof && proof.level < level.level, `${where}: referenceLevel must be an earlier level`);
+      check(nameList(requestCode.reasonKeywords), `${where}: reasonKeywords must be lowercase`);
+      for (const field of ["missingReference", "wrongReference", "wrongReason"]) check(text(requestCode[field]), `${where}: bad ${field} text`);
+    }
     if (requestCode.check === "ceo_payment") {
       check(nameList(requestCode.acceptedNames), `${where}: acceptedNames must be lowercase`);
       check(/^0\d{8,9}$/.test(staffById.get(requestCode.callerStaffId)?.phone ?? ""), `${where}: callerStaffId needs a phone number in staff.json`);
@@ -117,15 +125,24 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
       check(nameList(requestCode.reasonKeywords), `${where}: reasonKeywords must be lowercase`);
       for (const field of ["wrongCaller", "wrongWord", "wrongReason", "missingPayee"]) check(text(requestCode[field]), `${where}: bad ${field} text`);
     }
-    // Caller ID kit: who the character expects to see on screen, and whether they ignore everyone else.
+    // Caller ID kit: the character sees the caller's number. Optionally who they expect to see
+    // on screen, and whether they ignore everyone else.
     if (level.callerId) {
-      check(staffById.get(level.callerId.trustedStaffId)?.phone, `${where}: callerId.trustedStaffId needs a phone number in staff.json`);
-      check(level.callerId.answersOnlyTrusted === undefined || typeof level.callerId.answersOnlyTrusted === "boolean", `${where}: callerId.answersOnlyTrusted must be true or false`);
+      const { trustedStaffId, answersOnlyTrusted } = level.callerId;
+      check(trustedStaffId === undefined || staffById.get(trustedStaffId)?.phone, `${where}: callerId.trustedStaffId needs a phone number in staff.json`);
+      check(answersOnlyTrusted === undefined || typeof answersOnlyTrusted === "boolean", `${where}: callerId.answersOnlyTrusted must be true or false`);
+      check(!answersOnlyTrusted || trustedStaffId, `${where}: callerId.answersOnlyTrusted needs a trustedStaffId`);
+    }
+    check(level.remembersPlayer === undefined || typeof level.remembersPlayer === "boolean", `${where}: remembersPlayer must be true or false`);
+    check(level.incident === undefined || text(level.incident), `${where}: bad incident text`);
+    if (level.ending) {
+      check(["from", "subject", "disclaimer"].every((f) => text(level.ending[f])) && lines(level.ending.body, 1, 600), `${where}: ending mail is incomplete`);
     }
     for (const r of requestCode.refusalsFor ?? []) check(nameList(r.names) && text(r.message), `${where}: bad refusalsFor entry`);
     check(typeof requestCode.approvedTemplate === "string" && requestCode.approvedTemplate.includes("{code}"), `${where}: approvedTemplate needs {code}`);
     check(text(requestCode.refusal), `${where}: bad refusal text`);
-    for (const field of ["notYet", "burned"]) check(requestCode[field] === undefined || text(requestCode[field]), `${where}: bad ${field} text`);
+    for (const field of ["notYet", "notYetVerified", "burned", "lastRefusal"]) check(requestCode[field] === undefined || text(requestCode[field]), `${where}: bad ${field} text`);
+    check(requestCode.hangUpOnRefusal === undefined || typeof requestCode.hangUpOnRefusal === "boolean", `${where}: requestCode.hangUpOnRefusal must be true or false`);
     check(requestCode.maxRefusals === undefined || (Number.isInteger(requestCode.maxRefusals) && requestCode.maxRefusals > 0), `${where}: maxRefusals must be a positive number`);
     check(level.rumour === undefined || text(level.rumour), `${where}: bad rumour text`);
     check(level.afterHack === undefined || text(level.afterHack), `${where}: bad afterHack text`);
@@ -150,6 +167,28 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
       }
       check(emails.length > 0 && !CODE_LIKE.test(JSON.stringify(emails)), `${where}: inbox is empty or contains something that looks like a code`);
       mailboxes.set(level.level, { username, address, displayName, emails });
+    }
+
+    // The locked folder the level's code opens (Level 5: Sandgrouse on VitalNet Files). Same
+    // rule as the inbox: only sent to a player who cleared the level and types their own code.
+    if (level.vault) {
+      const { folder, title, documentsFile } = level.vault;
+      check(/^[a-z]+$/.test(folder ?? ""), `${where}: vault.folder must be lowercase letters`);
+      check(text(title), `${where}: vault needs a title`);
+      let documents = [];
+      try {
+        documents = readJson(dataDir, documentsFile).documents;
+      } catch (err) {
+        problems.push(`${where}: ${err.message}`);
+      }
+      const ids = new Set();
+      for (const doc of documents) {
+        check(typeof doc.id === "string" && !ids.has(doc.id), `${where}: vault document ids must be unique`);
+        ids.add(doc.id);
+        check(["title", "kind", "date"].every((f) => text(doc[f])) && (doc.from === undefined || text(doc.from)) && lines(doc.body, 1, 600), `${where}: vault document ${doc.id} is incomplete`);
+      }
+      check(documents.length > 0 && !CODE_LIKE.test(JSON.stringify(documents)), `${where}: vault is empty or contains something that looks like a code`);
+      vaults.set(level.level, { folder, title, documents });
     }
 
     const { trust } = level;
@@ -200,6 +239,9 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
     ...osint.pixa.accounts.map((a) => a.staffId),
   ];
   for (const id of osintStaffIds) check(id === null || staffById.has(id), `osint: unknown staffId ${id}`);
+  for (const item of osint.website.pages.news.items) {
+    check(item.afterLevel === undefined || levelsByNumberInFile.has(item.afterLevel), `osint: news "${item.headline}" has an unknown afterLevel`);
+  }
   // Badges drawn in Pixa photos: a readable one needs name, role and ID; a turned one shows nothing.
   for (const account of osint.pixa.accounts) {
     for (const post of account.posts) {
@@ -223,5 +265,5 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
 
   if (problems.length > 0) throw new Error(`Game content is invalid:\n- ${problems.join("\n- ")}`);
 
-  return Object.freeze({ company, staff, staffById, levels, levelByNumber, phoneBook, osint, prompts, techniques, mailboxes });
+  return Object.freeze({ company, staff, staffById, levels, levelByNumber, phoneBook, osint, prompts, techniques, mailboxes, vaults });
 }

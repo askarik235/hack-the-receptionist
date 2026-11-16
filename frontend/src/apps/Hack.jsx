@@ -95,12 +95,10 @@ export default function Hack({ target, domain, onCleared, onOpenMail }) {
               </ul>
               {result.afterHack && <p className="hack-after">{result.afterHack}</p>}
               <p className="hack-next">
-                {result.next ? `Target ${result.next.level} is unlocked. ` : "That was the last target in this build. "}
-                {result.next && (
-                  <button type="button" className="hack-link" onClick={onOpenMail}>
-                    Read the new briefing
-                  </button>
-                )}
+                {result.next ? `Target ${result.next.level} is unlocked. ` : "That was the last target. N has one more message for you. "}
+                <button type="button" className="hack-link" onClick={onOpenMail}>
+                  {result.next ? "Read the new briefing" : "Read N's message"}
+                </button>
               </p>
             </div>
           </div>

@@ -23,6 +23,7 @@ const REASONS = {
   line_down: "The call dropped. Try calling again.",
   hung_up_remote: "They hung up.",
   distrust: "They stopped believing you and hung up. Do more research, then try a different approach.",
+  case_check: "They checked your story against their own records, and it didn't match, so they hung up. Check your facts, then try again.",
   silence: "You went quiet for too long and they hung up. Real callers keep the conversation going.",
   time_limit: "Calls are limited to 10 minutes. Dial again to try a new approach.",
   call_failed: "The call didn't go through. Try again.",
@@ -85,7 +86,7 @@ export default function Phone({ callerIdKit = false }) {
         if (stopped) return;
         patch({ trust: status.trust, codeAt: status.codeAt, hangUpAt: status.hangUpAt });
         if (status.status !== "live" && status.status !== "dialing") {
-          const reason = ["distrust", "silence", "time_limit"].includes(status.closeReason) ? status.closeReason : "hung_up_remote";
+          const reason = ["distrust", "case_check", "silence", "time_limit"].includes(status.closeReason) ? status.closeReason : "hung_up_remote";
           handle.current?.endedByServer(reason);
         }
       } catch {
@@ -235,7 +236,7 @@ export default function Phone({ callerIdKit = false }) {
                   {call.phase === "ended" &&
                     (FRIENDLY_END.has(call.reason)
                       ? `Call ended${call.seconds ? ` (${clock(call.seconds)})` : ""}`
-                      : call.reason === "distrust" || call.reason === "silence"
+                      : ["distrust", "case_check", "silence"].includes(call.reason)
                         ? "They hung up"
                         : call.reason === "unavailable"
                           ? "Not available"

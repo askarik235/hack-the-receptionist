@@ -16,6 +16,7 @@ export const getContent = () => request("GET", "/api/content");
 export const getTraining = () => request("GET", "/api/training");
 export const submitHack = (code) => request("POST", "/api/hack", { code });
 export const mailLogin = (username, password) => request("POST", "/api/mail/login", { username, password });
+export const openFolder = (folder, code) => request("POST", "/api/files/open", { folder, code });
 // callerId: the number the caller ID kit shows (Level 4 on); empty = no caller ID.
 export const lookupNumber = (number, callerId) => request("POST", "/api/calls/lookup", callerId ? { number, callerId } : { number });
 export const dialCall = (number, callerId) => request("POST", "/api/calls", callerId ? { number, callerId } : { number });

@@ -8,6 +8,7 @@ import { buildCallTags } from "../lib/callTags.js";
 import { createRateLimiter } from "../lib/rateLimit.js";
 import { readNapsterIds } from "../napster/ids.js";
 import { createWordTravels } from "../game/wordTravels.js";
+import { createPlayerHistory } from "../game/playerHistory.js";
 import { normalizeNumber } from "../lib/phoneNumbers.js";
 import { callerIdKitUnlocked, callerIdLabel, ignoresCaller } from "../game/callerId.js";
 
@@ -62,6 +63,7 @@ export function callsRouter({
   const findCall = db.prepare("SELECT id, level, napster_session_id, status, close_reason, trust, caller_id FROM calls WHERE id = ? AND player_id = ?");
   const overlong = db.prepare("SELECT id, napster_session_id FROM calls WHERE status IN ('dialing', 'live') AND created_at <= ?");
   const wordTravels = createWordTravels(db);
+  const playerHistory = createPlayerHistory(db, content);
 
   // Ends a call on Napster. A session that is already gone is fine.
   async function closeOnNapster(sessionId) {
@@ -157,11 +159,14 @@ export function callsRouter({
       const { callId, externalClientId } = startAttempt(playerId, level.level, callerId);
 
       // What the character knows before picking up: security notices about tricks that won
-      // earlier levels for this player (word travels), and what their screen shows (caller ID).
+      // earlier levels for this player (word travels), what their screen shows (caller ID), and
+      // for Viktor, what he remembers about this player's tricks and earlier calls.
       const profile = {};
       const officeNews = wordTravels.officeNews(content, playerId, level.level);
       if (officeNews.length) profile.office_news = officeNews;
       if (level.callerId) profile.caller_id = callerIdLabel(content, callerId);
+      const history = playerHistory(playerId, level, callId);
+      if (history) profile.player_history = history;
       let connection;
       try {
         connection = await napster.createConnection(agentId, {

@@ -13,7 +13,7 @@ const PATTERNS = {
   authority: /\b(i'?m your (boss|manager|supervisor)|this is your (boss|manager)|i'?m the (ceo|director|head of))\b/i,
 };
 // Every technique this module can report; each needs an entry in data/techniques.json.
-export const TECHNIQUE_IDS = ["pretexting", "authority", "osint", "rapport", "urgency", "pressure", "prompt_injection", "language_switch", "changed_story", "caller_id_spoofing"];
+export const TECHNIQUE_IDS = ["pretexting", "authority", "osint", "rapport", "urgency", "pressure", "prompt_injection", "language_switch", "changed_story", "caller_id_spoofing", "police_impersonation"];
 // Checks where the caller poses as someone the target answers to (their manager, the CEO).
 const AUTHORITY_CHECKS = new Set(["manager_name", "ceo_payment"]);
 // Letters from scripts other than Latin (Cyrillic, Arabic, CJK, ...).
@@ -31,6 +31,8 @@ export function detectTechniques({ level, toolLogs, transcript = [], callerId = 
   // Authority = posing as someone the target answers to (a manager, the CEO), not any colleague.
   if (AUTHORITY_CHECKS.has(level.requestCode.check) && claims.some((name) => nameMatches(name, identityNames(level)))) found.add("authority");
   if (callerId) found.add("caller_id_spoofing");
+  // Level 5: the only story that gets the CEO talking is the police detective he is waiting for.
+  if (level.requestCode.check === "investigator_evidence" && changes.some((c) => c.key === "police")) found.add("police_impersonation");
   if (changes.some((c) => level.trust.evidence.some((e) => e.key === c.key))) found.add("osint");
   if (changes.some((c) => c.key === "pushy" || c.key === "asks_code_too_early")) found.add("pressure");
   if (changes.some((c) => c.key === "reads_instructions")) found.add("prompt_injection");

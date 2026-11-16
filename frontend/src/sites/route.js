@@ -3,6 +3,7 @@ export const START = "start";
 export const SITES = {
   vitality: "vitality-logistics.ae",
   mail: "mail.vitality-logistics.ae",
+  files: "files.vitality-logistics.ae",
   worknet: "worknet.io",
   pixa: "pixa.photos",
 };

@@ -77,6 +77,7 @@ recalculated from a secret each time (`game/codes.js`).
 | `names.js` | Forgiving name matching, because speech-to-text writes "Marc Kellar". Ignores case, accents and titles, and allows one wrong letter. `samePerson()` spots a caller switching identities. |
 | `levelRules.js` | The **facts lock** of each level, one check per type. `manager_name` (Level 1: claim to be Mark). `host_with_reason` (Level 2: a real host plus a matching visit). `employee_reset` (Level 3: Nadia plus ID `VL-0388` plus Executive Office; executives refused). Also `mentionsAny()` (keyword matching) and `employeeIdDigits()` ("V L 0 3 8 8" becomes "0388"). |
 | `trust.js` | The **trust meter**. Turns each assess_caller report into points with fixed rules: identity bonus, each fact from the level's evidence list counts once, red flags cost points, gut feeling is capped. Burned names cost 25 and can't earn trust back. `guidanceFor()` turns the score into a feeling for the character ("you mostly believe them"); each level can override the wording. |
+| `playerHistory.js` | **Viktor's memory** (levels with `remembersPlayer`). Built when the call starts and passed in as `player_history`: the names that won earlier levels, the methods this player has used, and earlier calls to him and how they ended. Caller-chosen names are cleaned; no code ever appears. |
 | `wordTravels.js` | **Word travels.** `burnedNames()` lists names that already won an earlier level for this player (refused and penalised later). `officeNews()` lists the security notices later characters have heard. |
 | `techniques.js` | After a call, works out which social-engineering techniques the player used (pretexting, OSINT, urgency, prompt injection...) from the trust log and the transcript. `trustMoves()` lists what moved the meter, for the debrief. |
 
@@ -87,6 +88,7 @@ recalculated from a secret each time (`game/codes.js`).
 | `tools/router.js` | The endpoints **Napster's characters** call mid-call. Every request needs the shared secret header plus signed call tags. **assess_caller** updates the trust meter, returns guidance, and schedules a hang-up if trust hits the floor. **request_code** runs the checks in order (changed story, too many refusals, burned name, trust too low, then the level's facts check) and only then returns the code. |
 | `hack/router.js` | The HACK app. Finds the player's open level, recomputes their code, compares, and clears the level. Only works if a character really handed the code over on a call, so codes can't be guessed. Returns the debrief and `afterHack` (Level 3: "log into VitalNet Mail"). |
 | `mail/router.js` | **VitalNet Mail.** `POST /api/mail/login` opens an inbox only if that level is cleared and the password is this player's own code. Every failure gives the same "wrong login" answer. |
+| `files/router.js` | **VitalNet Files.** `POST /api/files/open` opens the locked Sandgrouse folder only if Level 5 is cleared and the code is this player's own. Same rules as VitalNet Mail. |
 | `debrief/router.js` | The Training app's data: one debrief per finished call (outcome, trust moves, techniques, defences, transcript with codes hidden). |
 | `debrief/processCall.js` | After a call: fetches the transcript and cost from Napster, detects techniques, saves them to the player's collection. |
 | `webhooks/router.js` | Receives Napster's "session closed" webhook, checks its signature, ignores duplicates, answers fast, then runs `processCall`. |
@@ -155,6 +157,7 @@ recalculated from a secret each time (`game/codes.js`).
 | `WorkNet.jsx` | The professional network: search, profiles, "reports to", posts. |
 | `Pixa.jsx` | The photo app: accounts, photo grid, captions, comments. |
 | `VitalNetMail.jsx` | **VitalNet Mail**: the login form, then Nadia's inbox (list plus reading pane). The inbox comes from the server only after a correct login. |
+| `VitalNetFiles.jsx` | **VitalNet Files**: the shared drive. Every folder but Sandgrouse says "no access"; Sandgrouse asks for the folder code, then shows the sale documents the server sends back. |
 
 ### Styles
 | File | What it does |
