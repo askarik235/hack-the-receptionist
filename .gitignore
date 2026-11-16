@@ -22,3 +22,6 @@ backend/data/napster-ids*.json
 .DS_Store
 Thumbs.db
 
+
+# Local editor/assistant config
+.claude/

@@ -48,7 +48,7 @@ recalculated from a secret each time (`game/codes.js`).
 | `SECURITY.md` | How the game protects itself: secrets, rate limits, what the browser can and can't see. |
 | `napster-findings.md` | Things learned about the Napster API while building (quirks, field names). |
 | `playtest-log.md` | Every test call: date, level, caller, result. Used to tune difficulty. |
-| `story/` | Level stories written before building: templates and drafts for each level. |
+| `story/` | Level stories written before building: a draft or sketch for each level. |
 | `docs/code-guide.md` | This file. |
 
 ---
