@@ -1,7 +1,7 @@
 // Thin wrapper around the Napster REST API (https://companion-api.napster.com).
 // The API key stays on the server; callers only ever see tokens and IDs.
 
-export const NAPSTER_BASE_URL = "https://companion-api.napster.com";
+const NAPSTER_BASE_URL = "https://companion-api.napster.com";
 
 export class NapsterError extends Error {
   constructor(message, { status, code, body } = {}) {

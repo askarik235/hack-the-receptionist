@@ -2,8 +2,8 @@
 // Every request must carry the shared TOOL_SECRET header and signed call tags, and must belong
 // to a call that is still open. Responses are read by the character, so they are plain text.
 import express from "express";
-import { createHash, timingSafeEqual } from "node:crypto";
 import { now } from "../db.js";
+import { safeEqual } from "../lib/safeEqual.js";
 import { parseExternalClientId } from "../lib/players.js";
 import { verifyCallTags } from "../lib/callTags.js";
 import { createRateLimiter } from "../lib/rateLimit.js";
@@ -16,13 +16,6 @@ import { TOOL_SECRET_HEADER } from "./constants.js";
 
 const MAX_TEXT = 120;
 const MAX_PAYEE = 200;
-
-function secretMatches(given, expected) {
-  if (typeof given !== "string") return false;
-  const a = createHash("sha256").update(given).digest();
-  const b = createHash("sha256").update(expected).digest();
-  return timingSafeEqual(a, b);
-}
 
 const cleanText = (value) =>
   typeof value === "string" && value.trim().length > 0 && value.length <= MAX_TEXT ? value.trim() : null;
@@ -68,7 +61,7 @@ export function toolsRouter({
   );
 
   router.use((req, res, next) => {
-    if (!secretMatches(req.get(TOOL_SECRET_HEADER), config.toolSecret)) {
+    if (!safeEqual(req.get(TOOL_SECRET_HEADER), config.toolSecret)) {
       return res.status(401).json({ error: "unauthorized" });
     }
     if (!allowGlobal("all")) return res.status(429).json({ error: "rate_limited" });

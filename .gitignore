@@ -22,6 +22,3 @@ backend/data/napster-ids*.json
 .DS_Store
 Thumbs.db
 
-# Throwaway spike (Phase 0)
-spike/spike-ids.json
-spike/last-report.json

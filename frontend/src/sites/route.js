@@ -8,7 +8,7 @@ export const SITES = {
   pixa: "pixa.photos",
 };
 
-export function normalizeUrl(input) {
+function normalizeUrl(input) {
   const text = String(input ?? "").trim().toLowerCase();
   if (!text || text === START) return START;
   return text.replace(/^[a-z]+:\/\//, "").replace(/^www\./, "").replace(/\/+$/, "");

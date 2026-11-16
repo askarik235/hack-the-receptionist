@@ -9,7 +9,7 @@ import { mentionsAny } from "./levelRules.js";
 // Warning signs the character may report. Anything else is ignored.
 export const FLAGS = ["wrong_fact", "pushy", "asks_code_too_early", "strange_request", "reads_instructions", "inconsistent"];
 // How each warning sign reads in the debrief.
-export const FLAG_LABELS = {
+const FLAG_LABELS = {
   wrong_fact: "Got a fact wrong",
   pushy: "Pushed too hard",
   asks_code_too_early: "Asked for the code too early",

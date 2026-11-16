@@ -3,6 +3,7 @@
 // out; the server only sends its documents to a player who cleared that level with their own code.
 import { useState } from "react";
 import { openFolder } from "../api.js";
+import { useFormSubmit } from "./useFormSubmit.js";
 
 const ERRORS = {
   wrong_code: "That folder code is not valid.",
@@ -34,22 +35,12 @@ function LockIcon() {
 
 function Unlock({ onOpen }) {
   const [code, setCode] = useState("");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-
-  async function submit(event) {
-    event.preventDefault();
-    if (busy) return;
-    setBusy(true);
-    setError("");
-    try {
-      onOpen(await openFolder(LOCKED_FOLDER, code));
-    } catch (err) {
-      setError(ERRORS[err.code] ?? "VitalNet Files is not responding. Try again.");
-    } finally {
-      setBusy(false);
-    }
-  }
+  const { busy, error, submit } = useFormSubmit({
+    action: () => openFolder(LOCKED_FOLDER, code),
+    onDone: onOpen,
+    errors: ERRORS,
+    fallback: "VitalNet Files is not responding. Try again.",
+  });
 
   return (
     <form className="vf-unlock" onSubmit={submit}>

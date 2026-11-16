@@ -2,7 +2,7 @@
 // reads out) also opens an inbox. The inbox is only sent to a player who has cleared that
 // level and logs in with their own code, so it can't be read from the frontend or guessed.
 import express from "express";
-import { codeFor, codesMatch } from "../game/codes.js";
+import { createLevelCodeCheck } from "../game/codes.js";
 import { createRateLimiter } from "../lib/rateLimit.js";
 
 const MAX_INPUT = 80;
@@ -17,7 +17,7 @@ export function normalizeUsername(value) {
 export function mailRouter({ config, db, content, rateLimit = { windowMs: 60_000, max: 6 } }) {
   const router = express.Router();
   const allowLogin = createRateLimiter(rateLimit);
-  const hasCleared = db.prepare("SELECT 1 FROM cleared_levels WHERE player_id = ? AND level = ?");
+  const ownCode = createLevelCodeCheck({ db, config, content });
 
   router.post("/login", (req, res) => {
     const playerId = req.player.id;
@@ -34,9 +34,7 @@ export function mailRouter({ config, db, content, rateLimit = { windowMs: 60_000
     const entry = [...content.mailboxes.entries()].find(([, box]) => box.username === username);
     if (!entry) return wrong();
     const [levelNumber, box] = entry;
-    const level = content.levelByNumber.get(levelNumber);
-    if (!hasCleared.get(playerId, levelNumber)) return wrong();
-    if (!codesMatch(codeFor(config.codeSecret, playerId, levelNumber, level.code.words), password)) return wrong();
+    if (!ownCode(playerId, levelNumber, password)) return wrong();
 
     res.json({ address: box.address, displayName: box.displayName, emails: box.emails });
   });

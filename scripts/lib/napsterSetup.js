@@ -11,14 +11,14 @@ import { FLAGS as TRUST_FLAGS } from "../../backend/src/game/trust.js";
 const READY = ["readyToUse", "completed"];
 const FAILED = ["failed", "blocked"];
 
-export function findPortrait(staffId, dir = PORTRAITS_DIR) {
+function findPortrait(staffId, dir = PORTRAITS_DIR) {
   for (const ext of ["jpg", "jpeg", "png", "webp"]) {
     if (existsSync(join(dir, `${staffId}.${ext}`))) return `${staffId}.${ext}`;
   }
   return null;
 }
 
-export function requestCodeFunction(config) {
+function requestCodeFunction(config) {
   return {
     data: {
       name: "request_code",
@@ -51,7 +51,7 @@ export function requestCodeFunction(config) {
 
 // The character's running judgement of the caller. Our server turns it into the trust meter
 // (backend/src/game/trust.js); the character never mentions it out loud.
-export function assessCallerFunction(config) {
+function assessCallerFunction(config) {
   return {
     data: {
       name: "assess_caller",

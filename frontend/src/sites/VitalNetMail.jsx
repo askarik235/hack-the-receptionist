@@ -3,6 +3,7 @@
 // cleared that level and typed their own password.
 import { useState } from "react";
 import { mailLogin } from "../api.js";
+import { useFormSubmit } from "./useFormSubmit.js";
 
 const ERRORS = {
   wrong_login: "Wrong username or password.",
@@ -41,22 +42,12 @@ let session = null;
 function Login({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-
-  async function submit(event) {
-    event.preventDefault();
-    if (busy) return;
-    setBusy(true);
-    setError("");
-    try {
-      onLogin(await mailLogin(username, password));
-    } catch (err) {
-      setError(ERRORS[err.code] ?? "VitalNet is not responding. Try again.");
-    } finally {
-      setBusy(false);
-    }
-  }
+  const { busy, error, submit } = useFormSubmit({
+    action: () => mailLogin(username, password),
+    onDone: onLogin,
+    errors: ERRORS,
+    fallback: "VitalNet is not responding. Try again.",
+  });
 
   return (
     <div className="vn-login">

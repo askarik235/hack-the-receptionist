@@ -2,7 +2,7 @@
 // private facts, code words, accepted names and agent settings can never leak by accident.
 import { callerIdKitUnlocked } from "./callerId.js";
 
-export const BOARD_SIZE = 5;
+const BOARD_SIZE = 5;
 
 export function publicContent(content, clearedLevels) {
   const cleared = new Set(clearedLevels);

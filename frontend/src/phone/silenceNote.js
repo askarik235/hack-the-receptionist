@@ -4,7 +4,7 @@
 // Only the character's lines are ever checked: a player saying these words is still heard.
 // No JSX or browser APIs, so Node can import it.
 
-export const SILENCE_NOTE_START = "The caller has gone silent.";
+const SILENCE_NOTE_START = "The caller has gone silent.";
 
 export const silenceNote = (line) =>
   `${SILENCE_NOTE_START} Say exactly this line in your own voice, and nothing else: "${line}"`;

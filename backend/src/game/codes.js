@@ -1,6 +1,7 @@
 // Level codes (decision D4): derived per player and level from CODE_SECRET, never stored or
 // written anywhere. The HACK app recomputes the same code to check what the player typed.
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { createHmac } from "node:crypto";
+import { safeEqual } from "../lib/safeEqual.js";
 
 export function codeFor(secret, playerId, level, words) {
   const mac = createHmac("sha256", secret).update(`code:v1:${playerId}:${level}`).digest();
@@ -17,11 +18,19 @@ export function normalizeCode(input) {
   return match ? `${match[1]}-${match[2]}` : null;
 }
 
-// Constant-time comparison (hashes first so the lengths always match).
+// Constant-time comparison of a typed code with the expected one.
 export function codesMatch(expected, typed) {
   const normalized = normalizeCode(typed);
-  if (!normalized) return false;
-  const a = createHash("sha256").update(expected).digest();
-  const b = createHash("sha256").update(normalized).digest();
-  return timingSafeEqual(a, b);
+  return Boolean(normalized) && safeEqual(normalized, expected);
+}
+
+// For pages a level's code opens (VitalNet Mail, VitalNet Files): true only if this player has
+// cleared that level and typed their own code for it.
+export function createLevelCodeCheck({ db, config, content }) {
+  const hasCleared = db.prepare("SELECT 1 FROM cleared_levels WHERE player_id = ? AND level = ?");
+  return (playerId, levelNumber, typed) => {
+    const level = content.levelByNumber.get(levelNumber);
+    if (!level || !hasCleared.get(playerId, levelNumber)) return false;
+    return codesMatch(codeFor(config.codeSecret, playerId, levelNumber, level.code.words), typed);
+  };
 }

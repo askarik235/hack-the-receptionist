@@ -2,7 +2,7 @@
 // the code the CEO read out. Same rule as VitalNet Mail: the documents are only sent to a player
 // who has cleared that level and types their own code, so they can't be read from the frontend.
 import express from "express";
-import { codeFor, codesMatch } from "../game/codes.js";
+import { createLevelCodeCheck } from "../game/codes.js";
 import { createRateLimiter } from "../lib/rateLimit.js";
 
 const MAX_INPUT = 40;
@@ -10,7 +10,7 @@ const MAX_INPUT = 40;
 export function filesRouter({ config, db, content, rateLimit = { windowMs: 60_000, max: 6 } }) {
   const router = express.Router();
   const allowOpen = createRateLimiter(rateLimit);
-  const hasCleared = db.prepare("SELECT 1 FROM cleared_levels WHERE player_id = ? AND level = ?");
+  const ownCode = createLevelCodeCheck({ db, config, content });
 
   router.post("/open", (req, res) => {
     const playerId = req.player.id;
@@ -27,9 +27,7 @@ export function filesRouter({ config, db, content, rateLimit = { windowMs: 60_00
     const entry = [...content.vaults.entries()].find(([, vault]) => vault.folder === folder);
     if (!entry) return wrong();
     const [levelNumber, vault] = entry;
-    const level = content.levelByNumber.get(levelNumber);
-    if (!hasCleared.get(playerId, levelNumber)) return wrong();
-    if (!codesMatch(codeFor(config.codeSecret, playerId, levelNumber, level.code.words), code)) return wrong();
+    if (!ownCode(playerId, levelNumber, code)) return wrong();
 
     res.json({ folder: vault.folder, title: vault.title, documents: vault.documents });
   });

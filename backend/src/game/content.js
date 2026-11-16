@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 export const DEFAULT_DATA_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "data");
 
 // Voices listed in the Napster docs (Agent Configuration > Voice).
-export const VOICES = ["alloy", "ash", "ballad", "coral", "echo", "sage", "shimmer", "verse", "marin", "cedar"];
+const VOICES = ["alloy", "ash", "ballad", "coral", "echo", "sage", "shimmer", "verse", "marin", "cedar"];
 
 // Anything shaped like a level code (WORD-1234). Must never appear in prompts or public pages.
 const CODE_LIKE = /\b[A-Z]{3,10}-\d{4}\b/;

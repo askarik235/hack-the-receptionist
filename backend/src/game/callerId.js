@@ -19,7 +19,7 @@ export function callerIdLabel(content, callerId) {
 }
 
 // True if the call shows the number of the person the level's caller ID check trusts.
-export function showsTrustedNumber(content, level, callerId) {
+function showsTrustedNumber(content, level, callerId) {
   const trusted = level.callerId && content.staffById.get(level.callerId.trustedStaffId);
   return Boolean(trusted?.phone) && trusted.phone === callerId;
 }
