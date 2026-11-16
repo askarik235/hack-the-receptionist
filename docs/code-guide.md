@@ -134,7 +134,7 @@ recalculated from a secret each time (`game/codes.js`).
 ### Apps
 | File | What it does |
 |---|---|
-| `apps/Mail.jsx` | NIGHTJAR's mission briefings, one per unlocked level, with links that open the Browser. |
+| `apps/Mail.jsx` | MIDAS's mission briefings, one per unlocked level, with links that open the Browser. |
 | `apps/Browser.jsx` | The in-game web browser: tabs, back/forward, address bar, bookmarks. Picks which fake site to show from the address. |
 | `apps/Phone.jsx` | The smartphone overlay: dial pad, contacts, recent calls, in-call screen (timer, mute, video, trust meter), mic permission explainer. |
 | `apps/Hack.jsx` | The terminal: type a code, ACCESS GRANTED or DENIED, the debrief, and the hint for VitalNet Mail. |

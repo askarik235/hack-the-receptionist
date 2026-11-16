@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { SITES } from "./route.js";
 import { discoverContacts } from "../phone/contacts.js";
+import { About, Team, Careers } from "./VitalityPages.jsx";
 
 const PAGES = [
   ["", "Home"],
@@ -11,8 +12,6 @@ const PAGES = [
   ["news", "News"],
   ["contact", "Contact"],
 ];
-
-const initials = (name) => name.split(" ").map((p) => p[0]).join("");
 
 function Home({ page, go }) {
   return (
@@ -42,51 +41,12 @@ function Home({ page, go }) {
   );
 }
 
-function Team({ page }) {
-  return (
-    <section className="vl-section">
-      <h2>{page.title}</h2>
-      <p className="vl-lead">The people who keep the Gulf moving.</p>
-      <ul className="vl-team">
-        {page.members.map((m) => (
-          <li key={m.name}>
-            <span className="vl-avatar" aria-hidden="true">{initials(m.name)}</span>
-            <span className="vl-member-name">{m.name}</span>
-            <span className="vl-member-role">{m.role}</span>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
 function Simple({ page, list }) {
   return (
     <section className="vl-section">
       <h2>{page.title}</h2>
       {page.paragraphs?.map((p) => <p key={p}>{p}</p>)}
       {list && <ul className="vl-list">{list}</ul>}
-    </section>
-  );
-}
-
-function Careers({ page, go }) {
-  return (
-    <section className="vl-section">
-      <h2>{page.title}</h2>
-      <ul className="vl-list">
-        {page.openings.map((o) => (
-          <li key={o}>{o}</li>
-        ))}
-      </ul>
-      {page.guide && (
-        <p className="vl-guide">
-          <button type="button" className="vl-file-link" onClick={() => go(page.guide.url)}>
-            <span className="vl-file-badge" aria-hidden="true">PDF</span>
-            {page.guide.label}
-          </button>
-        </p>
-      )}
     </section>
   );
 }
@@ -166,7 +126,7 @@ export default function VitalitySite({ route, osint, go }) {
   let body;
   if (current === "") body = <Home page={pages.home} go={go} />;
   else if (current === "team") body = <Team page={pages.team} />;
-  else if (current === "about") body = <Simple page={pages.about} />;
+  else if (current === "about") body = <About page={pages.about} />;
   else if (current === "careers") body = <Careers page={pages.careers} go={go} />;
   else if (current === "news")
     body = (

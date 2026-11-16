@@ -2,7 +2,7 @@
 // Contacts fill in as the player finds numbers during recon (e.g. the company's contact page).
 import { useSyncExternalStore } from "react";
 
-const KEY = { contacts: "nightjar.contacts", recents: "nightjar.recents" };
+const KEY = { contacts: "midas.contacts", recents: "midas.recents" };
 const MAX_RECENTS = 12;
 const listeners = new Set();
 const cache = {};

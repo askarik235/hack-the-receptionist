@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getTraining } from "../api.js";
 
-export const CALL_ENDED_EVENT = "nightjar:call-ended";
+export const CALL_ENDED_EVENT = "midas:call-ended";
 
 const OUTCOMES = {
   cleared: { label: "Target cleared", tone: "good" },

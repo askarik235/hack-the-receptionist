@@ -29,7 +29,15 @@ function fakeNapster() {
 
 const quiet = () => {};
 
-test("first run creates the tool, a stock face and Timur's agent", async () => {
+// The same content as before stock faces were chosen: nobody has a stockFace.
+function withoutStockFaces(content) {
+  const staffById = new Map([...content.staffById].map(([id, person]) => [id, { ...person, stockFace: undefined }]));
+  return { ...content, staffById };
+}
+
+const TIMUR_FACE = loadContent().staffById.get("timur-bekov").stockFace;
+
+test("first run creates the tool, Timur's chosen face and his agent", async () => {
   const { napster, store, calls } = fakeNapster();
   const content = loadContent();
   const ids = await runSetup({ napster, config, content, log: quiet, portraitFor: () => null });
@@ -40,14 +48,15 @@ test("first run creates the tool, a stock face and Timur's agent", async () => {
   assert.equal(fn.flow, "explicit");
 
   const agent = store.agents.get(ids.agents["level-1-timur"]);
-  assert.equal(agent.companionId, "stock_1");
+  assert.equal(agent.companionId, TIMUR_FACE);
   assert.equal(agent.voiceId, "ash");
   assert.equal(agent.useWebSearch, false);
   assert.deepEqual(agent.functions, [ids.functions.request_code, ids.functions.assess_caller]);
   assert.equal(store.functions.get(ids.functions.assess_caller).url, "https://example.ngrok-free.app/tools/assess_caller");
   assert.match(agent.providerSettings.instructions, /Timur Bekov/);
   assert.doesNotMatch(JSON.stringify(agent), /[A-Z]{3,10}-\d{4}/, "no code in the agent config");
-  assert.deepEqual(ids.companions["timur-bekov"], { id: "stock_1", placeholder: true });
+  assert.deepEqual(ids.companions["timur-bekov"], { id: TIMUR_FACE, placeholder: true });
+  assert.ok(!calls.some((c) => c.path.includes("napster-stock")), "every target has a chosen face, so no catalogue lookup");
 
   const channel = calls.find((c) => c.path.endsWith("/channels/webrtc"));
   assert.equal(channel.body.videoPolicy, "deferred");
@@ -86,4 +95,49 @@ test("a portrait replaces the stock face and setup waits until it is ready", asy
   assert.equal(store.agents.get(ids.agents["level-1-timur"]).companionId, companion.id);
   assert.equal(ids.companions["timur-bekov"].placeholder, false);
   assert.equal(polls, 2);
+});
+
+test("someone without a chosen face still gets the first stock face of their gender", async () => {
+  const { napster, store, calls } = fakeNapster();
+  const content = withoutStockFaces(loadContent());
+  const ids = await runSetup({ napster, config, content, log: quiet, portraitFor: () => null });
+
+  assert.equal(store.agents.get(ids.agents["level-1-timur"]).companionId, "stock_1");
+  assert.deepEqual(ids.companions["timur-bekov"], { id: "stock_1", placeholder: true });
+  assert.ok(calls.some((c) => c.path.includes("napster-stock")));
+});
+
+test("a saved stock face is swapped for the chosen one; a custom face is kept", async () => {
+  const { napster, store } = fakeNapster();
+  const content = loadContent();
+  const ids = {
+    companions: {
+      "timur-bekov": { id: "stock_1", placeholder: true },
+      "anna-petrova": { id: "custom_anna", placeholder: false },
+    },
+  };
+  await runSetup({ napster, config, content, ids, log: quiet, portraitFor: () => null });
+
+  assert.equal(store.agents.get(ids.agents["level-1-timur"]).companionId, TIMUR_FACE);
+  assert.deepEqual(ids.companions["timur-bekov"], { id: TIMUR_FACE, placeholder: true });
+  assert.equal(store.agents.get(ids.agents["level-2-anna"]).companionId, "custom_anna");
+  assert.deepEqual(ids.companions["anna-petrova"], { id: "custom_anna", placeholder: false });
+});
+
+test("choosing faces changes only the face: every agent is configured exactly as before", async () => {
+  const configured = async (content) => {
+    const { napster, calls } = fakeNapster();
+    await runSetup({ napster, config, content, log: quiet, portraitFor: () => null });
+    // Everything sent to Napster for agents and their channels, with only the face taken out.
+    return calls
+      .filter((c) => c.path.startsWith("/public/agents") && c.method !== "GET")
+      .map(({ method, path, body }) => ({ method, path, body: { ...body, companionId: undefined } }));
+  };
+  const content = loadContent();
+  const before = await configured(withoutStockFaces(content));
+  const after = await configured(content);
+
+  assert.equal(after.length, before.length);
+  assert.equal(after.filter((c) => c.method === "POST").length, content.levels.length);
+  assert.deepEqual(after, before);
 });

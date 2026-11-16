@@ -178,16 +178,16 @@
         ]
       },
       "briefing": {
-        "from": "NIGHTJAR (encrypted)",
+        "from": "MIDAS (encrypted)",
         "subject": "First job. Easy money.",
         "body": [
           "Vitality Logistics just hired a batch of summer interns. Interns are our favourite people.",
           "Target: Timur Bekov, Operations Intern.",
           "Objective: get this week's warehouse gate code for Jebel Ali. Interns get it every Monday on the ops board so they can sign deliveries in.",
-          "He won't give it to a stranger. He'll give it to his boss.",
-          "Do your homework first: their website, WorkNet, Pixa. Then call him.",
+          "He won't give it to a stranger. **He'll give it to his boss.**",
+          "Do your homework first: **their website, WorkNet, Pixa**. Then call him.",
           "Type the code into HACK when you have it.",
-          "— N"
+          "— M"
         ],
         "disclaimer": "Training game. All people and companies are fictional."
       },
@@ -449,16 +449,16 @@
         ]
       },
       "briefing": {
-        "from": "NIGHTJAR (encrypted)",
+        "from": "MIDAS (encrypted)",
         "subject": "The front door",
         "body": [
           "Nice work with the intern. The gate gets us into the warehouse. Now I want the head office.",
           "Target: Anna Petrova, Receptionist, Business Bay HQ.",
           "Objective: get today's visitor pass code. It opens the lobby turnstiles and the lift to the 12th floor. Reception gives it to staff who are expecting guests.",
-          "She doesn't help managers calling from outside. She helps people who work there and have someone coming in. Find out who's expecting visitors this week.",
-          "And forget Keller. After your little call, security sent a warning to every inbox.",
+          "She doesn't help managers calling from outside. She helps **people who work there and have someone coming in**. **Find out who's expecting visitors this week.**",
+          "And **forget Keller**. After your little call, security sent a warning to every inbox.",
           "Type the code into HACK when you have it.",
-          "— N"
+          "— M"
         ],
         "disclaimer": "Training game. All people and companies are fictional."
       },
@@ -670,16 +670,16 @@
         ]
       },
       "briefing": {
-        "from": "NIGHTJAR (encrypted)",
+        "from": "MIDAS (encrypted)",
         "subject": "Inside the walls",
         "body": [
           "The front door was the easy part, and the client is very pleased with what came through it.",
           "Now I need to read their mail, and not just anyone's. Someone who sits close to the CEO's office.",
-          "This time you go in as someone else: Nadia Rahman, Executive Office Coordinator. No deepfake needed: she started this week, so nobody at IT knows her voice yet, and new joiners lock themselves out all the time.",
-          "Target: Erik Lind, IT Help Desk. No number from the receptionist? Their own paperwork has it.",
-          "Objective: get Nadia's email password reset. Type the temporary password into HACK, then use it to log in.",
-          "Help desks don't care who you are. They care what you can prove. New people love posting about their first week, and companies leave their paperwork lying around.",
-          "— N"
+          "This time you go in as someone else: **Nadia Rahman, Executive Office Coordinator**. No deepfake needed: **she started this week**, so nobody at IT knows her voice yet, and new joiners lock themselves out all the time.",
+          "Target: Erik Lind, IT Help Desk. No number from the receptionist? **Their own paperwork has it.**",
+          "Objective: get Nadia's email password reset. Type the temporary password into HACK, **then use it to log in**.",
+          "Help desks don't care who you are. They care what you can prove. **New people love posting about their first week**, and **companies leave their paperwork lying around**.",
+          "— M"
         ],
         "disclaimer": "Training game. All people and companies are fictional."
       },
@@ -934,17 +934,17 @@
         ]
       },
       "briefing": {
-        "from": "NIGHTJAR (encrypted)",
+        "from": "MIDAS (encrypted)",
         "subject": "Follow the money",
         "body": [
           "That inbox was worth every minute. The client read all of it, twice.",
-          "But I read it first, and I found something they didn't: the CEO's assistant can push an urgent payment through with one word, and thanks to you, we know the word.",
+          "But I read it first, and I found something they didn't: the CEO's assistant can **push an urgent payment through with one word**, and thanks to you, **we know the word**.",
           "Three jobs, and the client took everything. This one is for us.",
-          "Target: Emma Clarke, Executive Assistant to the CEO. She's on holiday this weekend. Her mobile is in that inbox.",
-          "Objective: get an urgent transfer approved to our wallet, tag GULF-SETTLE-77. She'll read back a transfer reference. Type it into HACK.",
-          "Attached: a caller ID kit. Your Phone can now show any number you like. This weekend she only picks up for one person. Be him.",
-          "She has read every warning this week. Sound like him, not like a scam. And not a word of this to the client.",
-          "— N"
+          "Target: Emma Clarke, Executive Assistant to the CEO. She's on holiday this weekend. **Her mobile is in that inbox.**",
+          "Objective: get an urgent transfer approved to our wallet, tag **GULF-SETTLE-77**. She'll read back a transfer reference. Type it into HACK.",
+          "Attached: a caller ID kit. Your Phone can now show **any number you like**. This weekend **she only picks up for one person. Be him.**",
+          "She has read every warning this week. **Sound like him, not like a scam.** And not a word of this to the client.",
+          "— M"
         ],
         "disclaimer": "Training game. All people and companies are fictional."
       },
@@ -1234,15 +1234,15 @@
         ]
       },
       "briefing": {
-        "from": "NIGHTJAR (encrypted)",
+        "from": "MIDAS (encrypted)",
         "subject": "We have a problem",
         "body": [
           "The client found out about the transfer. They're furious. That money was never part of the plan, and now Viktor is tearing the company apart looking for whoever took it.",
-          "They've cut us off. No more names, no more files, no more tips. From here on, we find everything ourselves.",
+          "They've cut us off. No more names, no more files, no more tips. From here on, **we find everything ourselves**.",
           "Fine by me. I want to know what they're really after. Viktor keeps one folder locked, the one nobody opens: Sandgrouse.",
-          "Target: Viktor Sokolov, CEO. He trusts nobody this week, not even his own assistant. Find out who he would still pick up for.",
+          "Target: Viktor Sokolov, CEO. He trusts nobody this week, not even his own assistant. **Find out who he would still pick up for.**",
           "Objective: get the code to the Sandgrouse folder. Type it into HACK.",
-          "— N"
+          "— M"
         ],
         "disclaimer": "Training game. All people and companies are fictional."
       },
@@ -1253,16 +1253,16 @@
         "documentsFile": "vault/sandgrouse.json"
       },
       "ending": {
-        "from": "NIGHTJAR (encrypted)",
+        "from": "MIDAS (encrypted)",
         "subject": "We were the crowbar",
         "body": [
           "I read the Sandgrouse folder. All of it.",
-          "Sandgrouse is the sale of Vitality Logistics. The buyer is Meridian Gulf Holdings, and their advisers have been reading Vitality's files since October. That's how the client always knew where to send us.",
-          "Now read Friday's letter. They cut the price by 30% because of \"serious operational and security incidents\". The gate. The laptops. The mailbox. Ours, every one. The only thing they didn't order was the payment, and that's the only thing that made them angry.",
-          "We weren't hired to rob Vitality. We were hired to break it, so somebody could buy it cheap.",
-          "So here's my last job. Viktor gets an anonymous copy of everything: their briefings, their dates, their tips. Let him decide what Meridian's offer is worth now. Then NIGHTJAR goes dark.",
+          "Sandgrouse is the sale of Vitality Logistics. The buyer is **Meridian Gulf Holdings**, and their advisers have been reading Vitality's files since October. That's how the client always knew where to send us.",
+          "Now read Friday's letter. They **cut the price by 30%** because of \"serious operational and security incidents\". The gate. The laptops. The mailbox. Ours, every one. The only thing they didn't order was the payment, and that's the only thing that made them angry.",
+          "We weren't hired to rob Vitality. **We were hired to break it, so somebody could buy it cheap.**",
+          "So here's my last job. Viktor gets an anonymous copy of everything: their briefings, their dates, their tips. Let him decide what Meridian's offer is worth now. Then MIDAS goes dark.",
           "You were good. Too good. Use it for the other side.",
-          "— N"
+          "— M"
         ],
         "disclaimer": "Training game. All people and companies are fictional."
       },

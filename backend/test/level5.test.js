@@ -350,7 +350,7 @@ test("the police statement appears on the company news once Level 4 is cleared",
   assert.ok(!JSON.stringify(publicContent(content, [1, 2, 3, 4]).osint).includes("afterLevel"));
 });
 
-test("N's last mail arrives only after Level 5, above the Level 5 briefing", () => {
+test("M's last mail arrives only after Level 5, above the Level 5 briefing", () => {
   assert.ok(!publicContent(content, [1, 2, 3, 4]).mail.some((m) => m.id === "ending-5"));
   const mail = publicContent(content, [1, 2, 3, 4, 5]).mail;
   const ending = mail.find((m) => m.id === "ending-5");

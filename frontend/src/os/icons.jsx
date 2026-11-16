@@ -43,9 +43,19 @@ export const icons = {
   ),
 };
 
-// The Nightjar mark: a bird's swept wing.
-export const NightjarMark = () => (
-  <svg viewBox="0 0 24 24" className="nightjar-mark" aria-hidden="true">
-    <path d="M2 14c5-1 8-4 10-9 1 4 0 7-2 9 4-1 8-1 12 1-6 1-11 3-14 6 0-3 1-5 3-6-3 0-6 0-9-1z" />
+// The Midas mark: a golden feather. The shaft and the two splits in the vane are cut out in the
+// taskbar's own colour, so the feather reads at 20px.
+export const MidasMark = () => (
+  <svg viewBox="0 0 24 24" className="midas-mark" aria-hidden="true">
+    <defs>
+      <linearGradient id="midas-gold" x1="21" y1="3" x2="5" y2="19" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stopColor="#fbe28c" />
+        <stop offset="0.55" stopColor="#e9ad3e" />
+        <stop offset="1" stopColor="#b97f24" />
+      </linearGradient>
+    </defs>
+    <path className="midas-vane" d="M21 2.5C15 2.5 8 7 6 18c7-1 13-7 15-15.5z" />
+    <path className="midas-quill" d="M2.5 21.5l4-4" />
+    <path className="midas-cut" d="M6.5 17.5Q13 11 20.6 3M10 13.9l-2-3.3M14 9.7l-1.8-4.1M12.6 11.2l4.7.5" />
   </svg>
 );

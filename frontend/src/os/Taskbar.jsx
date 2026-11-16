@@ -1,21 +1,15 @@
-import { useEffect, useState } from "react";
-import { NightjarMark } from "./icons.jsx";
+import { MidasMark } from "./icons.jsx";
+import Badge from "./Badge.jsx";
+import { useDubaiTime } from "./useDubaiTime.js";
 
-const dubaiTime = () =>
-  new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Dubai" }).format(new Date());
-
-export default function Taskbar({ apps, windows, activeId, onSelect }) {
-  const [time, setTime] = useState(dubaiTime);
-  useEffect(() => {
-    const timer = setInterval(() => setTime(dubaiTime()), 15_000);
-    return () => clearInterval(timer);
-  }, []);
+export default function Taskbar({ apps, windows, activeId, badges = {}, onSelect }) {
+  const time = useDubaiTime();
 
   return (
     <footer className="taskbar">
       <span className="taskbar-brand">
-        <NightjarMark />
-        Nightjar
+        <MidasMark />
+        Midas
       </span>
       <nav className="taskbar-apps" aria-label="Open windows">
         {windows.map((w) => (
@@ -26,6 +20,7 @@ export default function Taskbar({ apps, windows, activeId, onSelect }) {
             onClick={() => onSelect(w.id)}
           >
             {apps[w.id].title}
+            {w.id !== activeId && <Badge count={badges[w.id]} />}
           </button>
         ))}
       </nav>

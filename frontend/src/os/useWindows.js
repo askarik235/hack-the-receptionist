@@ -17,8 +17,10 @@ function reducer(state, action) {
       const w = Math.min(action.size.w, width - 24);
       const h = Math.min(action.size.h, height - 24);
       const offset = (state.windows.length % 6) * CASCADE;
-      const x = Math.max(12, Math.min(128 + offset, width - w - 12));
-      const y = Math.max(12, Math.min(32 + offset, height - h - 12));
+      // "right": held at the right edge, near the bottom, like a phone in your hand.
+      const right = action.place === "right";
+      const x = right ? Math.max(12, width - w - 40) : Math.max(12, Math.min(128 + offset, width - w - 12));
+      const y = right ? Math.max(12, height - h - 16) : Math.max(12, Math.min(32 + offset, height - h - 12));
       const win = { id: action.id, x, y, w, h, z, minimized: false };
       return { topZ: z, windows: [...state.windows, win] };
     }
@@ -41,7 +43,7 @@ export function useWindows(apps) {
   const open = useCallback(
     (id) => {
       const viewport = { width: window.innerWidth, height: window.innerHeight - TASKBAR_H };
-      dispatch({ type: "open", id, size: apps[id].size, viewport });
+      dispatch({ type: "open", id, size: apps[id].size, place: apps[id].place, viewport });
     },
     [apps]
   );

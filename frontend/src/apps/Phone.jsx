@@ -6,7 +6,7 @@ import { startCall } from "../phone/callSession.js";
 import { addRecent, digitsOf, nameFor, useContacts, useRecents } from "../phone/contacts.js";
 import { CALL_ENDED_EVENT } from "./Training.jsx";
 
-const MIC_OK_KEY = "nightjar.micExplained";
+const MIC_OK_KEY = "midas.micExplained";
 const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"];
 
 // What the phone says when a call can't start or has ended.
@@ -49,7 +49,7 @@ function readMicOk() {
   }
 }
 
-// callerIdKit: the player has NIGHTJAR's caller ID kit (Level 4 on) and can choose the
+// callerIdKit: the player has MIDAS's caller ID kit (Level 4 on) and can choose the
 // number the other phone shows.
 export default function Phone({ callerIdKit = false }) {
   const contacts = useContacts();

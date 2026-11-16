@@ -10,7 +10,7 @@
       },
       "stats": [
         "120+ people",
-        "3 sites",
+        "2 sites",
         "Since 2009"
       ]
     },
@@ -19,63 +19,230 @@
       "paragraphs": [
         "Founded in 2009 by Viktor Sokolov, Vitality Logistics moves freight across the Gulf by sea, road and air.",
         "Our head office is in Business Bay, Dubai. Our warehouse in Jebel Ali handles over 400 containers a week."
+      ],
+      "figures": [
+        {
+          "value": 120,
+          "suffix": "+",
+          "label": "people across our two sites"
+        },
+        {
+          "value": 400,
+          "suffix": "+",
+          "label": "containers a week through Jebel Ali"
+        },
+        {
+          "value": 2009,
+          "suffix": "",
+          "label": "the year our first truck left the yard"
+        }
+      ],
+      "story": [
+        {
+          "year": "2009",
+          "status": "Picked up",
+          "text": "Viktor Sokolov starts Vitality Logistics in Dubai with a single truck."
+        },
+        {
+          "year": "2013",
+          "status": "In transit",
+          "text": "Our first sea freight contracts: containers through Jebel Ali to ports across the GCC."
+        },
+        {
+          "year": "2016",
+          "status": "Warehoused",
+          "text": "We open our own warehouse and container yard in Jebel Ali."
+        },
+        {
+          "year": "2021",
+          "status": "Arrived",
+          "text": "Head office moves to the 12th floor of Bay Square, Business Bay."
+        },
+        {
+          "year": "Today",
+          "status": "Delivering",
+          "text": "More than 120 people, and over 400 containers a week."
+        }
+      ],
+      "services": [
+        {
+          "mode": "sea",
+          "name": "Sea freight",
+          "text": "Full and shared containers from Jebel Ali to every major port in the GCC."
+        },
+        {
+          "mode": "road",
+          "name": "Road freight",
+          "text": "Daily trucking across the UAE, with regular runs to Oman and Saudi Arabia."
+        },
+        {
+          "mode": "air",
+          "name": "Air freight",
+          "text": "Urgent cargo booked through Dubai's airports, door to door."
+        },
+        {
+          "mode": "warehouse",
+          "name": "Warehousing",
+          "text": "Storage, pick and pack, and container handling at our Jebel Ali yard."
+        }
+      ],
+      "sites": [
+        {
+          "kind": "office",
+          "name": "Head office",
+          "place": "Bay Square, Business Bay",
+          "text": "Sales, Finance, IT, HR and the Executive Office, on the 12th floor. Visitors check in at the lobby kiosk."
+        },
+        {
+          "kind": "warehouse",
+          "name": "Warehouse and yard",
+          "place": "Jebel Ali",
+          "text": "Where containers are unloaded, stored and sent on, six days a week."
+        }
       ]
     },
     "team": {
       "title": "Our team",
+      "intro": "About 120 people keep our trucks, containers and customers moving. Here are some of them.",
       "members": [
         {
           "staffId": "viktor-sokolov",
           "name": "Viktor Sokolov",
-          "role": "Chief Executive Officer"
+          "role": "Chief Executive Officer",
+          "department": "Executive Office",
+          "site": "Business Bay",
+          "bio": "Founded Vitality Logistics with a single truck in 2009 and still leads it day to day."
         },
         {
           "staffId": "emma-clarke",
           "name": "Emma Clarke",
-          "role": "Executive Assistant to the CEO"
+          "role": "Executive Assistant to the CEO",
+          "department": "Executive Office",
+          "site": "Business Bay",
+          "bio": "Runs the Executive Office and keeps the CEO's week on schedule."
         },
         {
           "staffId": "mark-keller",
           "name": "Mark Keller",
-          "role": "Operations Manager"
+          "role": "Operations Manager",
+          "department": "Operations",
+          "site": "Business Bay",
+          "bio": "Eight years running Operations. If a shipment is late, he already knows why."
         },
         {
           "staffId": "timur-bekov",
           "name": "Timur Bekov",
-          "role": "Operations Intern"
+          "role": "Operations Intern",
+          "department": "Operations",
+          "site": "Business Bay",
+          "bio": "Joined this summer through our internship programme, learning Operations from the ground up."
         },
         {
           "staffId": "erik-lind",
           "name": "Erik Lind",
-          "role": "IT Help Desk"
+          "role": "IT Help Desk",
+          "department": "IT",
+          "site": "Business Bay",
+          "bio": "Three years on the IT help desk: laptops, logins and the office Wi-Fi."
         },
         {
           "staffId": "anna-petrova",
           "name": "Anna Petrova",
-          "role": "Receptionist"
+          "role": "Receptionist",
+          "department": "Administration",
+          "site": "Business Bay",
+          "bio": "Five years at the front desk. The first face every visitor sees at Bay Square."
         },
         {
           "staffId": "laura-weber",
           "name": "Laura Weber",
-          "role": "Finance Officer"
+          "role": "Finance Officer",
+          "department": "Finance",
+          "site": "Business Bay",
+          "bio": "Four years in Finance, keeping supplier invoices and accounts in order."
         },
         {
           "staffId": "ruslan-aliyev",
           "name": "Ruslan Aliyev",
-          "role": "Warehouse Supervisor"
+          "role": "Warehouse Supervisor",
+          "department": "Operations",
+          "site": "Jebel Ali",
+          "bio": "Six years on the Jebel Ali warehouse floor, from forklifts to the container yard."
         },
         {
           "staffId": "sara-haddad",
           "name": "Sara Haddad",
-          "role": "HR Coordinator"
+          "role": "HR Coordinator",
+          "department": "Human Resources",
+          "site": "Business Bay",
+          "bio": "Two years in HR, from a candidate's first interview to their first day."
         }
       ]
     },
     "careers": {
       "title": "Careers",
+      "intro": "We hire drivers, warehouse staff, coordinators and graduates. Pick a role to read more, then get in touch through our contact page.",
       "openings": [
-        "Summer internship programme: 6 interns in Operations and Finance.",
-        "Forklift operator, Jebel Ali (full time)."
+        {
+          "title": "Forklift operator",
+          "location": "Jebel Ali",
+          "type": "Full time",
+          "status": "open",
+          "summary": "Load, unload and stack containers in our Jebel Ali yard, working with the warehouse supervisor's team.",
+          "details": [
+            "A valid UAE forklift licence",
+            "Two years or more in a warehouse or container yard",
+            "Early shifts, Monday to Saturday",
+            "Shortlisted candidates interview at our Business Bay head office"
+          ]
+        },
+        {
+          "title": "Heavy truck driver",
+          "location": "Jebel Ali",
+          "type": "Full time",
+          "status": "open",
+          "summary": "Daily container runs across the UAE, with regular trips to Oman.",
+          "details": [
+            "A UAE heavy vehicle licence and a clean record",
+            "Happy with early starts and border paperwork",
+            "Our trucks are serviced in-house at the yard"
+          ]
+        },
+        {
+          "title": "Sea freight coordinator",
+          "location": "Business Bay",
+          "type": "Full time",
+          "status": "open",
+          "summary": "Book space with shipping lines, track containers and keep customers updated from booking to delivery.",
+          "details": [
+            "Two years in freight forwarding",
+            "Comfortable juggling several shipments and deadlines",
+            "Arabic is a plus"
+          ]
+        },
+        {
+          "title": "Customs documentation clerk",
+          "location": "Business Bay",
+          "type": "Full time",
+          "status": "open",
+          "summary": "Prepare customs declarations and shipping documents so cargo clears the port without delays.",
+          "details": [
+            "Experience with UAE customs paperwork",
+            "Careful with numbers and details",
+            "Works closely with Operations"
+          ]
+        },
+        {
+          "title": "Summer internship programme",
+          "location": "Business Bay",
+          "type": "Internship",
+          "status": "closed",
+          "summary": "Summer internship programme: 6 interns in Operations and Finance. This year's interns have started; applications for next summer open in spring.",
+          "details": [
+            "Open to students in their last two years of study",
+            "Paid, with a mentor in your team"
+          ]
+        }
       ],
       "guide": {
         "label": "Joining us? Read our New Joiner Guide (PDF)",

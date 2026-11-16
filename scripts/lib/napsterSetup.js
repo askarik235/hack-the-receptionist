@@ -145,7 +145,10 @@ async function waitUntilReady(ctx, companionId) {
   }
 }
 
-// One face per character. Custom portrait if the image exists, otherwise a stock face.
+// One face per character: a custom portrait if the image exists, otherwise the stock face chosen
+// for them in staff.json (stockFace), otherwise the first stock face of their gender.
+// Only the face changes: every agent sets its own instructions, which override the companion's
+// own prompt (Napster docs: providerSettings.instructions), so a face never changes behaviour.
 async function ensureCompanion(ctx, person) {
   const { napster, config, ids, log, portraitFor } = ctx;
   const saved = ids.companions[person.id];
@@ -176,7 +179,14 @@ async function ensureCompanion(ctx, person) {
     return id;
   }
 
-  if (saved) return saved.id; // keep whatever face this character already has
+  const chosen = person.stockFace;
+  // Keep a custom face, or a stock face when none was chosen (or it's already the chosen one).
+  if (saved && (!saved.placeholder || !chosen || saved.id === chosen)) return saved.id;
+  if (chosen) {
+    ids.companions[person.id] = { id: chosen, placeholder: true };
+    log(`Face for ${person.name}: chosen stock face (${chosen})`);
+    return chosen;
+  }
   const stock = await napster.request("GET", `/public/companions/napster-stock?pageSize=5&gender=${person.gender}`);
   const pick = itemsOf(stock)[0];
   if (!pick) throw new Error(`No stock ${person.gender} companion available for ${person.name}`);

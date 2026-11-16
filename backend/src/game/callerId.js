@@ -1,4 +1,4 @@
-// Caller ID spoofing (Level 4 on). NIGHTJAR's "caller ID kit" lets the player choose the number
+// Caller ID spoofing (Level 4 on). MIDAS's "caller ID kit" lets the player choose the number
 // the person they call sees. The server stores that number on the call, tells the character
 // what their screen shows, and checks it where it matters (e.g. "urgent payments only from
 // the CEO's own mobile"), so no amount of talking can fake it.

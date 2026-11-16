@@ -55,7 +55,7 @@ export default function Hack({ target, domain, onCleared, onOpenMail }) {
   return (
     <div className="hack">
       <div className="hack-screen" aria-live="polite">
-        <p className="hack-banner">NIGHTJAR access tool</p>
+        <p className="hack-banner">MIDAS access tool</p>
         <p className="hack-line">
           {target ? (
             <>
@@ -95,9 +95,9 @@ export default function Hack({ target, domain, onCleared, onOpenMail }) {
               </ul>
               {result.afterHack && <p className="hack-after">{result.afterHack}</p>}
               <p className="hack-next">
-                {result.next ? `Target ${result.next.level} is unlocked. ` : "That was the last target. N has one more message for you. "}
+                {result.next ? `Target ${result.next.level} is unlocked. ` : "That was the last target. M has one more message for you. "}
                 <button type="button" className="hack-link" onClick={onOpenMail}>
-                  {result.next ? "Read the new briefing" : "Read N's message"}
+                  {result.next ? "Read the new briefing" : "Read M's message"}
                 </button>
               </p>
             </div>

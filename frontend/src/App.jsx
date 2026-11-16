@@ -4,6 +4,9 @@ import { useWindows } from "./os/useWindows.js";
 import Window from "./os/Window.jsx";
 import Taskbar from "./os/Taskbar.jsx";
 import TargetBoard from "./os/TargetBoard.jsx";
+import Skyline from "./os/Skyline.jsx";
+import Badge from "./os/Badge.jsx";
+import { useBadges } from "./os/badges.js";
 import { icons } from "./os/icons.jsx";
 import Mail from "./apps/Mail.jsx";
 import Browser from "./apps/Browser.jsx";
@@ -15,7 +18,8 @@ import Training from "./apps/Training.jsx";
 const APPS = {
   mail: { title: "Mail", size: { w: 760, h: 500 } },
   browser: { title: "Browser", size: { w: 1000, h: 660 } },
-  phone: { title: "Phone", size: { w: 340, h: 620 } },
+  // Drawn as a smartphone, held at the right of the screen.
+  phone: { title: "Phone", size: { w: 296, h: 612 }, device: true, place: "right" },
   hack: { title: "HACK", size: { w: 540, h: 480 } },
   notes: { title: "Notes", size: { w: 420, h: 440 } },
   training: { title: "Training", size: { w: 720, h: 560 } },
@@ -57,7 +61,7 @@ export default function App() {
 
   const renderApp = useMemo(
     () => ({
-      mail: () => <Mail mail={content?.mail ?? []} onOpenUrl={openUrl} />,
+      mail: (visible) => <Mail mail={content?.mail ?? []} visible={visible} onOpenUrl={openUrl} />,
       browser: () => <Browser osint={content?.osint} request={browserRequest} />,
       notes: () => <Notes />,
       training: () => <Training />,
@@ -74,16 +78,28 @@ export default function App() {
     [content, browserRequest, openUrl, loadContent, wm]
   );
 
+  const badges = useBadges(content, wm.activeId);
+
   return (
     <div className={`desktop${compact ? " is-compact" : ""}`}>
       <div className="blinds-frame" aria-hidden="true">
+        <Skyline />
         <div className="blinds" />
       </div>
 
       <nav className="desktop-icons" aria-label="Apps">
         {DESKTOP_ORDER.map((id) => (
-          <button key={id} type="button" className="desktop-icon" onClick={() => wm.open(id)}>
-            {icons[id]}
+          <button
+            key={id}
+            type="button"
+            className="desktop-icon"
+            onClick={() => wm.open(id)}
+            aria-label={badges[id] ? `${APPS[id].title}, ${badges[id]} new` : APPS[id].title}
+          >
+            <span className="desktop-icon-art">
+              {icons[id]}
+              <Badge count={badges[id]} />
+            </span>
             <span>{APPS[id].title}</span>
           </button>
         ))}
@@ -102,6 +118,7 @@ export default function App() {
             key={w.id}
             win={w}
             title={APPS[w.id].title}
+            device={APPS[w.id].device}
             active={w.id === wm.activeId}
             compact={compact}
             hidden={w.minimized || (compact && w.id !== wm.activeId)}
@@ -110,7 +127,7 @@ export default function App() {
             onMinimize={wm.minimize}
             onMove={wm.move}
           >
-            {renderApp[w.id]()}
+            {renderApp[w.id](w.id === wm.activeId)}
           </Window>
         ))}
 
@@ -118,6 +135,7 @@ export default function App() {
         apps={APPS}
         windows={wm.windows}
         activeId={wm.activeId}
+        badges={badges}
         onSelect={(id) => (id === wm.activeId && !compact ? wm.minimize(id) : wm.focus(id))}
       />
     </div>

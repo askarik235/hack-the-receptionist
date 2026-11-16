@@ -49,6 +49,11 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
   for (const person of staff) {
     check(person.managerId === null || staffById.has(person.managerId), `staff ${person.id}: unknown managerId ${person.managerId}`);
     check(["male", "female"].includes(person.gender), `staff ${person.id}: gender must be male or female`);
+    // Optional: the Napster stock face this character uses until a custom portrait exists.
+    check(
+      person.stockFace === undefined || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(person.stockFace),
+      `staff ${person.id}: stockFace must be a Napster companion ID`
+    );
   }
 
   const lines = (list, min, maxLength = 160) =>
@@ -239,6 +244,14 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
     ...osint.pixa.accounts.map((a) => a.staffId),
   ];
   for (const id of osintStaffIds) check(id === null || staffById.has(id), `osint: unknown staffId ${id}`);
+  const filled = (...values) => values.every((v) => typeof v === "string" && v);
+  for (const m of osint.website.pages.team.members) {
+    check(filled(m.name, m.role, m.department, m.site, m.bio), `osint: team member ${m.name} needs role, department, site and bio`);
+  }
+  for (const o of osint.website.pages.careers.openings) {
+    check(filled(o.title, o.location, o.type, o.summary) && ["open", "closed"].includes(o.status), `osint: vacancy "${o.title}" needs location, type, summary and status open or closed`);
+    check(Array.isArray(o.details) && o.details.every((d) => filled(d)), `osint: vacancy "${o.title}" details must be a list of lines`);
+  }
   for (const item of osint.website.pages.news.items) {
     check(item.afterLevel === undefined || levelsByNumberInFile.has(item.afterLevel), `osint: news "${item.headline}" has an unknown afterLevel`);
   }

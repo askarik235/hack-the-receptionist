@@ -1,7 +1,7 @@
 // Recon notepad. Saved in this browser for now (moves to the server with player accounts).
 import { useEffect, useState } from "react";
 
-const KEY = "nightjar-notes";
+const KEY = "midas-notes";
 const load = () => {
   try {
     return localStorage.getItem(KEY) ?? "";
