@@ -6,6 +6,7 @@ import Taskbar from "./os/Taskbar.jsx";
 import TargetBoard from "./os/TargetBoard.jsx";
 import Skyline from "./os/Skyline.jsx";
 import Badge from "./os/Badge.jsx";
+import { Boot, Intro, introSeen } from "./os/Boot.jsx";
 import { useBadges } from "./os/badges.js";
 import { icons } from "./os/icons.jsx";
 import Mail from "./apps/Mail.jsx";
@@ -44,6 +45,9 @@ export default function App() {
   const [browserRequest, setBrowserRequest] = useState(null);
   const wm = useWindows(APPS);
   const compact = useCompact();
+  // boot -> intro (first visit, or reopened from the taskbar) -> desktop
+  const [returning] = useState(introSeen);
+  const [phase, setPhase] = useState("boot");
 
   const loadContent = useCallback(() => {
     getContent().then(setContent, (err) => setLoadError(err.message));
@@ -80,8 +84,11 @@ export default function App() {
 
   const badges = useBadges(content, wm.activeId);
 
+  const covered = phase !== "desktop";
+
   return (
-    <div className={`desktop${compact ? " is-compact" : ""}`}>
+    <>
+    <div className={`desktop${compact ? " is-compact" : ""}`} inert={covered} aria-hidden={covered || undefined}>
       <div className="blinds-frame" aria-hidden="true">
         <Skyline />
         <div className="blinds" />
@@ -137,7 +144,18 @@ export default function App() {
         activeId={wm.activeId}
         badges={badges}
         onSelect={(id) => (id === wm.activeId && !compact ? wm.minimize(id) : wm.focus(id))}
+        onBrand={() => setPhase("again")}
       />
     </div>
+
+    {phase === "boot" && (
+      <Boot
+        ready={content !== null || loadError !== null}
+        quick={returning}
+        onDone={() => setPhase(introSeen() ? "desktop" : "intro")}
+      />
+    )}
+    {(phase === "intro" || phase === "again") && <Intro again={phase === "again"} onClose={() => setPhase("desktop")} />}
+    </>
   );
 }

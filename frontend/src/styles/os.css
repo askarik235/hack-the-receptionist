@@ -354,7 +354,12 @@ button { font: inherit; color: inherit; }
   border-top: 1px solid var(--line);
   backdrop-filter: blur(8px);
 }
-.taskbar-brand { display: flex; align-items: center; gap: 8px; font: 700 16px/1 var(--os-title); letter-spacing: 0.03em; }
+.taskbar-brand {
+  display: flex; align-items: center; gap: 8px; padding: 6px 8px; margin-left: -8px;
+  background: none; border: 0; border-radius: 6px; cursor: pointer;
+  font: 700 16px/1 var(--os-title); letter-spacing: 0.03em;
+}
+.taskbar-brand:hover { background: rgba(242, 165, 65, 0.1); }
 .midas-mark { width: 20px; height: 20px; fill: none; stroke-linecap: round; }
 .midas-vane { fill: url(#midas-gold); }
 .midas-quill { stroke: #d39a34; stroke-width: 1.8; }
@@ -775,3 +780,129 @@ button { font: inherit; color: inherit; }
 .technique:not(.is-collected) .technique-category { color: var(--steel); }
 .technique-defence { color: var(--paper); }
 .technique-times { color: var(--steel); }
+
+/* Boot: Midas starts up. The bar holds near the end until the game data has loaded. */
+.boot {
+  position: fixed; inset: 0; z-index: 1000;
+  display: grid; place-items: center; padding: 24px 16px 56px;
+  background: radial-gradient(ellipse 60% 50% at 50% 42%, #142533 0%, var(--night) 70%);
+  transition: opacity 0.42s ease;
+}
+.boot.is-leaving { opacity: 0; }
+.boot-center { width: min(460px, 100%); display: grid; justify-items: center; }
+.boot-mark { position: relative; width: 92px; height: 92px; }
+.boot-mark .midas-mark { width: 100%; height: 100%; filter: drop-shadow(0 0 18px rgba(242, 165, 65, 0.35)); }
+.boot-mark .midas-vane { animation: boot-vane 1.4s cubic-bezier(.2, .7, .2, 1) both; transform-origin: 6px 18px; }
+.boot-mark .midas-quill, .boot-mark .midas-cut { stroke-dasharray: 40; animation: boot-draw 1.2s 0.5s ease-out both; }
+.boot-mark::after {
+  content: ""; position: absolute; inset: -6px; border-radius: 50%;
+  background: linear-gradient(115deg, transparent 40%, rgba(255, 236, 170, 0.5) 50%, transparent 60%) 200% 0 / 300% 100% no-repeat;
+  mix-blend-mode: overlay; animation: boot-glint 2.6s 1.2s ease-in-out infinite;
+  -webkit-mask: radial-gradient(circle, #000 55%, transparent 70%);
+  mask: radial-gradient(circle, #000 55%, transparent 70%);
+}
+.boot-word {
+  margin: 18px 0 34px; padding-left: 0.5em;
+  font: 700 30px/1 var(--os-title); letter-spacing: 0.5em; color: var(--paper);
+  animation: boot-word 1s 0.3s ease-out both;
+}
+.boot-progress { width: 100%; }
+.boot-progress-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.boot-label { color: var(--steel); font-size: 14px; }
+.boot-pct { font: 600 28px/1 var(--os-title); font-variant-numeric: tabular-nums; color: var(--sodium); }
+.boot-track { height: 4px; border-radius: 2px; background: rgba(220, 227, 232, 0.1); overflow: hidden; }
+.boot-fill {
+  height: 100%; transform-origin: left;
+  background: linear-gradient(90deg, #b97f24, #e9ad3e 70%, #fbe28c);
+  box-shadow: 0 0 12px rgba(242, 165, 65, 0.6);
+}
+.boot-log {
+  width: 100%; height: calc(7 * 1.7em); margin: 22px 0 0; padding: 0; list-style: none;
+  font: 12.5px/1.7 ui-monospace, "Cascadia Mono", Consolas, monospace; color: var(--steel);
+  display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden;
+}
+.boot-log li { display: flex; gap: 10px; animation: boot-line 0.25s ease-out both; }
+.boot-log li:first-child { color: var(--paper); }
+.boot-log-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.boot-log-result { color: var(--sodium); }
+.boot-skip { position: absolute; bottom: 20px; margin: 0; color: var(--steel); font-size: 13px; opacity: 0.7; }
+.boot.is-quick .boot-log, .boot.is-quick .boot-skip { display: none; }
+.boot.is-quick .boot-word { margin-bottom: 28px; }
+
+@keyframes boot-vane { from { opacity: 0; transform: scale(0.6) rotate(-18deg); } to { opacity: 1; transform: none; } }
+@keyframes boot-draw { from { stroke-dashoffset: 40; } to { stroke-dashoffset: 0; } }
+@keyframes boot-glint { 0%, 60% { background-position: 200% 0; } 100% { background-position: -100% 0; } }
+@keyframes boot-word { from { opacity: 0; letter-spacing: 0.9em; } to { opacity: 1; letter-spacing: 0.5em; } }
+@keyframes boot-line { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* Intro: M's message and how a job works (first visit, or from the taskbar brand) */
+.intro {
+  position: fixed; inset: 0; z-index: 900;
+  display: grid; place-items: center; padding: 24px 16px;
+  background: rgba(8, 15, 21, 0.82); backdrop-filter: blur(6px);
+  overflow-y: auto; animation: intro-fade 0.35s ease-out both;
+}
+.intro-panel {
+  width: min(980px, 100%);
+  display: grid; grid-template-columns: 1.05fr 1fr;
+  background: var(--slate); border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  overflow: hidden; animation: intro-rise 0.45s 0.05s cubic-bezier(.2, .7, .2, 1) both;
+}
+.intro-letter { padding: 36px 40px 32px; background: linear-gradient(160deg, #1b2e3d, var(--slate) 60%); border-right: 1px solid var(--line); }
+.intro-from { display: flex; align-items: center; gap: 8px; margin: 0 0 20px; color: var(--steel); font-size: 13px; }
+.intro-from .midas-mark { width: 18px; height: 18px; }
+.intro h1 { margin: 0 0 18px; font: 700 44px/1 var(--os-title); color: var(--sodium); }
+.intro-body { max-width: 46ch; }
+.intro-body p { margin: 0 0 14px; font-size: 16.5px; line-height: 1.6; color: #c3ccd3; }
+.intro-body p:first-child { font-size: 18px; color: var(--paper); }
+.intro-body strong { color: var(--paper); font-weight: 600; }
+.intro-body .intro-sign { margin-top: 22px; font: 600 italic 24px/1 var(--os-title); color: var(--sodium); }
+.intro-sign::before { content: "— "; }
+.intro-how { padding: 36px 36px 32px; display: flex; flex-direction: column; }
+.intro-how h2 { margin: 0 0 16px; font: 600 20px/1.2 var(--os-title); }
+.intro-steps { margin: 0; padding: 0; list-style: none; counter-reset: step; display: grid; gap: 4px; }
+.intro-steps li {
+  counter-increment: step; position: relative;
+  display: grid; grid-template-columns: 40px 1fr; gap: 14px; align-items: start; padding: 10px 0;
+}
+.intro-steps li:not(:last-child)::after {
+  content: ""; position: absolute; left: 19px; top: 50px; bottom: -6px; width: 2px; background: rgba(242, 165, 65, 0.25);
+}
+.intro-step-icon {
+  width: 40px; height: 40px; display: grid; place-items: center; border-radius: 10px;
+  background: var(--slate-raised); border: 1px solid var(--line);
+}
+.intro-step-icon svg { width: 24px; height: 24px; }
+.intro-steps strong { display: block; font: 600 16px/1.2 var(--os-title); margin-bottom: 2px; }
+.intro-steps strong::before { content: counter(step) ". "; color: var(--sodium); }
+.intro-steps li span span { display: block; color: var(--steel); font-size: 14.5px; line-height: 1.45; }
+.intro-note {
+  margin: 18px 0 22px; padding: 12px 14px; border-left: 3px solid var(--sodium); border-radius: 0 6px 6px 0;
+  background: rgba(242, 165, 65, 0.07); color: #c3ccd3; font-size: 13.5px; line-height: 1.5;
+}
+.intro-start {
+  margin-top: auto; align-self: stretch; padding: 13px 20px;
+  background: var(--sodium); color: #1a1206; border: 0; border-radius: 8px; cursor: pointer;
+  font: 700 17px/1 var(--os-title); letter-spacing: 0.02em;
+  transition: background 0.15s, transform 0.15s;
+}
+.intro-start:hover { background: #f7b95f; }
+.intro-start:active { transform: translateY(1px); }
+.intro-start:focus-visible { outline-color: var(--paper); outline-offset: 3px; }
+
+@keyframes intro-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes intro-rise { from { opacity: 0; transform: translateY(16px) scale(0.98); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 767px) {
+  .intro { place-items: start center; padding: 16px; }
+  .intro-panel { grid-template-columns: 1fr; }
+  .intro-letter { padding: 26px 20px 20px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .intro h1 { font-size: 36px; }
+  .intro-how { padding: 22px 20px 20px; }
+  .boot-word { font-size: 26px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boot, .boot *, .boot-mark::after, .intro, .intro-panel { animation: none !important; transition: none !important; }
+}

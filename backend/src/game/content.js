@@ -3,11 +3,14 @@
 import { FLAGS as TRUST_FLAGS, GUIDANCE_KEYS as TRUST_GUIDANCE_KEYS } from "./trust.js";
 import { TECHNIQUE_IDS } from "./techniques.js";
 import { CHECK_TYPES } from "./levelRules.js";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const DEFAULT_DATA_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "data");
+// Where the browser loads images from (Vite's public folder; copied into the build).
+const PUBLIC_DIR = join(DEFAULT_DATA_DIR, "..", "..", "frontend", "public");
+const PIXA_IMAGE = /^img\/pixa\/[a-z0-9-]+\.(webp|jpg|png)$/;
 
 // Voices listed in the Napster docs (Agent Configuration > Voice).
 const VOICES = ["alloy", "ash", "ballad", "coral", "echo", "sage", "shimmer", "verse", "marin", "cedar"];
@@ -258,8 +261,13 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
   // Badges drawn in Pixa photos: a readable one needs name, role and ID; a turned one shows nothing.
   for (const account of osint.pixa.accounts) {
     for (const post of account.posts) {
-      if (post.badges === undefined) continue;
       const where = `pixa: ${account.handle}/${post.id}`;
+      // A real photo is optional (the drawn stand-in shows without one), but it must exist.
+      if (post.image !== undefined) {
+        check(typeof post.image === "string" && PIXA_IMAGE.test(post.image), `${where}: image must look like img/pixa/name.webp`);
+        check(!PIXA_IMAGE.test(post.image) || existsSync(join(PUBLIC_DIR, post.image)), `${where}: image file ${post.image} is missing from frontend/public`);
+      }
+      if (post.badges === undefined) continue;
       check(Array.isArray(post.badges) && post.badges.length > 0, `${where}: badges must be a non-empty list`);
       for (const b of post.badges ?? []) {
         check(b.turned === true || [b.name, b.role, b.employeeId].every((f) => typeof f === "string" && f), `${where}: a readable badge needs name, role and employeeId`);

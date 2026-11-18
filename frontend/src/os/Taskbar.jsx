@@ -2,15 +2,15 @@ import { MidasMark } from "./icons.jsx";
 import Badge from "./Badge.jsx";
 import { useDubaiTime } from "./useDubaiTime.js";
 
-export default function Taskbar({ apps, windows, activeId, badges = {}, onSelect }) {
+export default function Taskbar({ apps, windows, activeId, badges = {}, onSelect, onBrand }) {
   const time = useDubaiTime();
 
   return (
     <footer className="taskbar">
-      <span className="taskbar-brand">
+      <button type="button" className="taskbar-brand" onClick={onBrand} title="Read M's message again">
         <MidasMark />
         Midas
-      </span>
+      </button>
       <nav className="taskbar-apps" aria-label="Open windows">
         {windows.map((w) => (
           <button

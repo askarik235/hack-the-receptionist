@@ -8,8 +8,8 @@
       "posts": [
         {
           "id": "kingfish",
-          "image": "img/pixa/timur-kingfish.jpg",
-          "alt": "Timur on a boat holding up a large kingfish",
+          "image": "img/pixa/timur-kingfish.webp",
+          "alt": "Timur on a boat holding up a large kingfish, rocky cliffs and sea behind him",
           "caption": "9 kg kanaad off Musandam!! New PB 🎣🔥",
           "comments": [
             {
@@ -24,8 +24,8 @@
         },
         {
           "id": "badge",
-          "image": "img/pixa/timur-badge.jpg",
-          "alt": "Lanyard and staff badge on a desk; name blurred, badge number VL-0412 readable",
+          "image": "img/pixa/timur-badge.webp",
+          "alt": "Staff badge on a Vitality Logistics lanyard, lying on a desk. The photo on it is blurred; it says Operations and the badge number VL-0412 is easy to read",
           "caption": "Day 1 at Vitality ✅",
           "comments": [],
           "badges": [
@@ -39,15 +39,15 @@
         },
         {
           "id": "warehouse-sunset",
-          "image": "img/pixa/timur-warehouse.jpg",
-          "alt": "Sunset over the Jebel Ali warehouse yard",
+          "image": "img/pixa/timur-warehouse.webp",
+          "alt": "Sunset over the Jebel Ali warehouse yard: loading docks, trucks, stacked containers and port cranes",
           "caption": "Mondays = new gate code, new deliveries, new chaos 😅",
           "comments": []
         },
         {
           "id": "shawarma",
-          "image": "img/pixa/timur-shawarma.jpg",
-          "alt": "Shawarma wrap and fries on a plastic table",
+          "image": "img/pixa/timur-shawarma.webp",
+          "alt": "Shawarma wrap, fries and a bottle of water on a plastic table, warehouse staff on their lunch break behind",
           "caption": "Lunch break fuel 🌯",
           "comments": []
         }
@@ -61,7 +61,7 @@
       "posts": [
         {
           "id": "biscuit",
-          "image": "img/pixa/anna-biscuit.jpg",
+          "image": "img/pixa/anna-biscuit.webp",
           "alt": "A ginger cat asleep on a laptop keyboard",
           "caption": "Biscuit has decided he works from home now.",
           "comments": [
@@ -73,8 +73,8 @@
         },
         {
           "id": "karak",
-          "image": "img/pixa/anna-karak.jpg",
-          "alt": "A cup of karak tea on a tidy reception desk, early morning light",
+          "image": "img/pixa/anna-karak.webp",
+          "alt": "A glass of karak tea on a reception desk next to a Reception sign, early morning light",
           "caption": "Two minutes before the doors open ☕",
           "comments": []
         }
@@ -88,6 +88,7 @@
       "posts": [
         {
           "id": "office-selfie",
+          "image": "img/pixa/nadia-office-selfie.webp",
           "alt": "Office selfie by the 12th-floor windows: Nadia and Sara from HR, both with staff badges. Nadia's badge faces the camera and reads Executive Office, VL-0388. Sara's badge is turned around.",
           "caption": "First week at Vitality ✨ 12th floor views and the best HR buddy",
           "badges": [
@@ -115,6 +116,7 @@
         },
         {
           "id": "new-city",
+          "image": "img/pixa/nadia-new-city.webp",
           "alt": "Dubai skyline at dusk from a balcony",
           "caption": "Landed Saturday, started Monday. No pressure 😅",
           "comments": [
@@ -126,7 +128,8 @@
         },
         {
           "id": "first-coffee",
-          "alt": "Coffee cup and a new notebook on an office desk",
+          "image": "img/pixa/nadia-first-coffee.webp",
+          "alt": "Coffee cup, laptop and a new notebook on an office desk by the window",
           "caption": "Week one survival kit. Still can't remember my password 🙃",
           "comments": []
         }
