@@ -14,13 +14,14 @@ export function readNapsterIds(apiKey) {
   return existsSync(path) ? JSON.parse(readFileSync(path, "utf8")) : {};
 }
 
+// Napster list endpoints answer with either a bare array or { items: [...] }.
+export const itemsOf = (data) => (Array.isArray(data) ? data : (data?.items ?? []));
+
 // On a fresh server (the hosted demo) there is no IDs file. Setup tags every agent with
 // { app, key }, so the agents can be found by listing them: one read-only request.
 export async function findAgentIdsByTag(napster, appTag) {
-  const list = await napster.request("GET", "/public/agents");
-  const items = Array.isArray(list) ? list : (list?.items ?? []);
   const agents = {};
-  for (const agent of items) {
+  for (const agent of itemsOf(await napster.request("GET", "/public/agents"))) {
     if (agent?.tags?.app === appTag && typeof agent.tags.key === "string" && typeof agent.id === "string") {
       agents[agent.tags.key] = agent.id;
     }

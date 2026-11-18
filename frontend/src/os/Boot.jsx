@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { MidasMark, icons } from "./icons.jsx";
 import { enterAccess } from "../api.js";
+import { prefersReducedMotion } from "./motion.js";
 
-const reducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 
 const INTRO_KEY = "midas.introSeen";
 export function introSeen() {
@@ -45,7 +45,7 @@ export function Boot({ ready, quick, onDone }) {
   readyRef.current = ready;
 
   useEffect(() => {
-    const duration = reducedMotion() ? 0 : quick ? 1100 : 3800;
+    const duration = prefersReducedMotion() ? 0 : quick ? 1100 : 3800;
     const start = performance.now();
     let finishedAt = null;
     let frame;
@@ -64,7 +64,7 @@ export function Boot({ ready, quick, onDone }) {
       setPct(value);
       if (value >= 100) {
         setLeaving(true);
-        leaveTimer = setTimeout(() => doneRef.current(), reducedMotion() ? 0 : 420);
+        leaveTimer = setTimeout(() => doneRef.current(), prefersReducedMotion() ? 0 : 420);
         return;
       }
       frame = requestAnimationFrame(tick);

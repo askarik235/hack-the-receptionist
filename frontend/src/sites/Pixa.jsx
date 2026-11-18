@@ -2,6 +2,7 @@
 // Its own look (sunshine yellow, Nunito, pill logo) and its own reaction: a sun, not a heart.
 import { useEffect, useRef, useState } from "react";
 import { SITES } from "./route.js";
+import { seeded } from "./seeded.js";
 
 const accountUrl = (handle) => `${SITES.pixa}/${handle}`;
 const postUrl = (handle, id) => `${SITES.pixa}/${handle}/p/${id}`;
@@ -97,12 +98,6 @@ function DrawnPhoto({ post, large }) {
   );
 }
 
-// Stable made-up numbers (followers, suns) so an account looks lived-in and never changes.
-function seeded(text, min, max) {
-  let h = 2166136261;
-  for (const c of text) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
-  return min + ((h >>> 0) % (max - min + 1));
-}
 const compact = (n) => (n >= 1000 ? `${(n / 1000).toFixed(1).replace(/\.0$/, "")}k` : String(n));
 
 const Icon = {

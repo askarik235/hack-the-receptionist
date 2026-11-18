@@ -4,7 +4,7 @@
 // Napster's own routes (/tools, /webhooks) have their own secrets and are not affected.
 import express from "express";
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
-import { parseCookies } from "./players.js";
+import { cookieOptions, parseCookies } from "./players.js";
 import { createRateLimiter } from "./rateLimit.js";
 import { safeEqual } from "./safeEqual.js";
 
@@ -43,13 +43,7 @@ export function accessRouter({ config, rateLimit = { windowMs: 10 * 60_000, max:
       return res.status(400).json({ error: "invalid_code" });
     }
     if (!safeEqual(code.trim(), config.accessCode)) return res.status(403).json({ error: "wrong_code" });
-    res.cookie(ACCESS_COOKIE, accessToken(config.accessCode, config.sessionSecret), {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: config.production,
-      maxAge: COOKIE_MAX_AGE_S * 1000,
-      path: "/",
-    });
+    res.cookie(ACCESS_COOKIE, accessToken(config.accessCode, config.sessionSecret), cookieOptions(config.production, COOKIE_MAX_AGE_S));
     res.json({ granted: true });
   });
 

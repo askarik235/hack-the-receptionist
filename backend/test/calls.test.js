@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { openDb } from "../src/db.js";
 import { createApp } from "../src/server.js";
 import { loadContent } from "../src/game/content.js";
-import { normalizeNumber } from "../src/calls/router.js";
+import { normalizeNumber } from "../src/lib/phoneNumbers.js";
 import { NapsterError } from "../src/napster/client.js";
 
 const config = { toolSecret: "t".repeat(32), codeSecret: "c".repeat(32), sessionSecret: "s".repeat(32), production: false };

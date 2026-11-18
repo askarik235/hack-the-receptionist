@@ -1,6 +1,7 @@
 // Tags we attach to every Napster connection. Napster sends them back unchanged in each tool
-// call's metadata, so a tool call can be tied to one of our calls. The signature means a
-// leaked TOOL_SECRET header alone can't forge a tool call for some other player's call.
+// call's metadata, so a tool call can be tied to one of our calls. The signature binds the
+// call ID to the player and level, so tags copied from one call don't validate for another
+// player. It is keyed with TOOL_SECRET, so it adds nothing if that secret itself leaks.
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 export const APP_TAG = "hack-the-receptionist";

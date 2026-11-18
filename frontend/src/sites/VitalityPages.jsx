@@ -4,8 +4,8 @@
 import { useEffect, useRef, useState } from "react";
 import { SITES } from "./route.js";
 import { useDubaiTime } from "../os/useDubaiTime.js";
+import { prefersReducedMotion } from "../os/motion.js";
 
-const reducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 
 // True once the element has scrolled into view (and stays true).
 function useReveal(threshold = 0.2) {
@@ -14,7 +14,7 @@ function useReveal(threshold = 0.2) {
   useEffect(() => {
     const el = ref.current;
     if (!el || shown) return undefined;
-    if (!("IntersectionObserver" in window) || reducedMotion()) {
+    if (!("IntersectionObserver" in window) || prefersReducedMotion()) {
       setShown(true);
       return undefined;
     }
@@ -38,7 +38,7 @@ function CountUp({ value, run }) {
   const [shown, setShown] = useState(value < 1000 ? 0 : value); // years don't count up
   useEffect(() => {
     if (!run || value >= 1000) return undefined;
-    if (reducedMotion()) {
+    if (prefersReducedMotion()) {
       setShown(value);
       return undefined;
     }
@@ -287,7 +287,7 @@ export function Team({ page }) {
   }
   const jump = (department) => {
     const el = document.getElementById(`vlt-${department.toLowerCase().replace(/\W+/g, "-")}`);
-    el?.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "start" });
+    el?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
   };
   return (
     <section className="vlt">
@@ -316,9 +316,9 @@ const FLAP_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 // Departure-board letters: each one flicks through random letters before it settles.
 function Flap({ text, delay = 0 }) {
-  const [shown, setShown] = useState(() => (reducedMotion() ? text : text.replace(/\S/g, " ")));
+  const [shown, setShown] = useState(() => (prefersReducedMotion() ? text : text.replace(/\S/g, " ")));
   useEffect(() => {
-    if (reducedMotion()) {
+    if (prefersReducedMotion()) {
       setShown(text);
       return undefined;
     }

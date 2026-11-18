@@ -18,7 +18,6 @@ const CALL_ID = /^call_[A-Za-z0-9_-]{16}$/;
 const MAX_SILENCE_PENALTIES = 3; // per call, so a broken client can't drain trust
 const MAX_CALL_S = 10 * 60; // hard cap on a call's length, so a call left open can't run up the bill
 
-export { normalizeNumber };
 
 export function callsRouter({
   config,

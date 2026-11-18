@@ -96,7 +96,7 @@ function serveFrontend(app, dir) {
 }
 
 // Basic hardening for every response. No Content-Security-Policy yet: the Napster Web SDK's
-// media and network sources need testing first (Phase 2, when Express serves the frontend).
+// media and network sources need testing in a live call before one can be set safely.
 function securityHeaders(req, res, next) {
   res.set({
     "X-Content-Type-Options": "nosniff",

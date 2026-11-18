@@ -5,6 +5,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { PORTRAITS_DIR, publicUrl } from "../../backend/src/config.js";
 import { APP_TAG } from "../../backend/src/lib/callTags.js";
+import { itemsOf } from "../../backend/src/napster/ids.js";
 import { TOOL_SECRET_HEADER } from "../../backend/src/tools/constants.js";
 import { FLAGS as TRUST_FLAGS } from "../../backend/src/game/trust.js";
 
@@ -94,7 +95,6 @@ function assessCallerFunction(config) {
 // Every tool the characters use, by name. A tool's Napster ID is its name.
 const TOOLS = { request_code: requestCodeFunction, assess_caller: assessCallerFunction };
 
-const itemsOf = (data) => (Array.isArray(data) ? data : data?.items ?? []);
 const hasTags = (key) => (item) => item?.tags?.app === APP_TAG && item?.tags?.key === key;
 
 async function exists(napster, path) {

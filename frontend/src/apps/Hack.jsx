@@ -1,14 +1,14 @@
 // The HACK terminal: type the code a character gave you. The server checks it.
 import { useEffect, useRef, useState } from "react";
 import { submitHack } from "../api.js";
+import { prefersReducedMotion } from "../os/motion.js";
 
 const ERRORS = {
   invalid_code: "That doesn't look like an access code. Codes look like WORD-1234.",
   too_many_attempts: "Too many attempts. Their system locked you out for a minute.",
   nothing_to_hack: "No open target right now. Check your mail.",
 };
-const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const wait = (ms) => new Promise((r) => setTimeout(r, reducedMotion() ? 0 : ms));
+const wait = (ms) => new Promise((r) => setTimeout(r, prefersReducedMotion() ? 0 : ms));
 
 export default function Hack({ target, domain, onCleared, onOpenMail }) {
   const [code, setCode] = useState("");

@@ -9,6 +9,10 @@ const COOKIE_MAX_AGE_S = 60 * 60 * 24 * 365;
 const PLAYER_ID = /^[a-f0-9]{10}$/;
 const EXTERNAL_CLIENT_ID = /^[A-Za-z0-9_-]{1,32}$/; // Napster's rule for externalClientId
 
+// Settings shared by our cookies (player and judge access): HttpOnly so page scripts can't
+// read them, Lax so they aren't sent on cross-site posts.
+export const cookieOptions = (secure, maxAgeS) => ({ httpOnly: true, sameSite: "lax", secure, maxAge: maxAgeS * 1000, path: "/" });
+
 export const generatePlayerId = () => randomBytes(5).toString("hex");
 
 const sign = (playerId, secret) =>
@@ -70,13 +74,7 @@ export function playerMiddleware({ db, secret, secureCookies, newPlayerLimit = {
     const id = generatePlayerId();
     const t = now();
     insertPlayer.run(id, t, t);
-    res.cookie(COOKIE_NAME, cookieValueFor(id, secret), {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: secureCookies,
-      maxAge: COOKIE_MAX_AGE_S * 1000,
-      path: "/",
-    });
+    res.cookie(COOKIE_NAME, cookieValueFor(id, secret), cookieOptions(secureCookies, COOKIE_MAX_AGE_S));
     req.player = { id };
     next();
   };

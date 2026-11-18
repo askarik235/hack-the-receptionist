@@ -3,16 +3,11 @@
 // from a work profile site so it feels real: header card, activity, experience, side panel.
 import { useEffect, useState } from "react";
 import { SITES } from "./route.js";
+import { seeded } from "./seeded.js";
 
 const initials = (name) => name.split(" ").map((p) => p[0]).join("");
 const profileUrl = (handle) => `${SITES.worknet}/in/${handle}`;
 
-// Stable made-up numbers (connections, kudos) so a page looks lived-in and never changes.
-function seeded(text, min, max) {
-  let h = 2166136261;
-  for (const c of text) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
-  return min + ((h >>> 0) % (max - min + 1));
-}
 const AVATAR_TONES = ["#d9e6dc", "#e6dfcf", "#d6e0e8", "#eadad3", "#dfe3d0"];
 const tone = (name) => AVATAR_TONES[seeded(name, 0, AVATAR_TONES.length - 1)];
 
