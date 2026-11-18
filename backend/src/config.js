@@ -58,6 +58,12 @@ export function loadConfig(env = process.env) {
     warnings.push("NAPSTER_WEBHOOK_SECRET is not set: webhook requests will be rejected");
   }
 
+  // Optional judge access code for the hosted demo. Unset = the game is open (local play).
+  const accessCode = isSet("ACCESS_CODE") ? env.ACCESS_CODE.trim() : null;
+  if (accessCode !== null && (accessCode.length < 8 || accessCode.length > 64)) {
+    problems.push("ACCESS_CODE must be 8 to 64 characters");
+  }
+
   const port = Number(env.PORT ?? 3000);
   if (!Number.isInteger(port) || port < 1 || port > 65535) problems.push("PORT must be a number between 1 and 65535");
 
@@ -77,6 +83,7 @@ export function loadConfig(env = process.env) {
     sessionSecret: env.SESSION_SECRET,
     webhookSecret: isSet("NAPSTER_WEBHOOK_SECRET") ? env.NAPSTER_WEBHOOK_SECRET : null,
     publicBaseUrl,
+    accessCode,
     port,
     production,
     dbPath: env.DB_PATH ? resolve(rootDir, env.DB_PATH) : join(backendDir, "data", "game.db"),

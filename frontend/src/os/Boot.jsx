@@ -2,6 +2,7 @@
 // then, on a first visit, M's introduction explains the story and how a job works.
 import { useEffect, useRef, useState } from "react";
 import { MidasMark, icons } from "./icons.jsx";
+import { enterAccess } from "../api.js";
 
 const reducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 
@@ -118,6 +119,77 @@ export function Boot({ ready, quick, onDone }) {
         </ol>
       </div>
       <p className="boot-skip">Click or press any key to skip</p>
+    </div>
+  );
+}
+
+// Hosted demo only: the judges' access code. Local play never sees this.
+const GATE_ERRORS = {
+  wrong_code: "That code isn't right. Check the testing notes in the submission.",
+  too_many_attempts: "Too many tries. Wait a few minutes, then try again.",
+};
+
+export function Gate({ onGranted }) {
+  const [code, setCode] = useState("");
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const inputRef = useRef(null);
+  useEffect(() => {
+    inputRef.current?.focus({ preventScroll: true });
+  }, []);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!code.trim() || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await enterAccess(code.trim());
+      onGranted();
+    } catch (err) {
+      setError(GATE_ERRORS[err.code] ?? "Can't check the code right now. Try again in a moment.");
+      setBusy(false);
+      inputRef.current?.select();
+    }
+  };
+
+  return (
+    <div className="intro gate" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+      <form className="gate-panel" onSubmit={submit}>
+        <div className="gate-mark">
+          <MidasMark />
+        </div>
+        <h1 id="gate-title">Judges' access</h1>
+        <p>This hosted demo is for the Napster API Ignite judges. Enter the access code from the submission's testing notes.</p>
+        <label className="visually-hidden" htmlFor="gate-code">
+          Access code
+        </label>
+        <input
+          ref={inputRef}
+          id="gate-code"
+          className="gate-input"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          maxLength={64}
+          autoComplete="off"
+          autoCapitalize="off"
+          spellCheck="false"
+          placeholder="Access code"
+          aria-invalid={error ? "true" : undefined}
+          aria-describedby={error ? "gate-error" : undefined}
+        />
+        {error && (
+          <p id="gate-error" className="gate-error" role="alert">
+            {error}
+          </p>
+        )}
+        <button type="submit" className="intro-start" disabled={busy || !code.trim()}>
+          {busy ? "Checking..." : "Unlock"}
+        </button>
+        <p className="gate-note">
+          No code? The game is open source: run it with your own Napster API key by following the README in the project's GitHub repository.
+        </p>
+      </form>
     </div>
   );
 }

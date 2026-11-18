@@ -1,0 +1,46 @@
+# Render Blueprint for the hosted judge demo: one web service, Express serves the built game.
+# Render > New > Blueprint > pick this repo. Secrets are entered in the Render dashboard
+# (sync: false), never stored here.
+services:
+  - type: web
+    name: hack-the-receptionist
+    runtime: node
+    # A paid instance stays awake (Napster calls our tools and webhook mid-call) and can have
+    # a disk, so players' progress survives restarts and deploys.
+    plan: starter
+    region: frankfurt
+    # devDependencies (Vite) are needed to build the frontend.
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start -w backend
+    healthCheckPath: /api/health
+    autoDeploy: false
+    disk:
+      name: game-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "24"
+      - key: DB_PATH
+        value: /var/data/game.db
+      # The judges' access code. Share it only in the submission's testing notes.
+      - key: ACCESS_CODE
+        sync: false
+      - key: NAPSTER_API_KEY
+        sync: false
+      # This service's own https://....onrender.com address, no trailing slash.
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: NAPSTER_WEBHOOK_SECRET
+        sync: false
+      # Must be the same value `npm run setup` used: setup gives it to Napster, which sends it
+      # back on every tool call.
+      - key: TOOL_SECRET
+        sync: false
+      # Server-only secrets, so Render can generate them.
+      - key: CODE_SECRET
+        generateValue: true
+      - key: SESSION_SECRET
+        generateValue: true

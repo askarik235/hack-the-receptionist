@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getContent } from "./api.js";
+import { enterAccess, getAccess, getContent } from "./api.js";
 import { useWindows } from "./os/useWindows.js";
 import Window from "./os/Window.jsx";
 import Taskbar from "./os/Taskbar.jsx";
 import TargetBoard from "./os/TargetBoard.jsx";
 import Skyline from "./os/Skyline.jsx";
 import Badge from "./os/Badge.jsx";
-import { Boot, Intro, introSeen } from "./os/Boot.jsx";
+import { Boot, Gate, Intro, introSeen } from "./os/Boot.jsx";
 import { useBadges } from "./os/badges.js";
 import { icons } from "./os/icons.jsx";
 import Mail from "./apps/Mail.jsx";
@@ -49,10 +49,32 @@ export default function App() {
   const [returning] = useState(introSeen);
   const [phase, setPhase] = useState("boot");
 
+  // null until we know whether this server wants the judge access code.
+  const [access, setAccess] = useState(null);
+
   const loadContent = useCallback(() => {
     getContent().then(setContent, (err) => setLoadError(err.message));
   }, []);
-  useEffect(loadContent, [loadContent]);
+
+  // The judges' link carries the code after # (never sent to the server in a page request):
+  // trade it for the access cookie, then drop it from the address bar.
+  useEffect(() => {
+    (async () => {
+      const code = new URLSearchParams(window.location.hash.slice(1)).get("access");
+      if (code) {
+        window.history.replaceState(null, "", window.location.pathname + window.location.search);
+        await enterAccess(code).catch(() => {});
+      }
+      const status = await getAccess();
+      setAccess(status);
+      if (status.granted) loadContent();
+    })().catch((err) => setLoadError(err.message));
+  }, [loadContent]);
+
+  const unlock = useCallback(() => {
+    setAccess({ required: true, granted: true });
+    loadContent();
+  }, [loadContent]);
 
   // Other apps (Mail links) can open a page in the Browser.
   const openUrl = useCallback(
@@ -150,9 +172,17 @@ export default function App() {
 
     {phase === "boot" && (
       <Boot
-        ready={content !== null || loadError !== null}
+        ready={loadError !== null || (access !== null && (!access.granted || content !== null))}
         quick={returning}
-        onDone={() => setPhase(introSeen() ? "desktop" : "intro")}
+        onDone={() => setPhase(access && !access.granted ? "gate" : introSeen() ? "desktop" : "intro")}
+      />
+    )}
+    {phase === "gate" && (
+      <Gate
+        onGranted={() => {
+          unlock();
+          setPhase(introSeen() ? "desktop" : "intro");
+        }}
       />
     )}
     {(phase === "intro" || phase === "again") && <Intro again={phase === "again"} onClose={() => setPhase("desktop")} />}

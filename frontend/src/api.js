@@ -12,6 +12,9 @@ async function request(method, path, body, { keepalive = false } = {}) {
   return data;
 }
 
+// Judge access code (hosted demo only): { required, granted }.
+export const getAccess = () => request("GET", "/api/access");
+export const enterAccess = (code) => request("POST", "/api/access", { code });
 export const getContent = () => request("GET", "/api/content");
 export const getTraining = () => request("GET", "/api/training");
 export const submitHack = (code) => request("POST", "/api/hack", { code });

@@ -891,6 +891,28 @@ button { font: inherit; color: inherit; }
 .intro-start:active { transform: translateY(1px); }
 .intro-start:focus-visible { outline-color: var(--paper); outline-offset: 3px; }
 
+/* Judges' access code (hosted demo only) */
+.gate { background: radial-gradient(ellipse 60% 50% at 50% 42%, #142533 0%, var(--night) 70%); backdrop-filter: none; }
+.gate-panel {
+  width: min(420px, 100%); display: grid; gap: 14px; justify-items: center; text-align: center;
+  padding: 32px 28px 26px; background: var(--slate); border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5); animation: intro-rise 0.4s cubic-bezier(.2, .7, .2, 1) both;
+}
+.gate-mark .midas-mark { width: 44px; height: 44px; }
+.gate h1 { margin: 0; font: 700 30px/1.1 var(--os-title); color: var(--sodium); }
+.gate-panel > p { margin: 0; color: #c3ccd3; font-size: 15px; line-height: 1.5; }
+.gate-input {
+  width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid rgba(220, 227, 232, 0.2);
+  background: var(--night); color: var(--paper); text-align: center;
+  font: 600 18px/1.2 ui-monospace, "Cascadia Mono", Consolas, monospace; letter-spacing: 0.08em;
+}
+.gate-input:focus { outline: 2px solid var(--sodium); outline-offset: 1px; border-color: transparent; }
+.gate-input[aria-invalid="true"] { border-color: var(--signal); }
+.gate-panel .gate-error { color: #ff8a8d; font-size: 14px; }
+.gate-panel .intro-start { width: 100%; }
+.gate-panel .intro-start:disabled { opacity: 0.55; cursor: default; }
+.gate-panel .gate-note { color: var(--steel); font-size: 13px; }
+
 @keyframes intro-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes intro-rise { from { opacity: 0; transform: translateY(16px) scale(0.98); } to { opacity: 1; transform: none; } }
 
