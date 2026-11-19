@@ -88,6 +88,7 @@ test("the built game is served from the same server, API routes stay JSON", asyn
 
   const asset = await fetch(`${base}/assets/app-abc123.js`);
   assert.match(asset.headers.get("cache-control"), /immutable/);
+  assert.equal((await fetch(`${base}/assets/gone-old123.js`)).status, 404, "a missing asset isn't the page");
 
   const api = await fetch(`${base}/api/nope`);
   assert.equal(api.status, 401, "the page is public, the API still needs the code");

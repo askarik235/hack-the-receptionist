@@ -48,10 +48,12 @@ export const markMailRead = (id) => markSeen("mail", [id]);
 export const useMailRead = () => useSeen().mail;
 
 // Debriefs live on the server: fetch them now, and again after each call ends (the
-// transcript arrives a few seconds after hang-up, sometimes a little later).
-function useDebriefIds() {
+// transcript arrives a few seconds after hang-up, sometimes a little later). Waits until the
+// game content has loaded: before that, the hosted demo's access code may not be accepted yet.
+function useDebriefIds(ready) {
   const [ids, setIds] = useState(null);
   useEffect(() => {
+    if (!ready) return;
     let timers = [];
     const fetchIds = () =>
       getTraining().then(
@@ -68,7 +70,7 @@ function useDebriefIds() {
       timers.forEach(clearTimeout);
       window.removeEventListener(CALL_ENDED_EVENT, onCallEnded);
     };
-  }, []);
+  }, [ready]);
   return ids;
 }
 
@@ -79,7 +81,7 @@ const unseen = (ids, list) => (ids && list ? ids.filter((id) => !list.includes(i
 export function useBadges(content, visibleApp) {
   const s = useSeen();
   const contacts = useContacts();
-  const debriefs = useDebriefIds();
+  const debriefs = useDebriefIds(content !== null);
 
   const mailIds = content?.mail.map((m) => m.id) ?? [];
   const newsIds = content?.osint.website.pages.news.items.map((n) => n.headline) ?? null;

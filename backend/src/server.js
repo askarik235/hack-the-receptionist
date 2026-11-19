@@ -87,6 +87,7 @@ export function createApp({ config, db, content = loadContent(), napster = null,
 // index.html too (the game is one page).
 function serveFrontend(app, dir) {
   app.use("/assets", express.static(join(dir, "assets"), { index: false, immutable: true, maxAge: "365d" }));
+  app.use("/assets", (req, res) => res.status(404).end()); // a missing script is a 404, not the page
   app.use(express.static(dir, { index: false, maxAge: "1h" }));
   app.use((req, res, next) => {
     if (req.method !== "GET" || /^\/(tools|webhooks|portraits)(\/|$)/.test(req.path)) return next();
