@@ -53,6 +53,19 @@ test("missing PUBLIC_BASE_URL and webhook secret are warnings, not errors", () =
   assert.throws(() => publicUrl(config, "/x"), /PUBLIC_BASE_URL is not set/);
 });
 
+test("stray spaces and line breaks around pasted values are ignored", () => {
+  const config = loadConfig({ ...valid, TOOL_SECRET: `  ${valid.TOOL_SECRET}\n`, NAPSTER_WEBHOOK_SECRET: "webhook-secret\r\n" });
+  assert.equal(config.toolSecret, valid.TOOL_SECRET);
+  assert.equal(config.webhookSecret, "webhook-secret");
+});
+
+test("the daily call cap is optional and must be whole minutes", () => {
+  assert.equal(loadConfig(valid).dailyCallMinutes, null);
+  assert.equal(loadConfig({ ...valid, DAILY_CALL_MINUTES: "240" }).dailyCallMinutes, 240);
+  assert.throws(() => loadConfig({ ...valid, DAILY_CALL_MINUTES: "lots" }), /DAILY_CALL_MINUTES must be a whole number/);
+  assert.throws(() => loadConfig({ ...valid, DAILY_CALL_MINUTES: "0" }), /DAILY_CALL_MINUTES must be a whole number/);
+});
+
 test("loadEnvFile strips a BOM and never overrides existing values", () => {
   const dir = mkdtempSync(join(tmpdir(), "htr-env-"));
   const file = join(dir, ".env");

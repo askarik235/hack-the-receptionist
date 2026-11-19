@@ -100,6 +100,24 @@ test("new players are capped per IP, and every response carries security headers
   assert.equal(res.headers.get("referrer-policy"), "no-referrer");
   assert.match(res.headers.get("permissions-policy"), /microphone=\(self\)/);
   assert.equal(res.headers.get("strict-transport-security"), null); // local dev is plain http
+  const csp = res.headers.get("content-security-policy");
+  assert.match(csp, /script-src 'self'(;|$)/, "scripts only from this server: no inline, no eval");
+  assert.match(csp, /object-src 'none'/);
+  assert.match(csp, /frame-ancestors 'none'/);
+  assert.doesNotMatch(csp, /upgrade-insecure-requests/);
+});
+
+test("security events are logged once a minute per source, never with the raw IP", async (t) => {
+  const lines = [];
+  const server = createApp({ config: { sessionSecret: SECRET, toolSecret: "t".repeat(32), production: false }, db: openDb(":memory:"), securityLog: { warn: (l) => lines.push(l) } }).listen(0);
+  t.after(() => server.close());
+  const base = `http://localhost:${server.address().port}`;
+  for (let i = 0; i < 3; i++) await fetch(`${base}/tools/request_code`, { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
+  await fetch(`${base}/api/me`); // a normal request: not an event
+  await new Promise((r) => setTimeout(r, 20));
+  assert.equal(lines.length, 1);
+  assert.match(lines[0], /^security: 401 POST \/tools\/request_code from [A-Za-z0-9_-]{8}$/);
+  assert.doesNotMatch(lines[0], /127\.0\.0\.1|::1/);
 });
 
 test("production responses tell browsers to use https only", async (t) => {
@@ -107,4 +125,5 @@ test("production responses tell browsers to use https only", async (t) => {
   t.after(() => server.close());
   const res = await fetch(`http://localhost:${server.address().port}/api/health`);
   assert.equal(res.headers.get("strict-transport-security"), "max-age=31536000; includeSubDomains");
+  assert.match(res.headers.get("content-security-policy"), /upgrade-insecure-requests/);
 });

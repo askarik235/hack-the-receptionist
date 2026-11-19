@@ -30,6 +30,9 @@ export function callsRouter({
   ipRateLimit = { windowMs: 60_000, max: 12 },
   globalRateLimit = { windowMs: 60_000, max: 40 },
   maxCallS = MAX_CALL_S,
+  // Optional spending cap (DAILY_CALL_MINUTES): total talk time across the whole game in the
+  // last 24 hours. Past it, nobody can dial until older calls fall out of the window.
+  dailyMinutes = config.dailyCallMinutes ?? null,
   sweepEveryMs = 30_000,
   log = console,
 }) {
@@ -61,6 +64,13 @@ export function callsRouter({
   );
   const findCall = db.prepare("SELECT id, level, napster_session_id, status, close_reason, trust, caller_id FROM calls WHERE id = ? AND player_id = ?");
   const overlong = db.prepare("SELECT id, napster_session_id FROM calls WHERE status IN ('dialing', 'live') AND created_at <= ?");
+  // Seconds of talk time since a moment: calls that reached Napster, each counted up to its
+  // time limit, and open calls up to now.
+  const talkSecondsSince = db.prepare(
+    `SELECT COALESCE(SUM(MIN(COALESCE(ended_at, ?), created_at + ?) - created_at), 0) AS s
+     FROM calls WHERE created_at > ? AND napster_session_id IS NOT NULL`
+  );
+  const linesClosed = () => dailyMinutes !== null && talkSecondsSince.get(now(), maxCallS, now() - 24 * 60 * 60).s >= dailyMinutes * 60;
   const wordTravels = createWordTravels(db);
   const playerHistory = createPlayerHistory(db, content);
 
@@ -142,6 +152,7 @@ export function callsRouter({
     if (!allowLookup(req.player.id)) return res.status(429).json({ error: "too_many_calls" });
     const found = resolveCall(req.player.id, req.body);
     if (found.error) return res.status(found.status).json({ error: found.error });
+    if (linesClosed()) return res.status(503).json({ error: "lines_closed" });
     res.json({ ok: true, level: found.level.level });
   });
 
@@ -153,6 +164,7 @@ export function callsRouter({
       if (found.error) return res.status(found.status).json({ error: found.error });
       const { level, agentId, callerId } = found;
       if (!allowDialGlobal("all")) return res.status(503).json({ error: "line_busy" });
+      if (linesClosed()) return res.status(503).json({ error: "lines_closed" });
 
       await endOpenCalls(playerId, "replaced");
       const { callId, externalClientId } = startAttempt(playerId, level.level, callerId);

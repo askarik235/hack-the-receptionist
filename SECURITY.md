@@ -59,9 +59,17 @@ Last full review: 2026-11-18, whole repository, no open findings.
 - No CORS is enabled, and all writes are JSON, so other sites can't act for a player.
 - Each player sees only their own calls, transcripts and techniques.
 - Requests are capped at 16 KB. Errors never return stack traces.
-- Headers on every response: `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`,
-  a `Permissions-Policy` that limits mic and camera to the game itself, and COOP. In production
-  also `Strict-Transport-Security`.
+- Headers on every response: a `Content-Security-Policy` (scripts only from this server, no
+  inline scripts or eval, no plugins, no framing), `nosniff`, `X-Frame-Options: DENY`,
+  `Referrer-Policy: no-referrer`, a `Permissions-Policy` that limits mic and camera to the game
+  itself, and COOP. In production also `Strict-Transport-Security`.
+- Settings pasted into a dashboard are trimmed, so a stray space can't make a secret differ.
+
+**Security logging**
+- Refused access (401), bad tool secrets, rate limits (429) and oversized requests (413) are
+  written to the server log as `security: <status> <route> from <source>`.
+- The source is a short keyed hash of the IP address: repeat attempts from one address are
+  visible, the address itself is never written. A flood becomes one line per minute with a count.
 
 **Credit protection**
 - Dials are limited per player (6/min), per IP (12/min) and across the game (40/min).
@@ -71,6 +79,9 @@ Last full review: 2026-11-18, whole repository, no open findings.
 - The server ends any call after 10 minutes, whatever the browser does.
 - Napster itself allows 5 concurrent sessions per transport and closes idle sessions after 3 minutes.
 - Training fetches transcripts from Napster at most once every 15 s per player.
+- Optional daily cap (`DAILY_CALL_MINUTES`, 240 on the hosted demo): total talk time across the
+  game per 24 hours. Past it, the phone says the lines are closed and no Napster session starts.
+  Even with the access code leaked, spending stops at the cap.
 
 ## Review findings (2026-11-09)
 
@@ -81,7 +92,7 @@ Last full review: 2026-11-18, whole repository, no open findings.
 | 3 | HACK codes (8 words x 10,000) could be guessed by a script without ever calling anyone, at 6 tries/min. | Medium | Fixed: a code is accepted only after a character handed it over |
 | 4 | `/api/training` had no rate limit and each request could trigger up to 3 Napster API calls. | Low | Fixed: rate limits on views and transcript fetches |
 | 5 | The caller's claimed name was repeated verbatim in a tool reply the character reads (a small prompt-injection path). | Low | Fixed: names are stripped to letters and shortened |
-| 6 | No security headers. | Low | Fixed (no Content-Security-Policy yet, see below) |
+| 6 | No security headers. | Low | Fixed, including a Content-Security-Policy (2026-11-20) |
 | 7 | The player's browser controls its own Napster session and can send `set_settings` (replace the character's prompt) or `role: "system"` messages from devtools. The character's reports drive trust, so a devtools user can talk the character into clearing Level 1. | Medium | Known limitation, see below |
 | 8 | Redaction misses a code read out as spelled-out words ("five one three eight"). Only affects the player who heard the code anyway. | Info | Accepted |
 
@@ -91,10 +102,12 @@ Last full review: 2026-11-18, whole repository, no open findings.
 
 - **Devtools can rewrite a character (finding 7).** This is how Napster's browser sessions work:
   whoever holds the session can send it commands. Cheating this way only affects the cheater's
-  own game. It matters if a public leaderboard is added. Planned fix: before a level counts as
-  cleared, check the call's transcript on the server, so the facts that raised trust must
-  appear in what the player actually said.
-- **No Content-Security-Policy yet.** The Napster Web SDK's media and network sources must be
-  tested in a live call first.
+  own game. Napster offers no switch to turn these client commands off (its docs list
+  `set_settings` and system messages as standard client commands). It matters only if a public
+  leaderboard is added; the fix then is to check the call's transcript on the server before a
+  level counts as cleared, so the facts that raised trust must appear in what the player said.
+- **The CSP allows any https/wss address for network and media.** Napster's call servers are
+  only known from each session's token, so they can't be listed in advance. Scripts are still
+  locked to this server, which is what stops injected code from running.
 - **Rate limits are in memory.** Fine for one server process (the planned deployment). Several
   instances would need a shared store.

@@ -29,15 +29,27 @@ export function loadEnvFile(path = join(rootDir, ".env"), env = process.env) {
 
 // Validates the environment and returns a frozen config. Throws one error listing every
 // problem, so a missing setting is obvious at startup instead of failing mid-call.
-export function loadConfig(env = process.env) {
+export function loadConfig(rawEnv = process.env) {
   const problems = [];
   const warnings = [];
+  // Values pasted into a dashboard (Render) easily pick up a stray space or line break, which
+  // would make a secret silently differ from the one Napster sends. Edges are never meaningful.
+  const env = Object.fromEntries(Object.entries(rawEnv).map(([k, v]) => [k, typeof v === "string" ? v.trim() : v]));
   const isSet = (key) => Boolean(env[key]) && !PLACEHOLDER.test(env[key]);
 
   for (const key of SECRETS) {
     if (!isSet(key)) problems.push(`${key} is missing`);
     else if (key !== "NAPSTER_API_KEY" && env[key].length < MIN_SECRET_LENGTH) {
       problems.push(`${key} must be at least ${MIN_SECRET_LENGTH} characters`);
+    }
+  }
+
+  // Optional daily spending cap: minutes of calls across the whole game per 24 hours.
+  let dailyCallMinutes = null;
+  if (env.DAILY_CALL_MINUTES) {
+    dailyCallMinutes = Number(env.DAILY_CALL_MINUTES);
+    if (!Number.isInteger(dailyCallMinutes) || dailyCallMinutes < 1 || dailyCallMinutes > 100_000) {
+      problems.push("DAILY_CALL_MINUTES must be a whole number of minutes (1 or more)");
     }
   }
 
@@ -59,7 +71,7 @@ export function loadConfig(env = process.env) {
   }
 
   // Optional judge access code for the hosted demo. Unset = the game is open (local play).
-  const accessCode = isSet("ACCESS_CODE") ? env.ACCESS_CODE.trim() : null;
+  const accessCode = isSet("ACCESS_CODE") ? env.ACCESS_CODE : null;
   if (accessCode !== null && (accessCode.length < 8 || accessCode.length > 64)) {
     problems.push("ACCESS_CODE must be 8 to 64 characters");
   }
@@ -84,6 +96,7 @@ export function loadConfig(env = process.env) {
     webhookSecret: isSet("NAPSTER_WEBHOOK_SECRET") ? env.NAPSTER_WEBHOOK_SECRET : null,
     publicBaseUrl,
     accessCode,
+    dailyCallMinutes,
     port,
     production,
     dbPath: env.DB_PATH ? resolve(rootDir, env.DB_PATH) : join(backendDir, "data", "game.db"),

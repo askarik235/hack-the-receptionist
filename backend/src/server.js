@@ -8,6 +8,7 @@ import { openDb } from "./db.js";
 import { createNapsterClient } from "./napster/client.js";
 import { playerMiddleware } from "./lib/players.js";
 import { accessGate, accessRouter } from "./lib/access.js";
+import { securityEvents } from "./lib/securityLog.js";
 import { loadContent } from "./game/content.js";
 import { toolsRouter } from "./tools/router.js";
 import { callsRouter } from "./calls/router.js";
@@ -24,11 +25,12 @@ import { APP_TAG } from "./lib/callTags.js";
 // The built game (npm run build). Express serves it on the hosted demo, so it is one service.
 export const FRONTEND_DIST = join(rootDir, "frontend", "dist");
 
-export function createApp({ config, db, content = loadContent(), napster = null, staticDir = null, calls = {}, tools = {}, hack = {}, mail = {}, files = {}, webhooks = {}, players = {}, access = {} }) {
+export function createApp({ config, db, content = loadContent(), napster = null, staticDir = null, calls = {}, tools = {}, hack = {}, mail = {}, files = {}, webhooks = {}, players = {}, access = {}, securityLog = null }) {
   const app = express();
   app.disable("x-powered-by");
   if (config.production) app.set("trust proxy", 1); // behind Render's proxy
   app.use(securityHeaders(config.production));
+  if (securityLog) app.use(securityEvents({ secret: config.sessionSecret, log: securityLog }));
 
   const processor = napster ? createCallProcessor({ db, content, napster }) : null;
   // Napster webhooks read the raw body (the signature covers the exact bytes), so they are
@@ -96,11 +98,31 @@ function serveFrontend(app, dir) {
   });
 }
 
-// Basic hardening for every response. No Content-Security-Policy yet: the Napster Web SDK's
-// media and network sources need testing in a live call before one can be set safely.
-// In production (the hosted demo, always https) browsers are also told to use https only.
+// Content-Security-Policy: scripts only from this server (no inline scripts, no eval), so an
+// injected <script> can't run. Napster's call servers come from each session's token at run
+// time, so network and media allow any https/wss address; WebRTC audio and video aren't
+// governed by CSP at all. The Web SDK builds a small helper worker from a blob. Inline styles
+// stay allowed for React's style props and the SDK; Google Fonts serves the fonts.
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com",
+  "img-src 'self' data: blob: https:",
+  "media-src 'self' blob: https:",
+  "connect-src 'self' https: wss:",
+  "worker-src 'self' blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join("; ");
+
+// Basic hardening for every response. In production (the hosted demo, always https) browsers
+// are also told to use https only.
 const securityHeaders = (production) => (req, res, next) => {
   res.set({
+    "Content-Security-Policy": production ? `${CSP}; upgrade-insecure-requests` : CSP,
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "Referrer-Policy": "no-referrer",
@@ -148,7 +170,8 @@ async function main() {
   }
   const agentIdFor = (level) => readNapsterIds(config.napsterApiKey).agents?.[level.agent.key] ?? foundAgents[level.agent.key];
 
-  const app = createApp({ config, db, content, napster, staticDir: FRONTEND_DIST, calls: { agentIdFor } });
+  if (config.dailyCallMinutes) console.log(`Daily cap: ${config.dailyCallMinutes} minutes of calls per 24 hours.`);
+  const app = createApp({ config, db, content, napster, staticDir: FRONTEND_DIST, calls: { agentIdFor }, securityLog: console });
   app.listen(config.port, () => console.log(`Backend running at http://localhost:${config.port}`));
 }
 

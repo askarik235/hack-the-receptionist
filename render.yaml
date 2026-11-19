@@ -22,6 +22,10 @@ services:
         value: production
       - key: NODE_VERSION
         value: "24"
+      # Spending cap: minutes of calls across the whole game per 24 hours (240 min is about $14
+      # at Napster's realtime rate). Past it, the phone says the lines are closed for today.
+      - key: DAILY_CALL_MINUTES
+        value: "240"
       # The judges' access code. Share it only in the submission's testing notes.
       - key: ACCESS_CODE
         sync: false

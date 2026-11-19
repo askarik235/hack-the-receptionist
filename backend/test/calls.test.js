@@ -225,6 +225,34 @@ test("the whole game has a dial ceiling; past it the line is busy", async (t) =>
   assert.equal(napster.created.length, 1);
 });
 
+test("past the daily cap of talk time, the lines close and nothing reaches Napster", async (t) => {
+  const { api, db, napster } = setup(t, { calls: { dailyMinutes: 5 } });
+  assert.equal((await api("POST", "/api/calls", { number: TIMUR })).status, 201);
+  // Someone talked for 6 minutes earlier today (another player's call: the cap is game-wide).
+  const s = Math.floor(Date.now() / 1000);
+  db.prepare("INSERT INTO players (id, created_at, last_seen_at) VALUES ('other', ?, ?)").run(s, s);
+  db.prepare(
+    `INSERT INTO calls (id, player_id, level, attempt, external_client_id, napster_session_id, status, created_at, ended_at)
+     VALUES ('call_earlier', 'other', 1, 1, 'p_other_L1_a1', 'sess_old', 'ended', ?, ?)`
+  ).run(s - 3600, s - 3600 + 360);
+  assert.deepEqual(await api("POST", "/api/calls/lookup", { number: TIMUR }), { status: 503, body: { error: "lines_closed" } });
+  assert.deepEqual(await api("POST", "/api/calls", { number: TIMUR }), { status: 503, body: { error: "lines_closed" } });
+  assert.equal(napster.created.length, 1);
+});
+
+test("calls older than 24 hours, and calls that never connected, don't count toward the cap", async (t) => {
+  const { api, db } = setup(t, { calls: { dailyMinutes: 5 } });
+  await api("POST", "/api/calls/lookup", { number: TIMUR }); // creates this player
+  const s = Math.floor(Date.now() / 1000);
+  const add = db.prepare(
+    `INSERT INTO calls (id, player_id, level, attempt, external_client_id, napster_session_id, status, created_at, ended_at)
+     VALUES (?, (SELECT id FROM players), 1, ?, ?, ?, ?, ?, ?)`
+  );
+  add.run("call_yesterday", 1, "x_a1", "sess_y", "ended", s - 25 * 3600, s - 25 * 3600 + 600);
+  add.run("call_failed", 2, "x_a2", null, "failed", s - 600, s - 1);
+  assert.equal((await api("POST", "/api/calls", { number: TIMUR })).status, 201);
+});
+
 test("calls past the time limit are ended on Napster by the server", async (t) => {
   const { api, db, napster } = setup(t, { calls: { maxCallS: 0, sweepEveryMs: 20 } });
   const { body } = await api("POST", "/api/calls", { number: TIMUR });

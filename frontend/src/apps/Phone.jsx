@@ -17,6 +17,7 @@ const REASONS = {
   unavailable: "The person you are calling is not available. Please try again later.",
   line_busy: "The line is busy. Try again in a minute.",
   too_many_calls: "Too many calls in a short time. Wait a minute, then dial again.",
+  lines_closed: "The office lines are closed for today. This demo has a daily call limit; try again later.",
   not_set_up: "This line isn't set up on the game server. Run npm run setup, then try again.",
   mic_blocked: "Your microphone is blocked. Allow it from the icon in the address bar, then call again.",
   timed_out: "The line went quiet for too long and the call ended.",
