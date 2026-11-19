@@ -5,26 +5,23 @@ services:
   - type: web
     name: hack-the-receptionist
     runtime: node
-    # A paid instance stays awake (Napster calls our tools and webhook mid-call) and can have
-    # a disk, so players' progress survives restarts and deploys.
-    plan: starter
+    # Free plan: no cost, but the service sleeps after 15 idle minutes (the next visit waits
+    # about a minute while it wakes) and has no disk, so the database starts empty after every
+    # restart, sleep or deploy. For progress that lasts, switch to `plan: starter` and add:
+    #   disk: { name: game-data, mountPath: /var/data, sizeGB: 1 }
+    # plus the env var DB_PATH=/var/data/game.db.
+    plan: free
     region: frankfurt
     # devDependencies (Vite) are needed to build the frontend.
     buildCommand: npm ci --include=dev && npm run build
     startCommand: npm start -w backend
     healthCheckPath: /api/health
     autoDeploy: false
-    disk:
-      name: game-data
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
       - key: NODE_VERSION
         value: "24"
-      - key: DB_PATH
-        value: /var/data/game.db
       # The judges' access code. Share it only in the submission's testing notes.
       - key: ACCESS_CODE
         sync: false
