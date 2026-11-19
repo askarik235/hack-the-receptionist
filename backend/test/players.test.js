@@ -99,4 +99,12 @@ test("new players are capped per IP, and every response carries security headers
   assert.equal(res.headers.get("x-frame-options"), "DENY");
   assert.equal(res.headers.get("referrer-policy"), "no-referrer");
   assert.match(res.headers.get("permissions-policy"), /microphone=\(self\)/);
+  assert.equal(res.headers.get("strict-transport-security"), null); // local dev is plain http
+});
+
+test("production responses tell browsers to use https only", async (t) => {
+  const server = createApp({ config: { sessionSecret: SECRET, production: true }, db: openDb(":memory:") }).listen(0);
+  t.after(() => server.close());
+  const res = await fetch(`http://localhost:${server.address().port}/api/health`);
+  assert.equal(res.headers.get("strict-transport-security"), "max-age=31536000; includeSubDomains");
 });

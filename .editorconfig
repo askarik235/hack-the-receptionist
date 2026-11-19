@@ -1,4 +1,4 @@
-# UTF-8 without BOM everywhere: a BOM breaks JSON.parse and Vite (see CLAUDE.md section 11).
+# UTF-8 without BOM everywhere: a BOM breaks JSON.parse and Vite.
 root = true
 
 [*]

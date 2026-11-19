@@ -40,7 +40,7 @@ export function parseCookies(header = "") {
 }
 
 // Napster memory is per companion + externalClientId. A new attempt gets a new ID, so a
-// character forgets failed calls (decision D1 in napster-findings.md).
+// character forgets failed calls.
 export function externalClientIdFor(playerId, level, attempt) {
   const id = `p_${playerId}_L${level}_a${attempt}`;
   if (!EXTERNAL_CLIENT_ID.test(id)) throw new Error(`Invalid externalClientId: ${id}`);

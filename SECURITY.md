@@ -4,7 +4,7 @@ This is a training game about social engineering. Everything in it is fictional:
 the people, the codes. Players never enter real passwords or personal data. This page covers how
 the game protects its own secrets, its players and the Napster account it runs on.
 
-Last full review: 2026-11-09 (task 11). Re-run before every major commit and before submission.
+Last full review: 2026-11-18, whole repository, no open findings.
 
 ## What is worth protecting
 
@@ -22,7 +22,13 @@ Last full review: 2026-11-09 (task 11). Re-run before every major commit and bef
 - All secrets live in `.env` (gitignored). `.env.example` holds placeholders only.
 - The server refuses to start if a secret is missing, a placeholder, or shorter than 16 characters.
 - The API key is used only on the server. The browser gets a short-lived Napster session token per call.
-- Checked on 2026-11-09: no secret value appears in any commit, any tracked file or the built frontend bundle.
+- Checked on 2026-11-19: no secret value appears in any commit, any tracked file or the built
+  frontend bundle, and the build ships no source maps.
+
+**Hosted demo access**
+- With `ACCESS_CODE` set, every `/api` route needs it. The code is checked on the server in
+  constant time, 10 tries per 10 minutes per IP. The cookie it grants is `HttpOnly` and holds a
+  signature, not the code; changing the code signs everyone out.
 
 **Codes**
 - Codes are never stored. Each one is derived from `CODE_SECRET`, the player and the level
@@ -54,7 +60,8 @@ Last full review: 2026-11-09 (task 11). Re-run before every major commit and bef
 - Each player sees only their own calls, transcripts and techniques.
 - Requests are capped at 16 KB. Errors never return stack traces.
 - Headers on every response: `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`,
-  a `Permissions-Policy` that limits mic and camera to the game itself, and COOP.
+  a `Permissions-Policy` that limits mic and camera to the game itself, and COOP. In production
+  also `Strict-Transport-Security`.
 
 **Credit protection**
 - Dials are limited per player (6/min), per IP (12/min) and across the game (40/min).
@@ -88,6 +95,6 @@ Last full review: 2026-11-09 (task 11). Re-run before every major commit and bef
   cleared, check the call's transcript on the server, so the facts that raised trust must
   appear in what the player actually said.
 - **No Content-Security-Policy yet.** The Napster Web SDK's media and network sources must be
-  tested first. Planned for Phase 2, when Express serves the frontend.
+  tested in a live call first.
 - **Rate limits are in memory.** Fine for one server process (the planned deployment). Several
   instances would need a shared store.

@@ -101,8 +101,9 @@ call them from the Phone.
 
 ## Deploy your own hosted copy (Render)
 
-`render.yaml` describes one web service: Express serves the built game, the API, the Napster
-tool endpoints and the webhook, with a small disk for the SQLite database.
+`render.yaml` describes one free web service: Express serves the built game, the API, the
+Napster tool endpoints and the webhook. The full walkthrough, with the security checks, is in
+[docs/deploy-render.md](docs/deploy-render.md). In short:
 
 1. Render > New > Blueprint > pick your copy of this repo.
 2. Fill in the secret settings Render asks for. `PUBLIC_BASE_URL` is the service's own

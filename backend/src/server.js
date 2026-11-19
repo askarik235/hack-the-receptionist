@@ -28,7 +28,7 @@ export function createApp({ config, db, content = loadContent(), napster = null,
   const app = express();
   app.disable("x-powered-by");
   if (config.production) app.set("trust proxy", 1); // behind Render's proxy
-  app.use(securityHeaders);
+  app.use(securityHeaders(config.production));
 
   const processor = napster ? createCallProcessor({ db, content, napster }) : null;
   // Napster webhooks read the raw body (the signature covers the exact bytes), so they are
@@ -97,7 +97,8 @@ function serveFrontend(app, dir) {
 
 // Basic hardening for every response. No Content-Security-Policy yet: the Napster Web SDK's
 // media and network sources need testing in a live call before one can be set safely.
-function securityHeaders(req, res, next) {
+// In production (the hosted demo, always https) browsers are also told to use https only.
+const securityHeaders = (production) => (req, res, next) => {
   res.set({
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
@@ -105,8 +106,9 @@ function securityHeaders(req, res, next) {
     "Permissions-Policy": "microphone=(self), camera=(self), geolocation=()",
     "Cross-Origin-Opener-Policy": "same-origin",
   });
+  if (production) res.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
   next();
-}
+};
 
 async function main() {
   loadEnvFile();

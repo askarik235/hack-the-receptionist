@@ -1,4 +1,4 @@
-// One phone call through the Napster Web SDK (2.x config shape; see napster-findings.md §13).
+// One phone call through the Napster Web SDK (2.x config shape).
 // Our backend creates the session inside getToken, so the SDK only ever sees a fresh token.
 // Voice calls hide the avatar; video calls show it in the same session.
 import Napster from "@touchcastllc/napster-companion-api";
