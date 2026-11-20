@@ -42,7 +42,7 @@ recalculated from a secret each time (`game/codes.js`).
 
 | File | What it does |
 |---|---|
-| `package.json` | One project with two parts (`backend`, `frontend`). Scripts: `npm run dev` (play locally), `npm run setup` (create the characters on Napster), `npm test`, `npm run playtest:text` (scripted text calls), `npm run build`. |
+| `package.json` | One project with two parts (`backend`, `frontend`). Scripts: `npm run dev` (play locally), `npm run setup` (create the characters on Napster), `npm test`, `npm run build`. |
 | `.env.example` | The settings you must fill in (Napster key, secrets, public URL). The real `.env` is never committed. |
 | `SECURITY.md` | How the game protects itself: secrets, rate limits, what the browser can and can't see. |
 | `render.yaml` | The hosted demo on Render: one web service. See `docs/deploy-render.md`. |
@@ -170,7 +170,6 @@ recalculated from a secret each time (`game/codes.js`).
 |---|---|
 | `setup.js` + `lib/napsterSetup.js` | `npm run setup`. Creates or updates everything on Napster: the two tools (`request_code`, `assess_caller`, pointing at our public URL with the secret header), a face per character, and an agent per level with its prompt, voice and opening line. Safe to re-run: finds existing items by tag and updates them. |
 | `dev.js` | `npm run dev`. Starts the backend and the Vite frontend together. |
-| `playtest-text.js` + `playtest/personas.js` | `npm run playtest:text -- <persona ids>`. Scripted callers over cheap text sessions. Each persona says fixed lines and is expected to get the code or not. Earlier levels count as won (Mark, Laura) so word travels is tested. Results are appended to a local `playtest-log.md` (not committed). |
 | `assets/portraits/` | Character portrait images, once they exist. |
 
 ---

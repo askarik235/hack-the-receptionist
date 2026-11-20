@@ -22,5 +22,7 @@ backend/data/napster-ids*.json
 .DS_Store
 Thumbs.db
 
-# Output of `npm run playtest:text`
+# Local playtest tool and its log (a scripted walkthrough of every level; spends Napster credits)
+scripts/playtest-text.js
+scripts/playtest/
 playtest-log.md

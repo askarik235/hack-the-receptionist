@@ -15,7 +15,6 @@
     "setup": "node scripts/setup.js",
     "dev": "node scripts/dev.js",
     "test": "npm test --workspaces --if-present",
-    "playtest:text": "node scripts/playtest-text.js",
     "dev:backend": "npm run dev -w backend",
     "build": "npm run build -w frontend"
   }
