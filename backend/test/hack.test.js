@@ -92,3 +92,38 @@ test("the right code is denied until a character has actually handed it over", a
   assert.equal((await api("POST", "/api/hack", { code })).body.result, "denied");
   assert.equal(db.prepare("SELECT COUNT(*) AS n FROM cleared_levels").get().n, 0);
 });
+
+test("only winning the last target ends the game, and it can only happen once", async (t) => {
+  const { db, api, playerId } = setup(t, { max: 20 }); // more tries than one minute normally allows
+  await api("GET", "/api/me");
+  const id = playerId();
+  const content = loadContent();
+  const handOver = (level) => {
+    db.prepare("INSERT INTO calls (id, player_id, level, attempt, external_client_id, status, created_at) VALUES (?, ?, ?, 1, 'x', 'ended', 1)").run(`call_${level}`, id, level);
+    db.prepare("INSERT INTO tool_calls (call_id, level, tool, claimed_name, arguments_json, approved, created_at) VALUES (?, ?, 'request_code', 'x', '{}', 1, 1)").run(`call_${level}`, level);
+  };
+  const codeOf = (level) => codeFor(config.codeSecret, id, level, content.levelByNumber.get(level).code.words);
+
+  // Levels 1-4: each win points at the next target, and the ending stays locked.
+  for (let level = 1; level <= 4; level++) {
+    handOver(level);
+    const res = await api("POST", "/api/hack", { code: codeOf(level) });
+    assert.equal(res.body.result, "granted");
+    assert.equal(res.body.next.level, level + 1);
+    assert.equal((await api("GET", "/api/content")).body.finale, null);
+  }
+
+  // Level 5's code without the CEO handing it over: denied, still no ending.
+  assert.equal((await api("POST", "/api/hack", { code: codeOf(5) })).body.result, "denied");
+  assert.equal((await api("GET", "/api/content")).body.finale, null);
+
+  // The real win: no next target (the browser's cue for the cutscene), and the ending unlocks.
+  handOver(5);
+  const win = await api("POST", "/api/hack", { code: codeOf(5) });
+  assert.equal(win.body.result, "granted");
+  assert.equal(win.body.next, null);
+  assert.ok((await api("GET", "/api/content")).body.finale);
+
+  // There's nothing left to hack, so the winning response can never come back a second time.
+  assert.deepEqual(await api("POST", "/api/hack", { code: codeOf(5) }), { status: 409, body: { error: "nothing_to_hack" } });
+});

@@ -11,7 +11,7 @@ import { accessGate, accessRouter } from "./lib/access.js";
 import { securityEvents } from "./lib/securityLog.js";
 import { loadContent } from "./game/content.js";
 import { toolsRouter } from "./tools/router.js";
-import { callsRouter } from "./calls/router.js";
+import { callsRouter, MAX_CALL_S } from "./calls/router.js";
 import { hackRouter } from "./hack/router.js";
 import { mailRouter } from "./mail/router.js";
 import { filesRouter } from "./files/router.js";
@@ -57,10 +57,23 @@ export function createApp({ config, db, content = loadContent(), napster = null,
     res.json({ clearedLevels: clearedLevels.all(req.player.id).map((row) => row.level) });
   });
 
+  // The player's own numbers for the ending screen: calls that connected, time on the phone
+  // (each call counted up to the server's call-length cap), tricks collected.
+  const callStats = db.prepare(
+    `SELECT COUNT(*) AS calls, COALESCE(SUM(MIN(COALESCE(ended_at, created_at), created_at + ?) - created_at), 0) AS seconds
+     FROM calls WHERE player_id = ? AND napster_session_id IS NOT NULL`
+  );
+  const techniqueCount = db.prepare("SELECT COUNT(*) AS n FROM player_techniques WHERE player_id = ?");
+
   // Everything the game screen shows: target board, mission mail, the fake websites.
   app.get("/api/content", (req, res) => {
     const cleared = clearedLevels.all(req.player.id).map((row) => row.level);
-    res.json(publicContent(content, cleared));
+    const body = publicContent(content, cleared);
+    if (body.finale) {
+      const { calls, seconds } = callStats.get(MAX_CALL_S, req.player.id);
+      body.finale = { ...body.finale, stats: { calls, minutes: Math.round(seconds / 60), techniques: techniqueCount.get(req.player.id).n, techniquesTotal: content.techniques.length } };
+    }
+    res.json(body);
   });
 
   app.use("/api/hack", hackRouter({ config, db, content, ...hack }));

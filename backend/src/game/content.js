@@ -146,6 +146,21 @@ export function loadContent(dataDir = DEFAULT_DATA_DIR) {
     if (level.ending) {
       check(["from", "subject", "disclaimer"].every((f) => text(level.ending[f])) && lines(level.ending.body, 1, 600), `${where}: ending mail is incomplete`);
     }
+    // The cutscene after the last target (sent to the browser only once that level is cleared).
+    if (level.finale) {
+      const f = level.finale;
+      const t = f.transfer ?? {};
+      check(
+        ["ledgerTitle", "headline", "signoff", "lesson"].every((k) => text(f[k])) &&
+          lines(f.prizes, levels.length, 80) && f.prizes.length === levels.length &&
+          lines(f.reveal, 1, 300) && lines(f.shutdown, 1, 120) &&
+          text(t.from) && /^[A-Z]{3}$/.test(t.currency ?? "") && Number.isInteger(t.total) && t.total > 0 &&
+          Number.isInteger(t.share) && t.share > 0 && t.share <= 100 && text(t.memo) &&
+          (t.bonus === undefined || (Number.isInteger(t.bonus.amount) && t.bonus.amount > 0 && text(t.bonus.label) && text(t.bonus.note))),
+        `${where}: finale is incomplete`
+      );
+      check(!CODE_LIKE.test(JSON.stringify(f)), `${where}: finale contains something that looks like a code`);
+    }
     for (const r of requestCode.refusalsFor ?? []) check(nameList(r.names) && text(r.message), `${where}: bad refusalsFor entry`);
     check(typeof requestCode.approvedTemplate === "string" && requestCode.approvedTemplate.includes("{code}"), `${where}: approvedTemplate needs {code}`);
     check(text(requestCode.refusal), `${where}: bad refusal text`);

@@ -7,6 +7,7 @@ import TargetBoard from "./os/TargetBoard.jsx";
 import Skyline from "./os/Skyline.jsx";
 import Badge from "./os/Badge.jsx";
 import { Boot, Gate, Intro, introSeen } from "./os/Boot.jsx";
+import Finale from "./os/Finale.jsx";
 import { useBadges } from "./os/badges.js";
 import { icons } from "./os/icons.jsx";
 import Mail from "./apps/Mail.jsx";
@@ -98,6 +99,8 @@ export default function App() {
           domain={content?.company.domain}
           onCleared={loadContent}
           onOpenMail={() => wm.open("mail")}
+          finished={Boolean(content?.finale)}
+          onFinale={() => setPhase("finale")}
         />
       ),
     }),
@@ -186,6 +189,21 @@ export default function App() {
       />
     )}
     {(phase === "intro" || phase === "again") && <Intro again={phase === "again"} onClose={() => setPhase("desktop")} />}
+    {phase === "finale" && (
+      <Finale
+        finale={content?.finale ?? null}
+        targets={content?.targets ?? []}
+        onClose={() => setPhase("desktop")}
+        onOpenMail={() => {
+          setPhase("desktop");
+          wm.open("mail");
+        }}
+        onOpenTraining={() => {
+          setPhase("desktop");
+          wm.open("training");
+        }}
+      />
+    )}
     </>
   );
 }

@@ -928,3 +928,138 @@ button { font: inherit; color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .boot, .boot *, .boot-mark::after, .intro, .intro-panel { animation: none !important; transition: none !important; }
 }
+
+/* Ending cutscene (after the last target). One beat at a time; the gold payout is the loud moment. */
+.finale {
+  --mono: ui-monospace, "Cascadia Mono", "Consolas", "SF Mono", monospace;
+  --gold: #f2c14e;
+  --granted: #5ccf8f;
+  position: fixed; inset: 0; z-index: 100001; /* above the taskbar: the ending takes the whole screen */
+  display: grid; place-items: center; padding: 32px 16px 64px; overflow: auto;
+  background: radial-gradient(ellipse 70% 55% at 50% 45%, #13232f 0%, #070d12 72%);
+  color: var(--paper); font: 400 16px/1.55 var(--os-font);
+  cursor: pointer; outline: none; overflow-x: hidden;
+}
+.finale.is-end { cursor: default; }
+.finale-wait { color: var(--steel); font: 14px/1.5 var(--mono); animation: finale-blink 1.1s steps(2) infinite; }
+.finale-scene { width: min(640px, 100%); animation: finale-in 0.6s ease-out both; }
+.finale-hint { position: fixed; left: 0; right: 0; bottom: 18px; margin: 0; text-align: center; color: var(--steel); font-size: 13px; opacity: 0.7; }
+
+/* 1. The ledger: five jobs, stamped one after another */
+.finale-ledger h2 { margin: 0 0 22px; font: 600 clamp(26px, 4.4vw, 38px)/1.1 var(--os-title); color: var(--paper); }
+.finale-ledger ol { margin: 0; padding: 0; list-style: none; }
+.finale-ledger li {
+  position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4px 18px; align-items: center;
+  padding: 12px 104px 12px 0; border-top: 1px solid var(--line);
+  opacity: 0; animation: finale-in 0.45s ease-out both; animation-delay: calc(var(--i) * 0.75s + 0.3s);
+}
+.finale-ledger li:last-child { border-bottom: 1px solid var(--line); }
+.finale-ledger-who { font: 600 17px/1.25 var(--os-title); }
+.finale-ledger-who small { display: block; color: var(--steel); font: 400 13px/1.3 var(--os-font); }
+.finale-ledger-what { color: var(--steel); font: 14px/1.35 var(--mono); }
+.finale-stamp {
+  position: absolute; right: 0; top: 50%;
+  padding: 2px 8px; border: 2px solid var(--signal); border-radius: 4px; color: var(--signal);
+  font: 700 15px/1.2 var(--os-title); text-transform: uppercase; letter-spacing: 0.08em;
+  opacity: 0; transform: translateY(-50%) rotate(-9deg);
+  animation: finale-stamp 0.28s cubic-bezier(0.3, 1.6, 0.5, 1) both; animation-delay: calc(var(--i) * 0.75s + 0.75s);
+}
+
+/* 2. The payout */
+.finale-transfer { text-align: center; }
+.finale-route { margin: 0; color: var(--steel); font: 14px/1.5 var(--mono); }
+.finale-route strong { color: var(--paper); font-weight: 600; }
+.finale-amount { display: flex; justify-content: center; align-items: baseline; gap: 0.25em; margin: 10px 0 6px; color: var(--gold); }
+.finale-currency { font: 600 clamp(20px, 4vw, 34px)/1 var(--os-title); color: var(--sodium); }
+.finale-digits {
+  font: 700 clamp(56px, 13vw, 136px)/1 var(--os-title); font-variant-numeric: tabular-nums; letter-spacing: -0.01em;
+  text-shadow: 0 0 42px rgba(242, 193, 78, 0.28);
+}
+.finale-share { margin: 0; font: 600 18px/1.4 var(--os-title); color: var(--paper); }
+.finale-memo { margin: 22px auto 0; max-width: 32em; color: var(--steel); opacity: 0; animation: finale-in 0.6s ease-out 5s both; }
+.finale-from { margin: 4px 0 0; color: var(--sodium); font-weight: 600; opacity: 0; animation: finale-in 0.6s ease-out 5.4s both; }
+
+/* The client's bonus: drops from above the screen and lands hard (lands at BONUS_LANDS_AT in Finale.jsx) */
+.finale-bonus {
+  display: inline-block; margin: 0 0 26px; padding: 10px 22px 12px;
+  border: 3px solid var(--gold); border-radius: 6px; background: #1a1607; color: var(--gold);
+  box-shadow: 0 0 0 6px rgba(242, 193, 78, 0.12), 0 18px 40px rgba(0, 0, 0, 0.5);
+  transform: rotate(-3deg);
+  opacity: 0; animation: finale-slam 0.4s cubic-bezier(0.55, 0, 1, 0.45) 2.9s both;
+}
+.finale-bonus-amount { margin: 0; font: 800 clamp(34px, 7vw, 56px)/1 var(--os-title); font-variant-numeric: tabular-nums; }
+.finale-bonus-label { margin: 6px 0 0; font: 700 15px/1.3 var(--os-title); color: var(--paper); }
+.finale-bonus-label span { color: var(--steel); font-weight: 500; }
+.finale-transfer.is-slammed { animation: finale-shake 0.42s ease-out; }
+.finale-transfer.is-slammed .finale-digits { animation: finale-flash 0.9s ease-out; }
+@keyframes finale-slam {
+  0% { opacity: 1; transform: translateY(-110vh) rotate(-3deg) scale(1.4); }
+  100% { opacity: 1; transform: translateY(0) rotate(-3deg) scale(1); }
+}
+@keyframes finale-shake {
+  0%, 100% { transform: none; }
+  15% { transform: translate(-7px, 5px); }
+  35% { transform: translate(6px, -4px); }
+  55% { transform: translate(-4px, 3px); }
+  75% { transform: translate(2px, -1px); }
+}
+@keyframes finale-flash { 0% { text-shadow: 0 0 90px rgba(242, 193, 78, 0.9); } 100% { text-shadow: 0 0 42px rgba(242, 193, 78, 0.28); } }
+
+/* 3. The twist: a wire headline, then M's reveal */
+.finale-wire {
+  padding: 18px 22px 20px; background: #eef1f3; color: #15202a; border-left: 6px solid var(--signal);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45); transform: rotate(-0.6deg);
+}
+.finale-wire-source { margin: 0 0 6px; color: #9a3a2c; font: 700 13px/1.2 var(--os-title); letter-spacing: 0.04em; }
+.finale-wire h2 { margin: 0; font: 700 clamp(21px, 3.6vw, 30px)/1.2 var(--os-title); }
+.finale-reveal { margin-top: 28px; }
+.finale-reveal p {
+  margin: 0 0 12px; font: 500 clamp(18px, 2.6vw, 22px)/1.45 var(--os-font);
+  opacity: 0; animation: finale-in 0.7s ease-out both; animation-delay: calc(var(--i) * 2.4s + 1.6s);
+}
+.finale-reveal p:last-child { color: var(--sodium); font-weight: 600; }
+
+/* 4. MIDAS goes dark, then the screen switches off like an old monitor */
+.finale-dark ol { margin: 0; padding: 0; list-style: none; font: 15px/1.9 var(--mono); }
+.finale-dark li { display: flex; justify-content: space-between; gap: 16px; color: var(--steel); opacity: 0; animation: finale-in 0.3s ease-out both; animation-delay: calc(var(--i) * 0.9s + 0.2s); }
+.finale-ok { color: var(--granted); }
+.finale-gone { margin: 22px 0 0; font: 700 clamp(24px, 4vw, 34px)/1.2 var(--os-title); opacity: 0; animation: finale-in 0.4s ease-out both; animation-delay: calc(var(--i) * 0.9s + 0.5s); }
+.finale.is-dark .finale-dark { animation: finale-in 0.4s ease-out both, finale-off 0.7s ease-in 4.4s forwards; }
+
+/* 5. The end card */
+.finale-end { text-align: center; }
+.finale-mark { width: 54px; margin: 0 auto 10px; color: var(--sodium); }
+.finale-end h1 { margin: 0; font: 700 clamp(40px, 8vw, 72px)/1 var(--os-title); letter-spacing: 0.01em; }
+.finale-signoff { margin: 14px auto 0; max-width: 30em; font: 500 19px/1.45 var(--os-font); }
+.finale-signoff span { display: block; margin-top: 2px; color: var(--sodium); font-weight: 600; }
+.finale-stats { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px 36px; margin: 26px 0 0; }
+.finale-stats div { display: flex; flex-direction: column-reverse; }
+.finale-stats dt { color: var(--steel); font-size: 13px; }
+.finale-stats dd { margin: 0; font: 700 34px/1.1 var(--os-title); color: var(--paper); font-variant-numeric: tabular-nums; }
+.finale-stats small { color: var(--steel); font-size: 18px; font-weight: 600; }
+.finale-lesson { margin: 22px auto 0; max-width: 34em; color: var(--steel); }
+.finale-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 26px; }
+.finale-actions .intro-start { align-self: auto; margin-top: 0; }
+.finale-secondary {
+  padding: 13px 18px; border: 1px solid rgba(220, 227, 232, 0.28); border-radius: 8px; background: transparent; color: var(--paper);
+  font: 600 16px/1 var(--os-title); cursor: pointer;
+}
+.finale-secondary:hover { border-color: var(--paper); }
+.finale-secondary:focus-visible { outline-offset: 3px; }
+.finale-note { margin: 22px 0 0; color: var(--steel); font-size: 12px; }
+
+@keyframes finale-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes finale-stamp { from { opacity: 0; transform: translateY(-50%) rotate(-9deg) scale(1.8); } to { opacity: 1; transform: translateY(-50%) rotate(-9deg) scale(1); } }
+@keyframes finale-off {
+  0% { transform: none; filter: none; opacity: 1; }
+  55% { transform: scale(1.04, 0.006); filter: brightness(3); opacity: 1; }
+  100% { transform: scale(0, 0.006); filter: brightness(3); opacity: 0; }
+}
+@keyframes finale-blink { 50% { opacity: 0.35; } }
+
+@media (max-width: 560px) {
+  .finale-ledger li { grid-template-columns: 1fr; padding-right: 92px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .finale *, .finale.is-dark .finale-dark { animation: none !important; opacity: 1 !important; }
+}

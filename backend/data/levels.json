@@ -1266,6 +1266,30 @@
         ],
         "disclaimer": "Training game. All people and companies are fictional."
       },
+      "finale": {
+        "ledgerTitle": "Five calls. Five doors.",
+        "prizes": ["the Jebel Ali gate code", "the visitor pass", "Nadia's mailbox", "Saturday's transfer", "the Sandgrouse folder"],
+        "transfer": {
+          "from": "GULF-SETTLE-77",
+          "currency": "AED",
+          "total": 1850000,
+          "share": 30,
+          "memo": "Your share of Saturday. The client never saw a dirham of it.",
+          "bonus": {
+            "amount": 100000,
+            "label": "Bonus from the client",
+            "note": "For perfectly executed work."
+          }
+        },
+        "headline": "Meridian Gulf cuts its offer for Vitality Logistics by 30% after \"serious security incidents\"",
+        "reveal": [
+          "The gate. The laptops. The mailbox. Every incident in that letter was ours.",
+          "We weren't hired to rob Vitality. We were hired to break it, so somebody could buy it cheap."
+        ],
+        "shutdown": ["Sending Viktor an anonymous copy of everything", "Burning the relays", "Wiping MIDAS"],
+        "signoff": "You were good. Too good. Use it for the other side.",
+        "lesson": "Five people, five phone calls, no malware. Every door opened with something someone posted online and a voice they trusted. One callback on a known number would have stopped any of them."
+      },
       "debrief": {
         "techniques": [
           "police_impersonation",

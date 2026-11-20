@@ -48,6 +48,9 @@ export function publicContent(content, clearedLevels) {
   const news = website.pages.news.items.filter((item) => !item.afterLevel || cleared.has(item.afterLevel)).map(({ afterLevel, ...item }) => item);
   const osint = { ...content.osint, website: { ...website, pages: { ...website.pages, news: { ...website.pages.news, items: news } } } };
 
+  // The ending cutscene: only once its level is cleared, so the twist can't be read in advance.
+  const finaleLevel = content.levels.find((level) => level.finale && cleared.has(level.level));
+
   return {
     company: { name: content.company.name, domain: content.company.domain },
     targets,
@@ -55,5 +58,6 @@ export function publicContent(content, clearedLevels) {
     osint,
     // Phone features the player has unlocked (the caller ID kit arrives with Level 4).
     features: { callerIdKit: callerIdKitUnlocked(content, clearedLevels) },
+    finale: finaleLevel ? finaleLevel.finale : null,
   };
 }

@@ -10,7 +10,7 @@ const ERRORS = {
 };
 const wait = (ms) => new Promise((r) => setTimeout(r, prefersReducedMotion() ? 0 : ms));
 
-export default function Hack({ target, domain, onCleared, onOpenMail }) {
+export default function Hack({ target, domain, onCleared, onOpenMail, finished = false, onFinale }) {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [log, setLog] = useState([]);
@@ -40,6 +40,8 @@ export default function Hack({ target, domain, onCleared, onOpenMail }) {
         setResult({ kind: "granted", ...response });
         setCode("");
         onCleared?.();
+        // The last target: give ACCESS GRANTED a moment on screen, then roll the ending.
+        if (!response.next) setTimeout(() => onFinale?.(), prefersReducedMotion() ? 0 : 1600);
       } else {
         print("access denied: code rejected", "bad");
         setResult({ kind: "denied" });
@@ -66,6 +68,14 @@ export default function Hack({ target, domain, onCleared, onOpenMail }) {
           )}
         </p>
         <p className="hack-line is-dim">Type the access code your target read out to you.</p>
+        {!target && finished && !result && (
+          <p className="hack-line">
+            All five targets cleared.{" "}
+            <button type="button" className="hack-link" onClick={onFinale}>
+              Watch the ending again
+            </button>
+          </p>
+        )}
 
         {log.map((line) => (
           <p key={line.id} className={`hack-line ${line.tone ? `is-${line.tone}` : ""}`}>
@@ -95,10 +105,16 @@ export default function Hack({ target, domain, onCleared, onOpenMail }) {
               </ul>
               {result.afterHack && <p className="hack-after">{result.afterHack}</p>}
               <p className="hack-next">
-                {result.next ? `Target ${result.next.level} is unlocked. ` : "That was the last target. M has one more message for you. "}
-                <button type="button" className="hack-link" onClick={onOpenMail}>
-                  {result.next ? "Read the new briefing" : "Read M's message"}
-                </button>
+                {result.next ? `Target ${result.next.level} is unlocked. ` : "That was the last target. "}
+                {result.next ? (
+                  <button type="button" className="hack-link" onClick={onOpenMail}>
+                    Read the new briefing
+                  </button>
+                ) : (
+                  <button type="button" className="hack-link" onClick={onFinale}>
+                    Watch the ending
+                  </button>
+                )}
               </p>
             </div>
           </div>
