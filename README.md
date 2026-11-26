@@ -6,7 +6,7 @@ A browser game about social engineering, built on the Napster Omniagent API.
 
 <p>
   <img src="docs/images/call.jpg" alt="The game's desktop: M's briefing in the Mail app, and the phone mid-call with the intern Timur, trust at 94%" width="68%">
-  <img src="docs/images/video-call.jpg" alt="A video call with Erik from the IT help desk, a Napster agent with his own face and voice" width="26%">
+  <img src="docs/images/video-call.jpg" alt="A video call with Erik from the IT help desk, a Napster agent with his own face and voice" width="18.6%">
 </p>
 
 You sit at a hacker's PC inside the browser. You research the staff of a fictional Dubai
