@@ -2,6 +2,13 @@
 
 A browser game about social engineering, built on the Napster Omniagent API.
 
+**[Watch the 3-minute demo video](https://youtu.be/jp-NXVHOMgM)**
+
+<p>
+  <img src="docs/images/call.jpg" alt="The game's desktop: M's briefing in the Mail app, and the phone mid-call with the intern Timur, trust at 94%" width="68%">
+  <img src="docs/images/video-call.jpg" alt="A video call with Erik from the IT help desk, a Napster agent with his own face and voice" width="26%">
+</p>
+
 You sit at a hacker's PC inside the browser. You research the staff of a fictional Dubai
 freight company on its website and two fake social networks, then use the in-game phone to call
 them, pretend to be someone they trust, and talk them into reading out a secret code. Each of
@@ -11,6 +18,19 @@ you used and how to defend against it.
 
 > Training game. The company, the people, the social networks and the codes are all fictional.
 > Use what you learn to spot these tricks, never to play them on real people.
+
+## What Napster does in the game
+
+| Napster feature | In the game |
+|---|---|
+| **Agents and companions** | Each of the five employees is an agent with their own face, voice and personality. |
+| **WebRTC sessions** (Web SDK) | Calls run live in the in-game phone: voice by default, the face one tap away. |
+| **`initialSpeech`** | Each character picks up in character ("Vitality Operations, Timur speaking."). |
+| **Function tool `request_code`** | From Level 2 the code isn't in the prompt. The agent asks our server, which checks the identity and details the caller claimed against the staff directory. |
+| **Function tool `assess_caller`** | The agent rates the caller every turn. That drives the on-screen trust meter, and at zero the character hangs up. |
+| **`externalClientProfile`** | What each character knows before picking up: security notices about tricks that already worked ("word travels"), the caller ID, and for the CEO, every trick this player has tried. |
+| **`externalClientId`** | One per player and attempt, so a character remembers you during a call but a failed call doesn't spoil the next try. |
+| **Webhooks + Sessions API** | When a call ends, `session.closed` arrives and we fetch the transcript to build the debrief and the company's memory. |
 
 ## Play the hosted demo
 
@@ -132,15 +152,13 @@ scripts/    npm run setup: creates the tools, faces and agents on Napster (idemp
 
 - Every call is a Napster WebRTC session with that level's agent, started by the server.
   The API key never reaches the browser.
-- From Level 2 up, the code isn't in the character's prompt. The character has to call the
-  `request_code` tool, and the server checks the caller's claimed identity and details against
-  the staff directory first.
-- A trust meter (`assess_caller`) rises and falls with what the caller says. When it runs out,
-  the character hangs up.
-- Characters share a "word travels" memory: a trick that worked on one becomes suspicious to
-  the others. The CEO is told which tricks this player already tried.
+- Tool calls carry a shared secret, and every input is validated and rate-limited.
 - Codes are derived per player on the server and compared in constant time. They never appear
   in the frontend bundle or in API responses.
+- Level 1 keeps its code in the prompt on purpose: it's the easy, insecure design that the
+  later levels fix, and its debrief says why.
+
+The Napster features each part uses are in [What Napster does in the game](#what-napster-does-in-the-game).
 
 ## Tests
 
